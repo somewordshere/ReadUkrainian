@@ -30,6 +30,13 @@ body {
   padding: 40px 0 64px;
 }
 
+.site-version {
+  margin-top: 28px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
 .hero {
   padding: 32px;
   border: 1px solid var(--line);
