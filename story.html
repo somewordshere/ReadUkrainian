@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Історії українською</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <main class="story-layout">
+        <a class="back-link" href="./index.html">← Назад до всіх рівнів</a>
+
+        <section class="story-card">
+          <div class="story-heading">
+            <div>
+              <p class="story-level" id="storyLevel"></p>
+              <h1 class="story-title" id="storyTitle"></h1>
+            </div>
+            <button class="bookmark-button" id="bookmarkButton" type="button" aria-label="Додати в закладки">
+              <span class="bookmark-icon" aria-hidden="true">☆</span>
+            </button>
+          </div>
+          <div class="story-content" id="storyContent"></div>
+        </section>
+
+        <aside class="questions-card" aria-labelledby="questionsTitle">
+          <h2 class="questions-title" id="questionsTitle">Питання</h2>
+          <div class="questions-list" id="questionsList"></div>
+          <div class="questions-footer">
+            <p class="questions-status" id="questionsStatus">Дайте відповіді на всі 5 питань.</p>
+            <button class="restart-button" id="restartButton" type="button">Почати тест знову</button>
+          </div>
+        </aside>
+      </main>
+    </div>
+
+    <script src="progress.js"></script>
+    <script src="stories.js"></script>
+    <script src="a1-stories.js"></script>
+    <script src="a2-stories.js"></script>
+    <script src="b1-stories.js"></script>
+    <script src="questions.js"></script>
+    <script src="a1-questions.js"></script>
+    <script src="a2-questions.js"></script>
+    <script src="b1-questions.js"></script>
+    <script src="story.js"></script>
+  </body>
+</html>
