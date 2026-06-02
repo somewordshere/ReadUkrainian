@@ -91,3 +91,8 @@ storiesByLevel.B1 = [
     ]
   }
 ];
+
+storiesByLevel.B1 = storiesByLevel.B1.map((story) => ({
+  ...story,
+  showWordCount: true
+}));

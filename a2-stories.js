@@ -1149,5 +1149,6 @@ function createA2B1StorySeeds(items) {
 
 storiesByLevel.A2 = a2StorySeeds.map(({ title, paragraphs }) => ({
   title,
+  showWordCount: true,
   paragraphs
 }));
