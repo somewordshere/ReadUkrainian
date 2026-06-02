@@ -1,4 +1,4 @@
-const SITE_VERSION = "0.33";
+const SITE_VERSION = "0.34";
 
 function renderSiteVersion() {
   const container = document.querySelector(".page-shell") || document.body;
