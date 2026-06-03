@@ -35,67 +35,74 @@ if (story?.showWordCount) {
   storyContent.appendChild(countElement);
 }
 
-getQuestionsForStory(level, textNumber).forEach((question, questionIndex) => {
-  const item = document.createElement("article");
-  item.className = "question-item";
+const questions = getQuestionsForStory(level, textNumber);
 
-  const number = document.createElement("div");
-  number.className = "question-number";
-  number.textContent = questionIndex + 1;
+if (questions.length === 0) {
+  questionsStatus.textContent = "Питання буде додано пізніше.";
+  restartButton.hidden = true;
+} else {
+  questions.forEach((question, questionIndex) => {
+    const item = document.createElement("article");
+    item.className = "question-item";
 
-  const prompt = document.createElement("p");
-  prompt.className = "question-prompt";
-  prompt.textContent = question.prompt;
+    const number = document.createElement("div");
+    number.className = "question-number";
+    number.textContent = questionIndex + 1;
 
-  const options = document.createElement("div");
-  options.className = "question-options";
+    const prompt = document.createElement("p");
+    prompt.className = "question-prompt";
+    prompt.textContent = question.prompt;
 
-  question.options.forEach((option, optionIndex) => {
-    const label = document.createElement("label");
-    label.className = "answer-option";
+    const options = document.createElement("div");
+    options.className = "question-options";
 
-    const input = document.createElement("input");
-    input.type = "checkbox";
-    input.name = `question-${questionIndex + 1}`;
-    input.dataset.correct = String(optionIndex === question.correctIndex);
-    input.dataset.questionIndex = String(questionIndex);
-    input.dataset.optionIndex = String(optionIndex);
+    question.options.forEach((option, optionIndex) => {
+      const label = document.createElement("label");
+      label.className = "answer-option";
 
-    input.addEventListener("change", () => {
-      if (!input.checked) {
-        label.classList.remove("is-correct", "is-wrong");
-        syncProgress();
-        return;
-      }
+      const input = document.createElement("input");
+      input.type = "checkbox";
+      input.name = `question-${questionIndex + 1}`;
+      input.dataset.correct = String(optionIndex === question.correctIndex);
+      input.dataset.questionIndex = String(questionIndex);
+      input.dataset.optionIndex = String(optionIndex);
 
-      options.querySelectorAll("input").forEach((otherInput) => {
-        if (otherInput !== input) {
-          otherInput.checked = false;
-          otherInput.closest(".answer-option").classList.remove("is-correct", "is-wrong");
+      input.addEventListener("change", () => {
+        if (!input.checked) {
+          label.classList.remove("is-correct", "is-wrong");
+          syncProgress();
+          return;
         }
+
+        options.querySelectorAll("input").forEach((otherInput) => {
+          if (otherInput !== input) {
+            otherInput.checked = false;
+            otherInput.closest(".answer-option").classList.remove("is-correct", "is-wrong");
+          }
+        });
+
+        label.classList.toggle("is-correct", input.dataset.correct === "true");
+        label.classList.toggle("is-wrong", input.dataset.correct !== "true");
+        lockQuestion(questionIndex);
+        syncProgress();
       });
 
-      label.classList.toggle("is-correct", input.dataset.correct === "true");
-      label.classList.toggle("is-wrong", input.dataset.correct !== "true");
-      lockQuestion(questionIndex);
-      syncProgress();
+      const marker = document.createElement("span");
+      marker.className = "answer-marker";
+      marker.textContent = String.fromCharCode(97 + optionIndex);
+
+      const text = document.createElement("span");
+      text.textContent = option;
+
+      label.append(input, marker, text);
+      options.appendChild(label);
+      questionInputs.push(input);
     });
 
-    const marker = document.createElement("span");
-    marker.className = "answer-marker";
-    marker.textContent = String.fromCharCode(97 + optionIndex);
-
-    const text = document.createElement("span");
-    text.textContent = option;
-
-    label.append(input, marker, text);
-    options.appendChild(label);
-    questionInputs.push(input);
+    item.append(number, prompt, options);
+    questionsList.appendChild(item);
   });
-
-  item.append(number, prompt, options);
-  questionsList.appendChild(item);
-});
+}
 
 function getQuestionInputs(questionIndex) {
   return questionInputs.filter(
@@ -118,6 +125,11 @@ function unlockAllQuestions() {
 }
 
 function updateQuestionStatus(completedCount, correctCount) {
+  if (questionInputs.length === 0) {
+    questionsStatus.textContent = "Питання буде додано пізніше.";
+    return;
+  }
+
   if (completedCount === 0) {
     questionsStatus.textContent = "Дайте відповіді на всі 5 питань.";
     return;
@@ -162,6 +174,11 @@ function syncProgress() {
 }
 
 function applySavedProgress() {
+  if (questionInputs.length === 0) {
+    updateQuestionStatus(0, 0);
+    return;
+  }
+
   const savedProgress = getStoryProgress(level, textNumber);
 
   if (!savedProgress?.answers?.length) {
