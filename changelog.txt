@@ -1,0 +1,63 @@
+ReadUkrainian Change Log
+
+0.01 - Created the first blank Ukrainian learning website with A1, A2, and B1 levels.
+0.02 - Changed the site title to "Історії українською" and made each text open on its own story page.
+0.03 - Added Ukrainian A1 and A2 learning texts with titles and simple learner-friendly structure.
+0.04 - Reviewed A1 and A2 stories, corrected mistakes, and improved text quality.
+0.05 - Revised A2 stories to better match A2 level and adjusted their word-count range.
+0.06 - Added five multiple-choice questions to each story, with responsive placement beside or below the text.
+0.07 - Changed quiz answers to display in two rows with two answers per row.
+0.08 - Fixed broken quiz answer styling and spacing.
+0.09 - Improved answer box sizing so short answers do not use unnecessarily large boxes.
+0.10 - Added a temporary ІСУК-inspired logo and linked it back to the homepage.
+0.11 - Added saved quiz results, restart-test button, and completed-story styling on the homepage.
+0.12 - Fixed test-result persistence after page refresh and navigation.
+0.13 - Debugged and restored the app after progress-saving changes caused breakage.
+0.14 - Added three blank A1 texts and six blank A2 texts.
+0.15 - Removed the top logo and adjusted the homepage title to stay on one line.
+0.16 - Changed the homepage subtitle to "Читайте українською на різні теми."
+0.17 - Added story bookmarks on text pages.
+0.18 - Reworked A1 content into 14 specified beginner topics and updated questions for the new texts.
+0.19 - Revised A1 texts toward A1-A2 naturalness and increased story title/text font sizes.
+0.20 - Added bookmark buttons to text cards on the homepage.
+0.21 - Split story and question data into separate files by level.
+0.22 - Reworked A1 text 1 to two paragraphs and around 90 words.
+0.23 - Reworked A1 texts 2, 4, and 6 toward requested paragraph and word-count targets.
+0.24 - Adjusted A1 texts 1, 2, 4, and 6 so word counts are approximate instead of exact.
+0.25 - Locked each quiz question after the user selects an answer.
+0.26 - Updated homepage level counters to show completed texts out of total texts.
+0.27 - Initialized Git, connected the project to GitHub, and pushed the site repository.
+0.28 - Added robots.txt for normal search-engine crawling.
+0.29 - Added a site version footer to homepage and story pages.
+0.30 - Corrected the versioning scheme from 0.1 increments to 0.01 increments.
+0.31 - Added this change log and updated the displayed site version.
+0.32 - Replaced the A2 block with 50 new topic-based A2 stories and regenerated matching quiz questions.
+0.33 - Added the remaining A2-B1 topics to the A2 block, expanding A2 to 103 stories with matching quiz questions.
+0.34 - Enabled word-count display at the end of every A2 and B1 story.
+0.35 - Refactored A2 stories and questions into direct arrays, matching the simpler A1 data structure.
+0.36 - Rewrote A2 stories into a mostly first-person style closer to A1 and updated A2 quiz questions.
+0.37 - Rewrote the first 10 A2 stories with more natural 100-140 word texts and updated their quiz questions.
+0.38 - Sorted A1, A2, and B1 stories alphabetically and migrated progress keys so saved results follow each story.
+0.39 - Replaced the A2 block with five generated A2 stories from the topic file and disabled placeholder questions when no quiz exists.
+0.40 - Reordered the five A2 stories to match the topic-file order instead of alphabetical order.
+0.41 - Added A2 topic texts 6-10 from the topic file without generating questions.
+0.42 - Added A2 topic texts 11-15 from the topic file without generating questions.
+0.43 - Added A2 topic texts 16-20 from the topic file without generating questions.
+0.44 - Added A2 topic texts 21-25 from the topic file without generating questions.
+0.45 - Added A2 topic texts 26-30 from the topic file without generating questions.
+0.46 - Added A2 topic texts 31-35 from the topic file without generating questions.
+0.47 - Added A2 topic texts 36-40 from the topic file without generating questions.
+0.48 - Added A2 topic texts 41-45 from the topic file without generating questions.
+0.49 - Added A2 topic texts 46-50 from the topic file without generating questions.
+0.50 - Added A2 topic texts 51-55 from the topic file without generating questions.
+0.51 - Added A2 topic texts 56-60 from the topic file without generating questions.
+0.52 - Added A2 topic texts 61-65 from the topic file without generating questions.
+0.53 - Added A2 topic texts 66-70 from the topic file without generating questions.
+0.54 - Added A2 topic texts 71-75 from the topic file without generating questions.
+0.55 - Added A2 topic texts 76-80 from the topic file without generating questions.
+0.56 - Added A2 topic texts 81-85 from the topic file without generating questions.
+0.57 - Added A2 topic texts 86-90 from the topic file without generating questions.
+0.58 - Added A2 topic texts 91-95 from the topic file without generating questions.
+0.59 - Added A2 topic texts 96-100 from the topic file without generating questions.
+0.60 - Added A2 topic texts 101-103 from the topic file without generating questions.
+0.61 - Made the site version footer open this plain text change log.
