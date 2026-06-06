@@ -1,5 +1,7 @@
 ReadUkrainian Change Log
 
+This file is tracked in GitHub and linked from the site version footer.
+
 0.01 - Created the first blank Ukrainian learning website with A1, A2, and B1 levels.
 0.02 - Changed the site title to "Історії українською" and made each text open on its own story page.
 0.03 - Added Ukrainian A1 and A2 learning texts with titles and simple learner-friendly structure.
@@ -30,7 +32,7 @@ ReadUkrainian Change Log
 0.28 - Added robots.txt for normal search-engine crawling.
 0.29 - Added a site version footer to homepage and story pages.
 0.30 - Corrected the versioning scheme from 0.1 increments to 0.01 increments.
-0.31 - Added this change log and updated the displayed site version.
+0.31 - Added the change log and updated the displayed site version.
 0.32 - Replaced the A2 block with 50 new topic-based A2 stories and regenerated matching quiz questions.
 0.33 - Added the remaining A2-B1 topics to the A2 block, expanding A2 to 103 stories with matching quiz questions.
 0.34 - Enabled word-count display at the end of every A2 and B1 story.
@@ -60,4 +62,5 @@ ReadUkrainian Change Log
 0.58 - Added A2 topic texts 91-95 from the topic file without generating questions.
 0.59 - Added A2 topic texts 96-100 from the topic file without generating questions.
 0.60 - Added A2 topic texts 101-103 from the topic file without generating questions.
-0.61 - Made the site version footer open this plain text change log.
+0.61 - Reviewed A2 stories and added five questions for all 103 A2 topics.
+0.62 - Made the site version footer open change.log on GitHub.
