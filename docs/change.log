@@ -65,3 +65,4 @@ This file is tracked in GitHub and linked from the site version footer.
 0.61 - Reviewed A2 stories and added five questions for all 103 A2 topics.
 0.62 - Made the site version footer open change.log on GitHub.
 0.63 - Made each site version link open the exact changelog entry for that version on GitHub.
+0.64 - Reorganized the project structure by moving styles, scripts, data files, assets, and the changelog into dedicated folders.
