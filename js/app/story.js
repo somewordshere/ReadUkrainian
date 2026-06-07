@@ -12,11 +12,12 @@ const bookmarkButton = document.getElementById("bookmarkButton");
 
 const story = storiesByLevel[level]?.[textNumber - 1];
 const questionInputs = [];
+const storyAvailable = isLevelActive(level) && isStoryActive(story);
 
 storyLevel.textContent = `Рівень ${level}`;
-storyTitle.textContent = story?.title || `Текст ${textNumber}`;
+storyTitle.textContent = storyAvailable ? story.title : "Текст недоступний";
 
-if (story?.paragraphs?.length) {
+if (storyAvailable && story?.paragraphs?.length) {
   story.paragraphs.forEach((paragraph) => {
     const element = document.createElement("p");
     element.className = "story-note";
@@ -25,7 +26,7 @@ if (story?.paragraphs?.length) {
   });
 }
 
-if (story?.showWordCount) {
+if (storyAvailable && story?.showWordCount) {
   const wordCount = story.paragraphs
     .join(" ")
     .match(/[\p{L}\p{N}]+(?:['’ʼ-][\p{L}\p{N}]+)*/gu)?.length || 0;
@@ -35,9 +36,17 @@ if (story?.showWordCount) {
   storyContent.appendChild(countElement);
 }
 
-const questions = getQuestionsForStory(level, textNumber);
+const questions = storyAvailable ? getQuestionsForStory(level, textNumber) : [];
 
-if (questions.length === 0) {
+if (!storyAvailable) {
+  const unavailableElement = document.createElement("p");
+  unavailableElement.className = "story-note";
+  unavailableElement.textContent = "Цей текст зараз недоступний для читача.";
+  storyContent.appendChild(unavailableElement);
+  questionsStatus.textContent = "Питання недоступні, бо текст вимкнений.";
+  restartButton.hidden = true;
+  bookmarkButton.hidden = true;
+} else if (questions.length === 0) {
   questionsStatus.textContent = "Питання буде додано пізніше.";
   restartButton.hidden = true;
 } else {
@@ -213,6 +222,10 @@ function applySavedProgress() {
 }
 
 restartButton.addEventListener("click", () => {
+  if (!storyAvailable) {
+    return;
+  }
+
   const bookmarked = isStoryBookmarked(level, textNumber);
 
   questionInputs.forEach((input) => {
@@ -248,11 +261,17 @@ function renderBookmarkState() {
 }
 
 bookmarkButton.addEventListener("click", () => {
+  if (!storyAvailable) {
+    return;
+  }
+
   setStoryBookmarked(level, textNumber, !isStoryBookmarked(level, textNumber));
   renderBookmarkState();
 });
 
-applySavedProgress();
-renderBookmarkState();
+if (storyAvailable) {
+  applySavedProgress();
+  renderBookmarkState();
+}
 
 document.title = `Історії українською - ${level} - ${storyTitle.textContent}`;
