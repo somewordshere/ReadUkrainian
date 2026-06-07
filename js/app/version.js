@@ -7,7 +7,7 @@ function renderSiteVersion() {
 
   versionElement.className = "site-version";
   versionLink.className = "site-version-link";
-  versionLink.href = "https://github.com/somewordshere/ReadUkrainian/blob/main/change.log";
+  versionLink.href = "https://github.com/somewordshere/ReadUkrainian/blob/main/docs/change.log";
   versionLink.target = "_blank";
   versionLink.rel = "noopener noreferrer";
   versionLink.textContent = `Версія ${SITE_VERSION}`;

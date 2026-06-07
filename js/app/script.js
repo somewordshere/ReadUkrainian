@@ -1,16 +1,19 @@
 const levels = [
   {
     id: "A1",
+    active: isLevelActive("A1"),
     description: "Початковий рівень для коротких і простих текстів.",
     texts: storiesByLevel.A1,
   },
   {
     id: "A2",
+    active: isLevelActive("A2"),
     description: "Базовий рівень для ширшого словникового запасу.",
     texts: storiesByLevel.A2,
   },
   {
     id: "B1",
+    active: isLevelActive("B1"),
     description: "Середній рівень для довших і змістовніших текстів.",
     texts: storiesByLevel.B1,
   },
@@ -19,8 +22,11 @@ const levels = [
 const levelsContainer = document.getElementById("levels");
 
 function createLevelCard(level) {
-  const completedCount = level.texts.filter((text, index) =>
-    isStoryCompleted(level.id, index + 1)
+  const visibleTexts = level.texts
+    .map((text, index) => ({ text, storyNumber: index + 1 }))
+    .filter(({ text }) => isStoryActive(text));
+  const completedCount = visibleTexts.filter(({ storyNumber }) =>
+    isStoryCompleted(level.id, storyNumber)
   ).length;
   const article = document.createElement("article");
   article.className = "level-card";
@@ -32,14 +38,13 @@ function createLevelCard(level) {
       <h2>${level.id}</h2>
       <p>${level.description}</p>
     </div>
-    <p class="level-count">Завершено: ${completedCount}/${level.texts.length}</p>
+    <p class="level-count">Завершено: ${completedCount}/${visibleTexts.length}</p>
   `;
 
   const grid = document.createElement("div");
   grid.className = "texts-grid";
 
-  level.texts.forEach((text, index) => {
-    const storyNumber = index + 1;
+  visibleTexts.forEach(({ text, storyNumber }, index) => {
     const card = document.createElement("div");
     card.className = "text-card";
 
@@ -48,7 +53,7 @@ function createLevelCard(level) {
     link.href = `./story.html?level=${encodeURIComponent(level.id)}&text=${storyNumber}`;
     link.innerHTML = `
       <span class="text-label">${level.id}</span>
-      <span class="text-title">${index + 1}. ${text.title}</span>
+      <span class="text-title">${storyNumber}. ${text.title}</span>
     `;
 
     if (isStoryCompleted(level.id, storyNumber)) {
@@ -86,5 +91,15 @@ function createLevelCard(level) {
 }
 
 levels.forEach((level) => {
+  if (!level.active) {
+    return;
+  }
+
+  const hasVisibleTexts = level.texts.some((text) => isStoryActive(text));
+
+  if (!hasVisibleTexts) {
+    return;
+  }
+
   levelsContainer.appendChild(createLevelCard(level));
 });
