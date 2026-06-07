@@ -1,4 +1,6 @@
-const SITE_VERSION = "0.62";
+const SITE_VERSION = "0.63";
+const CHANGELOG_LINE = 67;
+const CHANGELOG_URL = `https://github.com/somewordshere/ReadUkrainian/blob/main/docs/change.log#L${CHANGELOG_LINE}`;
 
 function renderSiteVersion() {
   const container = document.querySelector(".page-shell") || document.body;
@@ -7,7 +9,7 @@ function renderSiteVersion() {
 
   versionElement.className = "site-version";
   versionLink.className = "site-version-link";
-  versionLink.href = "https://github.com/somewordshere/ReadUkrainian/blob/main/docs/change.log";
+  versionLink.href = CHANGELOG_URL;
   versionLink.target = "_blank";
   versionLink.rel = "noopener noreferrer";
   versionLink.textContent = `Версія ${SITE_VERSION}`;
