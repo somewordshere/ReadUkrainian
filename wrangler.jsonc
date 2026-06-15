@@ -1,0 +1,19 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "readukrainian",
+  "main": "./src/worker.js",
+  "compatibility_date": "2026-06-15",
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    "run_worker_first": ["/api/*"]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "readukrainian_db",
+      "database_id": "dfd9b7b4-9c2a-4848-90a8-59e4e83358dc"
+    }
+  ]
+}
