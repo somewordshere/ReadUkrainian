@@ -2,9 +2,10 @@ import { LEVELS, LEVELS_BY_ID } from "./levels.js";
 
 function toStoryRecord(row) {
   return {
-    id: row.id,
+    storyId: row.id,
     level: row.level,
-    storyNumber: row.display_order,
+    sortOrder: row.display_order,
+    questionIndex: row.question_index,
     title: row.title,
     paragraphs: JSON.parse(row.paragraphs_json),
     showWordCount: Boolean(row.show_word_count),
@@ -17,7 +18,7 @@ function toStoryRecord(row) {
 export async function listTexts(db, { includeDisabled = false } = {}) {
   const filterSql = includeDisabled ? "" : "WHERE is_enabled = 1";
   const statement = db.prepare(`
-    SELECT id, level, display_order, title, paragraphs_json, show_word_count, is_enabled, created_at, updated_at
+    SELECT id, level, display_order, question_index, title, paragraphs_json, show_word_count, is_enabled, created_at, updated_at
     FROM texts
     ${filterSql}
     ORDER BY level ASC, display_order ASC
@@ -26,29 +27,29 @@ export async function listTexts(db, { includeDisabled = false } = {}) {
   return (result.results || []).map(toStoryRecord);
 }
 
-export async function getStoryByLevelAndNumber(db, level, storyNumber) {
+export async function getStoryByLevelAndOrder(db, level, sortOrder) {
   const result = await db
     .prepare(`
-      SELECT id, level, display_order, title, paragraphs_json, show_word_count, is_enabled, created_at, updated_at
+      SELECT id, level, display_order, question_index, title, paragraphs_json, show_word_count, is_enabled, created_at, updated_at
       FROM texts
       WHERE level = ?1 AND display_order = ?2
       LIMIT 1
     `)
-    .bind(level, storyNumber)
+    .bind(level, sortOrder)
     .first();
 
   return result ? toStoryRecord(result) : null;
 }
 
-export async function getTextById(db, id) {
+export async function getStoryById(db, storyId) {
   const result = await db
     .prepare(`
-      SELECT id, level, display_order, title, paragraphs_json, show_word_count, is_enabled, created_at, updated_at
+      SELECT id, level, display_order, question_index, title, paragraphs_json, show_word_count, is_enabled, created_at, updated_at
       FROM texts
       WHERE id = ?1
       LIMIT 1
     `)
-    .bind(id)
+    .bind(storyId)
     .first();
 
   return result ? toStoryRecord(result) : null;
@@ -64,16 +65,16 @@ export async function createText(db, payload) {
     .bind(payload.level)
     .first();
 
-  const storyNumber = Number(nextOrderRow?.next_order || 1);
+  const sortOrder = Number(nextOrderRow?.next_order || 1);
   const now = new Date().toISOString();
   const insertResult = await db
     .prepare(`
-      INSERT INTO texts (level, display_order, title, paragraphs_json, show_word_count, is_enabled, created_at, updated_at)
-      VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?7)
+      INSERT INTO texts (level, display_order, question_index, title, paragraphs_json, show_word_count, is_enabled, created_at, updated_at)
+      VALUES (?1, ?2, ?2, ?3, ?4, ?5, ?6, ?7, ?7)
     `)
     .bind(
       payload.level,
-      storyNumber,
+      sortOrder,
       payload.title,
       JSON.stringify(payload.paragraphs),
       payload.showWordCount ? 1 : 0,
@@ -82,10 +83,10 @@ export async function createText(db, payload) {
     )
     .run();
 
-  return getTextById(db, insertResult.meta.last_row_id);
+  return getStoryById(db, insertResult.meta.last_row_id);
 }
 
-export async function updateText(db, id, payload) {
+export async function updateText(db, storyId, payload) {
   const now = new Date().toISOString();
   await db
     .prepare(`
@@ -103,11 +104,11 @@ export async function updateText(db, id, payload) {
       payload.showWordCount ? 1 : 0,
       payload.active ? 1 : 0,
       now,
-      id
+      storyId
     )
     .run();
 
-  return getTextById(db, id);
+  return getStoryById(db, storyId);
 }
 
 export function validateTextPayload(payload, { allowLevel = false } = {}) {
@@ -145,8 +146,9 @@ export function groupStories(stories) {
     texts: stories
       .filter((story) => story.level === level.id)
       .map((story) => ({
-        id: story.id,
-        storyNumber: story.storyNumber,
+        storyId: story.storyId,
+        sortOrder: story.sortOrder,
+        questionIndex: story.questionIndex,
         title: story.title,
         active: story.active,
         showWordCount: story.showWordCount,

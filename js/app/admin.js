@@ -11,10 +11,10 @@ const editorStatus = document.getElementById("editorStatus");
 const editorKicker = document.getElementById("editorKicker");
 const editorTitle = document.getElementById("editorTitle");
 const editorSubmitButton = document.getElementById("editorSubmitButton");
-const storyNumberField = document.getElementById("storyNumberField");
+const storyIdField = document.getElementById("storyIdField");
 
-let texts = [];
-let selectedTextId = null;
+let stories = [];
+let selectedStoryId = null;
 let editorMode = "edit";
 
 function setStatus(element, message, isError = false) {
@@ -65,60 +65,60 @@ async function offerToSaveCredentials(email, password) {
   }
 }
 
-function renderTextList() {
+function renderStoryList() {
   textsList.innerHTML = "";
-  textCount.textContent = `${texts.length} total`;
+  textCount.textContent = `${stories.length} total`;
 
-  texts.forEach((text) => {
+  stories.forEach((story) => {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "admin-text-row";
-    button.classList.toggle("is-active", text.id === selectedTextId);
+    button.classList.toggle("is-active", story.storyId === selectedStoryId);
     button.innerHTML = `
-      <span><strong>${text.level} ${text.storyNumber}.</strong> ${text.title}</span>
-      <span class="admin-pill ${text.active ? "is-enabled" : "is-disabled"}">
-        ${text.active ? "Enabled" : "Disabled"}
+      <span><strong>${story.level} - ID ${story.storyId}</strong> ${story.title}</span>
+      <span class="admin-pill ${story.active ? "is-enabled" : "is-disabled"}">
+        ${story.active ? "Enabled" : "Disabled"}
       </span>
     `;
     button.addEventListener("click", () => {
-      selectedTextId = text.id;
+      selectedStoryId = story.storyId;
       editorMode = "edit";
       populateEditor();
-      renderTextList();
+      renderStoryList();
     });
     textsList.appendChild(button);
   });
 }
 
 function populateEditor() {
-  const text = texts.find((item) => item.id === selectedTextId);
+  const story = stories.find((item) => item.storyId === selectedStoryId);
 
-  if (!text) {
+  if (!story) {
     enterCreateMode();
     return;
   }
 
   editorMode = "edit";
-  editorForm.dataset.textId = String(text.id);
+  editorForm.dataset.storyId = String(story.storyId);
   editorForm.elements.level.disabled = true;
-  editorForm.elements.level.value = text.level;
-  editorForm.elements.storyNumber.value = text.storyNumber;
-  editorForm.elements.title.value = text.title;
-  editorForm.elements.active.checked = text.active;
-  editorForm.elements.showWordCount.checked = text.showWordCount;
-  editorForm.elements.paragraphs.value = text.paragraphs.join("\n\n");
+  editorForm.elements.level.value = story.level;
+  editorForm.elements.storyId.value = story.storyId;
+  editorForm.elements.title.value = story.title;
+  editorForm.elements.active.checked = story.active;
+  editorForm.elements.showWordCount.checked = story.showWordCount;
+  editorForm.elements.paragraphs.value = story.paragraphs.join("\n\n");
   editorKicker.textContent = "Selected story";
   editorTitle.textContent = "Edit story";
   editorSubmitButton.textContent = "Save changes";
-  storyNumberField.hidden = false;
+  storyIdField.hidden = false;
   setStatus(editorStatus, "");
 }
 
 function enterCreateMode() {
   editorMode = "create";
-  selectedTextId = null;
+  selectedStoryId = null;
   editorForm.reset();
-  editorForm.dataset.textId = "";
+  editorForm.dataset.storyId = "";
   editorForm.elements.level.disabled = false;
   editorForm.elements.level.value = "A1";
   editorForm.elements.active.checked = true;
@@ -126,25 +126,25 @@ function enterCreateMode() {
   editorKicker.textContent = "New story";
   editorTitle.textContent = "Add Story";
   editorSubmitButton.textContent = "Create Story";
-  storyNumberField.hidden = true;
+  storyIdField.hidden = true;
   setStatus(editorStatus, "");
-  renderTextList();
+  renderStoryList();
   editorForm.elements.title.focus();
 }
 
-async function loadTexts() {
+async function loadStories() {
   const payload = await api("./api/admin/texts", { method: "GET" });
-  texts = payload.texts;
+  stories = payload.stories;
 
-  if (!selectedTextId && texts[0]) {
-    selectedTextId = texts[0].id;
+  if (!selectedStoryId && stories[0]) {
+    selectedStoryId = stories[0].storyId;
   }
 
-  if (selectedTextId && !texts.some((text) => text.id === selectedTextId)) {
-    selectedTextId = texts[0]?.id || null;
+  if (selectedStoryId && !stories.some((story) => story.storyId === selectedStoryId)) {
+    selectedStoryId = stories[0]?.storyId || null;
   }
 
-  renderTextList();
+  renderStoryList();
   populateEditor();
 }
 
@@ -153,7 +153,7 @@ async function checkSession() {
     await api("./api/admin/session", { method: "GET" });
     loginSection.hidden = true;
     adminSection.hidden = false;
-    await loadTexts();
+    await loadStories();
   } catch {
     loginSection.hidden = false;
     adminSection.hidden = true;
@@ -197,8 +197,8 @@ editorForm.addEventListener("submit", async (event) => {
 
   try {
     const isCreating = editorMode === "create";
-    const id = Number(editorForm.dataset.textId);
-    const path = isCreating ? "./api/admin/texts" : `./api/admin/texts/${id}`;
+    const storyId = Number(editorForm.dataset.storyId);
+    const path = isCreating ? "./api/admin/texts" : `./api/admin/texts/${storyId}`;
     const payload = await api(path, {
       method: isCreating ? "POST" : "PUT",
       body: JSON.stringify({
@@ -211,15 +211,15 @@ editorForm.addEventListener("submit", async (event) => {
     });
 
     if (isCreating) {
-      texts.push(payload.text);
-      selectedTextId = payload.text.id;
+      stories.push(payload.story);
+      selectedStoryId = payload.story.storyId;
       editorMode = "edit";
     } else {
-      const index = texts.findIndex((text) => text.id === id);
-      texts[index] = payload.text;
+      const index = stories.findIndex((story) => story.storyId === storyId);
+      stories[index] = payload.story;
     }
 
-    renderTextList();
+    renderStoryList();
     populateEditor();
     setStatus(editorStatus, isCreating ? "Story created." : "Changes saved.");
   } catch (error) {

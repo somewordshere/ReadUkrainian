@@ -2,7 +2,8 @@ import { fetchStory } from "./content-api.js";
 
 const params = new URLSearchParams(window.location.search);
 const level = params.get("level") || "A1";
-const textNumber = Number(params.get("text")) || 1;
+const requestedStoryId = params.get("story") || "";
+const legacyOrder = Number(params.get("order") || params.get("text")) || 1;
 
 const storyLevel = document.getElementById("storyLevel");
 const storyTitle = document.getElementById("storyTitle");
@@ -14,6 +15,7 @@ const bookmarkButton = document.getElementById("bookmarkButton");
 
 const questionInputs = [];
 let storyAvailable = false;
+let currentStory = null;
 
 function getQuestionInputs(questionIndex) {
   return questionInputs.filter(
@@ -72,11 +74,11 @@ function syncProgress() {
   const correctCount = questionInputs.filter(
     (input) => input.checked && input.dataset.correct === "true"
   ).length;
-  const bookmarked = isStoryBookmarked(level, textNumber);
+  const bookmarked = isStoryBookmarked(level, currentStory.storyId, currentStory.title);
 
   updateQuestionStatus(completedCount, correctCount);
 
-  setStoryProgress(level, textNumber, {
+  setStoryProgress(level, currentStory.storyId, currentStory.title, {
     answers,
     completed: completedCount === 5,
     correctCount,
@@ -90,7 +92,7 @@ function applySavedProgress() {
     return;
   }
 
-  const savedProgress = getStoryProgress(level, textNumber);
+  const savedProgress = getStoryProgress(level, currentStory.storyId, currentStory.title);
 
   if (!savedProgress?.answers?.length) {
     updateQuestionStatus(0, 0);
@@ -124,7 +126,7 @@ function applySavedProgress() {
 }
 
 function renderBookmarkState() {
-  const bookmarked = isStoryBookmarked(level, textNumber);
+  const bookmarked = isStoryBookmarked(level, currentStory.storyId, currentStory.title);
   const icon = bookmarkButton.querySelector(".bookmark-icon");
 
   bookmarkButton.classList.toggle("is-active", bookmarked);
@@ -210,7 +212,7 @@ restartButton.addEventListener("click", () => {
     return;
   }
 
-  const bookmarked = isStoryBookmarked(level, textNumber);
+  const bookmarked = isStoryBookmarked(level, currentStory.storyId, currentStory.title);
 
   questionInputs.forEach((input) => {
     input.checked = false;
@@ -219,14 +221,14 @@ restartButton.addEventListener("click", () => {
   unlockAllQuestions();
 
   if (bookmarked) {
-    setStoryProgress(level, textNumber, {
+    setStoryProgress(level, currentStory.storyId, currentStory.title, {
       answers: [null, null, null, null, null],
       completed: false,
       correctCount: 0,
       bookmarked: true,
     });
   } else {
-    clearStoryProgress(level, textNumber);
+    clearStoryProgress(level, currentStory.storyId, currentStory.title);
   }
 
   updateQuestionStatus(0, 0);
@@ -237,16 +239,23 @@ bookmarkButton.addEventListener("click", () => {
     return;
   }
 
-  setStoryBookmarked(level, textNumber, !isStoryBookmarked(level, textNumber));
+  setStoryBookmarked(
+    level,
+    currentStory.storyId,
+    currentStory.title,
+    !isStoryBookmarked(level, currentStory.storyId, currentStory.title)
+  );
   renderBookmarkState();
 });
 
 async function initStory() {
-  const story = await fetchStory(level, textNumber);
+  const story = await fetchStory(requestedStoryId, level, legacyOrder);
+  currentStory = story;
 
-  storyAvailable = Boolean(story) && isLevelActive(level) && isStoryActive(story);
+  const storyLevelId = story?.level || level;
+  storyAvailable = Boolean(story) && isLevelActive(storyLevelId) && isStoryActive(story);
 
-  storyLevel.textContent = `Рівень ${level}`;
+  storyLevel.textContent = `Рівень ${storyLevelId}`;
   storyTitle.textContent = storyAvailable ? story.title : "Текст недоступний";
 
   if (storyAvailable && story?.paragraphs?.length) {
@@ -268,7 +277,9 @@ async function initStory() {
     storyContent.appendChild(countElement);
   }
 
-  const questions = storyAvailable ? getQuestionsForStory(level, textNumber) : [];
+  const questions = storyAvailable && Number.isInteger(story.questionIndex)
+    ? getQuestionsForStory(storyLevelId, story.questionIndex)
+    : [];
 
   if (!storyAvailable) {
     const unavailableElement = document.createElement("p");
@@ -284,7 +295,7 @@ async function initStory() {
     renderBookmarkState();
   }
 
-  document.title = `Історії українською - ${level} - ${storyTitle.textContent}`;
+  document.title = `Історії українською - ${storyLevelId} - ${storyTitle.textContent}`;
 }
 
 initStory();

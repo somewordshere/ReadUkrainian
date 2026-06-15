@@ -3,11 +3,11 @@ import { fetchContentIndex } from "./content-api.js";
 const levelsContainer = document.getElementById("levels");
 
 function createLevelCard(level) {
-  const visibleTexts = level.texts
-    .filter((text) => text.active !== false)
-    .map((text) => ({ text, storyNumber: text.storyNumber }));
-  const completedCount = visibleTexts.filter(({ storyNumber }) =>
-    isStoryCompleted(level.id, storyNumber)
+  const visibleStories = level.texts
+    .filter((story) => story.active !== false)
+    .map((story, index) => ({ story, displayNumber: index + 1 }));
+  const completedCount = visibleStories.filter(({ story }) =>
+    isStoryCompleted(level.id, story.storyId, story.title)
   ).length;
   const article = document.createElement("article");
   article.className = "level-card";
@@ -19,27 +19,32 @@ function createLevelCard(level) {
       <h2>${level.id}</h2>
       <p>${level.description}</p>
     </div>
-    <p class="level-count">Завершено: ${completedCount}/${visibleTexts.length}</p>
+    <p class="level-count">Завершено: ${completedCount}/${visibleStories.length}</p>
   `;
 
   const grid = document.createElement("div");
   grid.className = "texts-grid";
 
-  visibleTexts.forEach(({ text, storyNumber }) => {
+  visibleStories.forEach(({ story, displayNumber }) => {
     const card = document.createElement("div");
     card.className = "text-card";
 
     const link = document.createElement("a");
     link.className = "text-button";
-    link.href = `./story.html?level=${encodeURIComponent(level.id)}&text=${storyNumber}`;
+    const query = new URLSearchParams({
+      story: String(story.storyId),
+      level: level.id,
+      order: String(story.sortOrder),
+    });
+    link.href = `./story.html?${query}`;
     link.innerHTML = `
       <span class="text-label">${level.id}</span>
-      <span class="text-title">${storyNumber}. ${text.title}</span>
+      <span class="text-title">${displayNumber}. ${story.title}</span>
     `;
 
-    if (isStoryCompleted(level.id, storyNumber)) {
+    if (isStoryCompleted(level.id, story.storyId, story.title)) {
       link.classList.add("is-completed");
-      link.setAttribute("aria-label", `${text.title} - тест завершено`);
+      link.setAttribute("aria-label", `${story.title} - тест завершено`);
     }
 
     const bookmarkButton = document.createElement("button");
@@ -47,7 +52,7 @@ function createLevelCard(level) {
     bookmarkButton.type = "button";
 
     function renderBookmark() {
-      const bookmarked = isStoryBookmarked(level.id, storyNumber);
+      const bookmarked = isStoryBookmarked(level.id, story.storyId, story.title);
       bookmarkButton.classList.toggle("is-active", bookmarked);
       bookmarkButton.textContent = bookmarked ? "★" : "☆";
       bookmarkButton.setAttribute(
@@ -57,7 +62,12 @@ function createLevelCard(level) {
     }
 
     bookmarkButton.addEventListener("click", () => {
-      setStoryBookmarked(level.id, storyNumber, !isStoryBookmarked(level.id, storyNumber));
+      setStoryBookmarked(
+        level.id,
+        story.storyId,
+        story.title,
+        !isStoryBookmarked(level.id, story.storyId, story.title)
+      );
       renderBookmark();
     });
 
@@ -78,9 +88,9 @@ async function initLevels() {
       return;
     }
 
-    const hasVisibleTexts = level.texts.some((text) => text.active !== false);
+    const hasVisibleStories = level.texts.some((story) => story.active !== false);
 
-    if (!hasVisibleTexts) {
+    if (!hasVisibleStories) {
       return;
     }
 
