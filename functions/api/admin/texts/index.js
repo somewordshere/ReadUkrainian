@@ -9,7 +9,7 @@ export async function onRequestGet(context) {
   }
 
   const stories = await listTexts(context.env.DB, { includeDisabled: true });
-  return json({ texts: stories });
+  return json({ stories });
 }
 
 export async function onRequestPost(context) {
@@ -25,6 +25,6 @@ export async function onRequestPost(context) {
     return error(400, validation.message);
   }
 
-  const text = await createText(context.env.DB, validation.value);
-  return json({ text }, { status: 201 });
+  const story = await createText(context.env.DB, validation.value);
+  return json({ story }, { status: 201 });
 }

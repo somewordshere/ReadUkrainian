@@ -4,21 +4,21 @@ function q(prompt, correct, wrong) {
   return { prompt, correct, wrong };
 }
 
-function getQuestionsForStory(level, storyIndex) {
-  const questions = questionDataByLevel[level]?.[storyIndex - 1];
+function getQuestionsForStory(level, questionIndex) {
+  const questions = questionDataByLevel[level]?.[questionIndex - 1];
 
   if (!questions) {
     return [];
   }
 
   return questions.map((question, index) =>
-    withShuffledOptions(question, level, storyIndex, index)
+    withShuffledOptions(question, level, questionIndex, index)
   );
 }
 
-function withShuffledOptions(question, level, storyIndex, questionIndex) {
+function withShuffledOptions(question, level, storyQuestionIndex, questionIndex) {
   const options = [question.correct, ...question.wrong];
-  const shuffled = seededShuffle(options, `${level}-${storyIndex}-${questionIndex}`);
+  const shuffled = seededShuffle(options, `${level}-${storyQuestionIndex}-${questionIndex}`);
 
   return {
     prompt: question.prompt,

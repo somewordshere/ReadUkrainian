@@ -72,3 +72,4 @@ This file is tracked in GitHub and linked from the site version footer.
 0.68 - Moved story creation to a full-width Add Story button above the text list and unified creation and editing in the main editor.
 0.69 - Replaced admin-facing text terminology with story terminology.
 0.70 - Renamed the admin page heading to Stories editor.
+0.71 - Separated stable story IDs from ordering and made enabled stories display with consecutive numbers.

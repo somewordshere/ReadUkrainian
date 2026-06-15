@@ -10,8 +10,9 @@ function getLegacyLevels() {
     description: descriptions[levelId] || "",
     active: window.isLevelActive ? window.isLevelActive(levelId) : true,
     texts: (window.storiesByLevel[levelId] || []).map((story, index) => ({
-      id: `${levelId}-${index + 1}`,
-      storyNumber: index + 1,
+      storyId: `${levelId}-${index + 1}`,
+      sortOrder: index + 1,
+      questionIndex: index + 1,
       title: story.title,
       active: window.isStoryActive ? window.isStoryActive(story) : story.active !== false,
       showWordCount: story.showWordCount !== false,
@@ -19,17 +20,18 @@ function getLegacyLevels() {
   }));
 }
 
-function getLegacyStory(level, storyNumber) {
-  const story = window.storiesByLevel?.[level]?.[storyNumber - 1];
+function getLegacyStory(level, sortOrder) {
+  const story = window.storiesByLevel?.[level]?.[sortOrder - 1];
 
   if (!story) {
     return null;
   }
 
   return {
-    id: `${level}-${storyNumber}`,
+    storyId: `${level}-${sortOrder}`,
     level,
-    storyNumber,
+    sortOrder,
+    questionIndex: sortOrder,
     title: story.title,
     paragraphs: story.paragraphs || [],
     showWordCount: story.showWordCount !== false,
@@ -54,11 +56,15 @@ export async function fetchContentIndex() {
   }
 }
 
-export async function fetchStory(level, storyNumber) {
+export async function fetchStory(storyId, level, legacyOrder) {
   try {
     const url = new URL("./api/content/story", window.location.href);
-    url.searchParams.set("level", level);
-    url.searchParams.set("text", String(storyNumber));
+    if (/^\d+$/.test(String(storyId))) {
+      url.searchParams.set("id", String(storyId));
+    } else {
+      url.searchParams.set("level", level);
+      url.searchParams.set("text", String(legacyOrder));
+    }
 
     const response = await fetch(url, {
       headers: { accept: "application/json" },
@@ -71,6 +77,6 @@ export async function fetchStory(level, storyNumber) {
     const payload = await response.json();
     return payload.story;
   } catch {
-    return getLegacyStory(level, storyNumber);
+    return getLegacyStory(level, legacyOrder);
   }
 }

@@ -1,6 +1,6 @@
 import { requireAdmin } from "../../../_shared/auth.js";
 import { error, json, readJson } from "../../../_shared/http.js";
-import { getTextById, updateText, validateTextPayload } from "../../../_shared/texts.js";
+import { getStoryById, updateText, validateTextPayload } from "../../../_shared/texts.js";
 
 export async function onRequestGet(context) {
   const auth = await requireAdmin(context);
@@ -8,19 +8,19 @@ export async function onRequestGet(context) {
     return auth.response;
   }
 
-  const id = Number(context.params.id);
+  const storyId = Number(context.params.id);
 
-  if (!Number.isInteger(id)) {
-    return error(400, "Invalid text id.");
+  if (!Number.isInteger(storyId)) {
+    return error(400, "Invalid story ID.");
   }
 
-  const text = await getTextById(context.env.DB, id);
+  const story = await getStoryById(context.env.DB, storyId);
 
-  if (!text) {
-    return error(404, "Text not found.");
+  if (!story) {
+    return error(404, "Story not found.");
   }
 
-  return json({ text });
+  return json({ story });
 }
 
 export async function onRequestPut(context) {
@@ -29,16 +29,16 @@ export async function onRequestPut(context) {
     return auth.response;
   }
 
-  const id = Number(context.params.id);
+  const storyId = Number(context.params.id);
 
-  if (!Number.isInteger(id)) {
-    return error(400, "Invalid text id.");
+  if (!Number.isInteger(storyId)) {
+    return error(400, "Invalid story ID.");
   }
 
-  const existing = await getTextById(context.env.DB, id);
+  const existing = await getStoryById(context.env.DB, storyId);
 
   if (!existing) {
-    return error(404, "Text not found.");
+    return error(404, "Story not found.");
   }
 
   const payload = await readJson(context.request);
@@ -48,6 +48,6 @@ export async function onRequestPut(context) {
     return error(400, validation.message);
   }
 
-  const text = await updateText(context.env.DB, id, validation.value);
-  return json({ text });
+  const story = await updateText(context.env.DB, storyId, validation.value);
+  return json({ story });
 }

@@ -231,17 +231,23 @@ function getStoryStorageKeyByTitle(title) {
   return `title:${title}`;
 }
 
-function getStoryTitle(level, storyNumber) {
-  try {
-    return storiesByLevel[level]?.[storyNumber - 1]?.title || null;
-  } catch (error) {
-    return null;
-  }
+function getStoryStorageKey(storyId) {
+  return `id:${storyId}`;
 }
 
-function getStoryStorageKey(level, storyNumber) {
-  const title = getStoryTitle(level, storyNumber);
-  return title ? getStoryStorageKeyByTitle(title) : String(storyNumber);
+function migrateStoryProgressToId(progress, level, storyId, title) {
+  const storyKey = getStoryStorageKey(storyId);
+  const titleKey = title ? getStoryStorageKeyByTitle(title) : null;
+  const levelProgress = progress[level];
+
+  if (!levelProgress || levelProgress[storyKey] || !titleKey || !levelProgress[titleKey]) {
+    return storyKey;
+  }
+
+  levelProgress[storyKey] = levelProgress[titleKey];
+  delete levelProgress[titleKey];
+  saveProgress(progress);
+  return storyKey;
 }
 
 function migrateLegacyProgressKeys(progress) {
@@ -252,12 +258,12 @@ function migrateLegacyProgressKeys(progress) {
       return;
     }
 
-    Object.entries({ ...levelProgress }).forEach(([storyNumber, storyProgress]) => {
-      if (!/^\d+$/.test(storyNumber)) {
+    Object.entries({ ...levelProgress }).forEach(([legacyStoryNumber, storyProgress]) => {
+      if (!/^\d+$/.test(legacyStoryNumber)) {
         return;
       }
 
-      const legacyTitle = legacyTitles[Number(storyNumber) - 1];
+      const legacyTitle = legacyTitles[Number(legacyStoryNumber) - 1];
 
       if (!legacyTitle) {
         return;
@@ -269,7 +275,7 @@ function migrateLegacyProgressKeys(progress) {
         levelProgress[titleKey] = storyProgress;
       }
 
-      delete levelProgress[storyNumber];
+      delete levelProgress[legacyStoryNumber];
     });
 
     if (Object.keys(levelProgress).length === 0) {
@@ -305,14 +311,15 @@ function saveProgress(progress) {
   writeToWindowName(serialized);
 }
 
-function getStoryProgress(level, storyNumber) {
+function getStoryProgress(level, storyId, title) {
   const progress = loadProgress();
-  return progress?.[level]?.[getStoryStorageKey(level, storyNumber)] || null;
+  const storyKey = migrateStoryProgressToId(progress, level, storyId, title);
+  return progress?.[level]?.[storyKey] || null;
 }
 
-function setStoryProgress(level, storyNumber, storyProgress) {
+function setStoryProgress(level, storyId, title, storyProgress) {
   const progress = loadProgress();
-  const storyKey = getStoryStorageKey(level, storyNumber);
+  const storyKey = migrateStoryProgressToId(progress, level, storyId, title);
 
   if (!progress[level]) {
     progress[level] = {};
@@ -322,9 +329,9 @@ function setStoryProgress(level, storyNumber, storyProgress) {
   saveProgress(progress);
 }
 
-function clearStoryProgress(level, storyNumber) {
+function clearStoryProgress(level, storyId, title) {
   const progress = loadProgress();
-  const storyKey = getStoryStorageKey(level, storyNumber);
+  const storyKey = migrateStoryProgressToId(progress, level, storyId, title);
 
   if (!progress[level]?.[storyKey]) {
     return;
@@ -339,17 +346,17 @@ function clearStoryProgress(level, storyNumber) {
   saveProgress(progress);
 }
 
-function isStoryCompleted(level, storyNumber) {
-  return Boolean(getStoryProgress(level, storyNumber)?.completed);
+function isStoryCompleted(level, storyId, title) {
+  return Boolean(getStoryProgress(level, storyId, title)?.completed);
 }
 
-function isStoryBookmarked(level, storyNumber) {
-  return Boolean(getStoryProgress(level, storyNumber)?.bookmarked);
+function isStoryBookmarked(level, storyId, title) {
+  return Boolean(getStoryProgress(level, storyId, title)?.bookmarked);
 }
 
-function setStoryBookmarked(level, storyNumber, bookmarked) {
+function setStoryBookmarked(level, storyId, title, bookmarked) {
   const progress = loadProgress();
-  const storyKey = getStoryStorageKey(level, storyNumber);
+  const storyKey = migrateStoryProgressToId(progress, level, storyId, title);
 
   if (!progress[level]) {
     progress[level] = {};

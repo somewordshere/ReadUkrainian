@@ -33,7 +33,7 @@ for (const level of levels) {
   for (const [index, story] of stories.entries()) {
     records.push({
       level,
-      storyNumber: index + 1,
+      sortOrder: index + 1,
       title: story.title,
       paragraphs: story.paragraphs || [],
       showWordCount: story.showWordCount !== false,
@@ -61,7 +61,7 @@ for (const record of records) {
   const safeParagraphs = JSON.stringify(record.paragraphs).replace(/'/g, "''");
 
   sqlLines.push(
-    `INSERT INTO texts (level, display_order, title, paragraphs_json, show_word_count, is_enabled) VALUES ('${safeLevel}', ${record.storyNumber}, '${safeTitle}', '${safeParagraphs}', ${record.showWordCount ? 1 : 0}, ${record.active ? 1 : 0});`
+    `INSERT INTO texts (level, display_order, title, paragraphs_json, show_word_count, is_enabled) VALUES ('${safeLevel}', ${record.sortOrder}, '${safeTitle}', '${safeParagraphs}', ${record.showWordCount ? 1 : 0}, ${record.active ? 1 : 0});`
   );
 }
 
