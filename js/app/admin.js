@@ -107,8 +107,8 @@ function populateEditor() {
   editorForm.elements.active.checked = text.active;
   editorForm.elements.showWordCount.checked = text.showWordCount;
   editorForm.elements.paragraphs.value = text.paragraphs.join("\n\n");
-  editorKicker.textContent = "Selected text";
-  editorTitle.textContent = "Edit text";
+  editorKicker.textContent = "Selected story";
+  editorTitle.textContent = "Edit story";
   editorSubmitButton.textContent = "Save changes";
   storyNumberField.hidden = false;
   setStatus(editorStatus, "");

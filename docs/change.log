@@ -70,3 +70,4 @@ This file is tracked in GitHub and linked from the site version footer.
 0.66 - Converted the deployment to a Cloudflare Worker with protected server-side sessions, D1 bindings, and static assets served from the public directory.
 0.67 - Simplified the admin login and editing interface, fixed login-state visibility, and added browser password-manager support.
 0.68 - Moved story creation to a full-width Add Story button above the text list and unified creation and editing in the main editor.
+0.69 - Replaced admin-facing text terminology with story terminology.
