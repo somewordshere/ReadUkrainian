@@ -66,3 +66,7 @@ This file is tracked in GitHub and linked from the site version footer.
 0.62 - Made the site version footer open change.log on GitHub.
 0.63 - Made each site version link open the exact changelog entry for that version on GitHub.
 0.64 - Reorganized the project structure by moving styles, scripts, data files, assets, and the changelog into dedicated folders.
+0.65 - Added Cloudflare D1 storage, migrated 132 existing stories, and introduced authenticated admin APIs for creating, editing, enabling, and disabling texts.
+0.66 - Converted the deployment to a Cloudflare Worker with protected server-side sessions, D1 bindings, and static assets served from the public directory.
+0.67 - Simplified the admin login and editing interface, fixed login-state visibility, and added browser password-manager support.
+0.68 - Moved story creation to a full-width Add Story button above the text list and unified creation and editing in the main editor.

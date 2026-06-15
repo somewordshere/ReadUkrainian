@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin | Історії українською</title>
+    <link rel="stylesheet" href="./css/styles.css" />
+  </head>
+  <body class="admin-page">
+    <main class="admin-shell">
+      <section class="admin-login" id="loginSection">
+        <form id="loginForm" class="admin-login-form" action="./api/admin/login" method="post" aria-label="Admin login">
+          <label class="admin-login-field">
+            <span class="visually-hidden">Username</span>
+            <input name="email" type="email" placeholder="Email" autocomplete="username" required />
+          </label>
+          <label class="admin-login-field">
+            <span class="visually-hidden">Password</span>
+            <input name="password" type="password" placeholder="Password" autocomplete="current-password" required />
+          </label>
+          <button class="admin-primary-button" type="submit">Log in</button>
+          <p class="admin-status" id="loginStatus" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <section class="admin-panel" id="adminSection" hidden>
+        <header class="admin-topbar">
+          <div><p class="admin-kicker">Read Ukrainian</p><h1>Texts</h1></div>
+          <button class="admin-logout-button" id="logoutButton" type="button">Log out</button>
+        </header>
+        <div class="admin-workspace">
+          <div class="admin-sidebar-column">
+            <button class="admin-add-story-button" id="addStoryButton" type="button">Add Story</button>
+            <aside class="admin-sidebar" aria-label="Text list">
+              <div class="admin-sidebar-heading"><h2>All texts</h2><span id="textCount"></span></div>
+              <div class="admin-text-list" id="textsList"></div>
+            </aside>
+          </div>
+          <section class="admin-editor-card">
+            <form id="editorForm" class="admin-form">
+              <div class="admin-editor-heading">
+                <div><p class="admin-kicker" id="editorKicker">Selected text</p><h2 id="editorTitle">Edit text</h2></div>
+                <div class="admin-meta-fields">
+                  <label><span>Level</span><select name="level" disabled><option value="A1">A1</option><option value="A2">A2</option><option value="B1">B1</option></select></label>
+                  <label id="storyNumberField"><span>Number</span><input name="storyNumber" type="number" readonly /></label>
+                </div>
+              </div>
+              <label><span>Title</span><input name="title" type="text" required /></label>
+              <label><span>Paragraphs</span><textarea name="paragraphs" rows="15" required></textarea></label>
+              <div class="admin-form-footer">
+                <div class="admin-toggles">
+                  <label class="admin-checkbox"><input name="active" type="checkbox" checked /><span>Enabled</span></label>
+                  <label class="admin-checkbox"><input name="showWordCount" type="checkbox" checked /><span>Show word count</span></label>
+                </div>
+                <button class="admin-primary-button" id="editorSubmitButton" type="submit">Save changes</button>
+              </div>
+              <p class="admin-status" id="editorStatus" aria-live="polite"></p>
+            </form>
+          </section>
+        </div>
+      </section>
+    </main>
+    <script type="module" src="./js/app/admin.js"></script>
+  </body>
+</html>
