@@ -41,12 +41,23 @@
               <div class="admin-editor-heading">
                 <div><p class="admin-kicker" id="editorKicker">Selected story</p><h2 id="editorTitle">Edit story</h2></div>
                 <div class="admin-meta-fields">
-                  <label><span>Level</span><select name="level" disabled><option value="A1">A1</option><option value="A2">A2</option><option value="B1">B1</option></select></label>
+                  <label><span>Level</span><select name="level"><option value="A1">A1</option><option value="A2">A2</option><option value="B1">B1</option></select></label>
                   <label id="storyIdField"><span>Story ID</span><input name="storyId" type="number" readonly /></label>
                 </div>
               </div>
               <label><span>Title</span><input name="title" type="text" required /></label>
               <label><span>Paragraphs</span><textarea name="paragraphs" rows="15" required></textarea></label>
+              <section class="admin-questions-panel" aria-labelledby="questionsEditorTitle">
+                <div class="admin-questions-header">
+                  <div>
+                    <p class="admin-kicker">Quiz</p>
+                    <h3 id="questionsEditorTitle">Questions</h3>
+                    <p class="admin-questions-copy">Each question needs 1 correct answer and 3 wrong answers.</p>
+                  </div>
+                  <button class="admin-secondary-button" id="addQuestionButton" type="button">Add Question</button>
+                </div>
+                <div class="admin-questions-list" id="questionsEditor"></div>
+              </section>
               <div class="admin-form-footer">
                 <div class="admin-toggles">
                   <label class="admin-checkbox"><input name="active" type="checkbox" checked /><span>Enabled</span></label>

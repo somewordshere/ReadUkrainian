@@ -14,7 +14,7 @@ export async function onRequestGet(context) {
     return error(400, "Invalid story ID.");
   }
 
-  const story = await getStoryById(context.env.DB, storyId);
+  const story = await getStoryById(context.env.DB, storyId, { includeQuestions: true });
 
   if (!story) {
     return error(404, "Story not found.");
@@ -42,7 +42,7 @@ export async function onRequestPut(context) {
   }
 
   const payload = await readJson(context.request);
-  const validation = validateTextPayload(payload, { allowLevel: false });
+  const validation = validateTextPayload(payload, { allowLevel: true });
 
   if (!validation.ok) {
     return error(400, validation.message);

@@ -16,6 +16,7 @@ const bookmarkButton = document.getElementById("bookmarkButton");
 const questionInputs = [];
 let storyAvailable = false;
 let currentStory = null;
+let currentQuestionCount = 0;
 
 function getQuestionInputs(questionIndex) {
   return questionInputs.filter(
@@ -44,20 +45,20 @@ function updateQuestionStatus(completedCount, correctCount) {
   }
 
   if (completedCount === 0) {
-    questionsStatus.textContent = "Дайте відповіді на всі 5 питань.";
+    questionsStatus.textContent = `Дайте відповіді на всі ${currentQuestionCount} питань.`;
     return;
   }
 
-  if (completedCount < 5) {
-    questionsStatus.textContent = `Відповіді: ${completedCount}/5. Правильно: ${correctCount}.`;
+  if (completedCount < currentQuestionCount) {
+    questionsStatus.textContent = `Відповіді: ${completedCount}/${currentQuestionCount}. Правильно: ${correctCount}.`;
     return;
   }
 
-  questionsStatus.textContent = `Тест завершено. Правильно: ${correctCount}/5.`;
+  questionsStatus.textContent = `Тест завершено. Правильно: ${correctCount}/${currentQuestionCount}.`;
 }
 
 function getSelectedAnswers() {
-  const answers = Array.from({ length: 5 }, () => null);
+  const answers = Array.from({ length: currentQuestionCount }, () => null);
 
   questionInputs.forEach((input) => {
     if (input.checked) {
@@ -80,7 +81,7 @@ function syncProgress() {
 
   setStoryProgress(level, currentStory.storyId, currentStory.title, {
     answers,
-    completed: completedCount === 5,
+    completed: completedCount === currentQuestionCount,
     correctCount,
     bookmarked,
   });
@@ -138,11 +139,15 @@ function renderBookmarkState() {
 }
 
 function renderQuestions(questions) {
+  currentQuestionCount = questions.length;
+
   if (questions.length === 0) {
     questionsStatus.textContent = "Питання буде додано пізніше.";
     restartButton.hidden = true;
     return;
   }
+
+  restartButton.hidden = false;
 
   questions.forEach((question, questionIndex) => {
     const item = document.createElement("article");
@@ -222,7 +227,7 @@ restartButton.addEventListener("click", () => {
 
   if (bookmarked) {
     setStoryProgress(level, currentStory.storyId, currentStory.title, {
-      answers: [null, null, null, null, null],
+      answers: Array.from({ length: currentQuestionCount }, () => null),
       completed: false,
       correctCount: 0,
       bookmarked: true,
@@ -277,8 +282,14 @@ async function initStory() {
     storyContent.appendChild(countElement);
   }
 
-  const questions = storyAvailable && Number.isInteger(story.questionIndex)
-    ? getQuestionsForStory(storyLevelId, story.questionIndex)
+  const questions = storyAvailable
+    ? (
+      story?.questions?.length
+        ? prepareQuestions(story.questions, `${storyLevelId}-${story.questionIndex || story.storyId || "story"}`)
+        : Number.isInteger(story.questionIndex)
+          ? getQuestionsForStory(storyLevelId, story.questionIndex)
+          : []
+    )
     : [];
 
   if (!storyAvailable) {

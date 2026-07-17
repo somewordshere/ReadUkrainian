@@ -17,8 +17,8 @@ export async function onRequestGet(context) {
   }
 
   const story = Number.isInteger(storyId) && storyId > 0
-    ? await getStoryById(context.env.DB, storyId)
-    : await getStoryByLevelAndOrder(context.env.DB, level, legacyOrder);
+    ? await getStoryById(context.env.DB, storyId, { includeQuestions: true })
+    : await getStoryByLevelAndOrder(context.env.DB, level, legacyOrder, { includeQuestions: true });
 
   if (!story || !story.active) {
     return error(404, "Story not found.");

@@ -32,24 +32,32 @@ export function getCookie(request, name) {
   return target ? decodeURIComponent(target.slice(name.length + 1)) : null;
 }
 
-export function createSessionCookie(value, maxAgeSeconds) {
-  return [
+function buildSessionCookie(parts, secure) {
+  const cookieParts = [...parts];
+
+  if (secure) {
+    cookieParts.push("Secure");
+  }
+
+  return cookieParts.join("; ");
+}
+
+export function createSessionCookie(value, maxAgeSeconds, { secure = true } = {}) {
+  return buildSessionCookie([
     `admin_session=${encodeURIComponent(value)}`,
     "Path=/",
     "HttpOnly",
     "SameSite=Strict",
-    "Secure",
     `Max-Age=${maxAgeSeconds}`,
-  ].join("; ");
+  ], secure);
 }
 
-export function clearSessionCookie() {
-  return [
+export function clearSessionCookie({ secure = true } = {}) {
+  return buildSessionCookie([
     "admin_session=",
     "Path=/",
     "HttpOnly",
     "SameSite=Strict",
-    "Secure",
     "Max-Age=0",
-  ].join("; ");
+  ], secure);
 }
