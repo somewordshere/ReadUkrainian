@@ -11,14 +11,18 @@ function getQuestionsForStory(level, questionIndex) {
     return [];
   }
 
+  return prepareQuestions(questions, `${level}-${questionIndex}`);
+}
+
+function prepareQuestions(questions, seedPrefix) {
   return questions.map((question, index) =>
-    withShuffledOptions(question, level, questionIndex, index)
+    withShuffledOptions(question, `${seedPrefix}-${index}`)
   );
 }
 
-function withShuffledOptions(question, level, storyQuestionIndex, questionIndex) {
+function withShuffledOptions(question, seedText) {
   const options = [question.correct, ...question.wrong];
-  const shuffled = seededShuffle(options, `${level}-${storyQuestionIndex}-${questionIndex}`);
+  const shuffled = seededShuffle(options, seedText);
 
   return {
     prompt: question.prompt,

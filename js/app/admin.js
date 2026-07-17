@@ -12,10 +12,19 @@ const editorKicker = document.getElementById("editorKicker");
 const editorTitle = document.getElementById("editorTitle");
 const editorSubmitButton = document.getElementById("editorSubmitButton");
 const storyIdField = document.getElementById("storyIdField");
+const addQuestionButton = document.getElementById("addQuestionButton");
+const questionsEditor = document.getElementById("questionsEditor");
 
 let stories = [];
 let selectedStoryId = null;
 let editorMode = "edit";
+
+function sortStories() {
+  stories.sort((left, right) =>
+    left.level.localeCompare(right.level) ||
+    left.sortOrder - right.sortOrder
+  );
+}
 
 function setStatus(element, message, isError = false) {
   element.textContent = message || "";
@@ -30,9 +39,88 @@ function getParagraphsFromTextarea(value) {
     .filter(Boolean);
 }
 
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
+function createQuestionEditor(question = {}, index = 0) {
+  const card = document.createElement("section");
+  card.className = "admin-question-card";
+  card.innerHTML = `
+    <div class="admin-question-card-header">
+      <h4>Question ${index + 1}</h4>
+      <button class="admin-question-remove" type="button">Remove</button>
+    </div>
+    <label>
+      <span>Prompt</span>
+      <textarea name="prompt" rows="3" required>${escapeHtml(question.prompt || "")}</textarea>
+    </label>
+    <div class="admin-question-grid">
+      <label>
+        <span>Correct answer</span>
+        <input name="correct" type="text" value="${escapeHtml(question.correct || "")}" required />
+      </label>
+      <label>
+        <span>Wrong answer 1</span>
+        <input name="wrong-1" type="text" value="${escapeHtml(question.wrong?.[0] || "")}" required />
+      </label>
+      <label>
+        <span>Wrong answer 2</span>
+        <input name="wrong-2" type="text" value="${escapeHtml(question.wrong?.[1] || "")}" required />
+      </label>
+      <label>
+        <span>Wrong answer 3</span>
+        <input name="wrong-3" type="text" value="${escapeHtml(question.wrong?.[2] || "")}" required />
+      </label>
+    </div>
+  `;
+
+  card.querySelector(".admin-question-remove").addEventListener("click", () => {
+    card.remove();
+    renumberQuestionEditors();
+  });
+
+  return card;
+}
+
+function renumberQuestionEditors() {
+  Array.from(questionsEditor.children).forEach((card, index) => {
+    const title = card.querySelector("h4");
+
+    if (title) {
+      title.textContent = `Question ${index + 1}`;
+    }
+  });
+}
+
+function renderQuestionsEditor(questions = []) {
+  questionsEditor.innerHTML = "";
+
+  questions.forEach((question, index) => {
+    questionsEditor.appendChild(createQuestionEditor(question, index));
+  });
+
+  renumberQuestionEditors();
+}
+
+function getQuestionsFromEditor() {
+  return Array.from(questionsEditor.children).map((card) => ({
+    prompt: card.querySelector('[name="prompt"]').value.trim(),
+    correct: card.querySelector('[name="correct"]').value.trim(),
+    wrong: [1, 2, 3].map((position) =>
+      card.querySelector(`[name="wrong-${position}"]`).value.trim()
+    ),
+  }));
+}
+
 async function api(path, options = {}) {
   const response = await fetch(path, {
     ...options,
+    credentials: "same-origin",
     headers: {
       "content-type": "application/json",
       ...(options.headers || {}),
@@ -100,13 +188,13 @@ function populateEditor() {
 
   editorMode = "edit";
   editorForm.dataset.storyId = String(story.storyId);
-  editorForm.elements.level.disabled = true;
   editorForm.elements.level.value = story.level;
   editorForm.elements.storyId.value = story.storyId;
   editorForm.elements.title.value = story.title;
   editorForm.elements.active.checked = story.active;
   editorForm.elements.showWordCount.checked = story.showWordCount;
   editorForm.elements.paragraphs.value = story.paragraphs.join("\n\n");
+  renderQuestionsEditor(story.questions || []);
   editorKicker.textContent = "Selected story";
   editorTitle.textContent = "Edit story";
   editorSubmitButton.textContent = "Save changes";
@@ -123,6 +211,7 @@ function enterCreateMode() {
   editorForm.elements.level.value = "A1";
   editorForm.elements.active.checked = true;
   editorForm.elements.showWordCount.checked = true;
+  renderQuestionsEditor([]);
   editorKicker.textContent = "New story";
   editorTitle.textContent = "Add Story";
   editorSubmitButton.textContent = "Create Story";
@@ -135,6 +224,7 @@ function enterCreateMode() {
 async function loadStories() {
   const payload = await api("./api/admin/texts", { method: "GET" });
   stories = payload.stories;
+  sortStories();
 
   if (!selectedStoryId && stories[0]) {
     selectedStoryId = stories[0].storyId;
@@ -148,12 +238,21 @@ async function loadStories() {
   populateEditor();
 }
 
+async function enterAdminPanel() {
+  loginSection.hidden = true;
+  adminSection.hidden = false;
+
+  try {
+    await loadStories();
+  } catch (error) {
+    setStatus(editorStatus, `Could not load stories: ${error.message}`, true);
+  }
+}
+
 async function checkSession() {
   try {
     await api("./api/admin/session", { method: "GET" });
-    loginSection.hidden = true;
-    adminSection.hidden = false;
-    await loadStories();
+    await enterAdminPanel();
   } catch {
     loginSection.hidden = false;
     adminSection.hidden = true;
@@ -177,7 +276,7 @@ loginForm.addEventListener("submit", async (event) => {
     });
     await offerToSaveCredentials(email, password);
     loginForm.reset();
-    await checkSession();
+    await enterAdminPanel();
   } catch (error) {
     setStatus(loginStatus, error.message, true);
   }
@@ -191,6 +290,10 @@ logoutButton.addEventListener("click", async () => {
 });
 
 addStoryButton.addEventListener("click", enterCreateMode);
+addQuestionButton.addEventListener("click", () => {
+  questionsEditor.appendChild(createQuestionEditor({}, questionsEditor.children.length));
+  renumberQuestionEditors();
+});
 
 editorForm.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -205,6 +308,7 @@ editorForm.addEventListener("submit", async (event) => {
         level: editorForm.elements.level.value,
         title: editorForm.elements.title.value,
         paragraphs: getParagraphsFromTextarea(editorForm.elements.paragraphs.value),
+        questions: getQuestionsFromEditor(),
         showWordCount: editorForm.elements.showWordCount.checked,
         active: editorForm.elements.active.checked,
       }),
@@ -219,6 +323,7 @@ editorForm.addEventListener("submit", async (event) => {
       stories[index] = payload.story;
     }
 
+    sortStories();
     renderStoryList();
     populateEditor();
     setStatus(editorStatus, isCreating ? "Story created." : "Changes saved.");

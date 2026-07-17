@@ -1,3 +1,4 @@
+import { listQuestionsForStories, listQuestionsForStory, replaceQuestionsForStory, validateQuestionsPayload } from "./questions.js";
 import { LEVELS, LEVELS_BY_ID } from "./levels.js";
 
 function toStoryRecord(row) {
@@ -15,7 +16,34 @@ function toStoryRecord(row) {
   };
 }
 
-export async function listTexts(db, { includeDisabled = false } = {}) {
+async function withQuestions(db, stories) {
+  if (!stories.length) {
+    return stories;
+  }
+
+  const questionsByStoryId = await listQuestionsForStories(
+    db,
+    stories.map((story) => story.storyId)
+  );
+
+  return stories.map((story) => ({
+    ...story,
+    questions: questionsByStoryId.get(story.storyId) || [],
+  }));
+}
+
+async function withQuestionsForStory(db, story, includeQuestions) {
+  if (!story || !includeQuestions) {
+    return story;
+  }
+
+  return {
+    ...story,
+    questions: await listQuestionsForStory(db, story.storyId),
+  };
+}
+
+export async function listTexts(db, { includeDisabled = false, includeQuestions = false } = {}) {
   const filterSql = includeDisabled ? "" : "WHERE is_enabled = 1";
   const statement = db.prepare(`
     SELECT id, level, display_order, question_index, title, paragraphs_json, show_word_count, is_enabled, created_at, updated_at
@@ -24,10 +52,11 @@ export async function listTexts(db, { includeDisabled = false } = {}) {
     ORDER BY level ASC, display_order ASC
   `);
   const result = await statement.all();
-  return (result.results || []).map(toStoryRecord);
+  const stories = (result.results || []).map(toStoryRecord);
+  return includeQuestions ? withQuestions(db, stories) : stories;
 }
 
-export async function getStoryByLevelAndOrder(db, level, sortOrder) {
+export async function getStoryByLevelAndOrder(db, level, sortOrder, { includeQuestions = false } = {}) {
   const result = await db
     .prepare(`
       SELECT id, level, display_order, question_index, title, paragraphs_json, show_word_count, is_enabled, created_at, updated_at
@@ -38,10 +67,10 @@ export async function getStoryByLevelAndOrder(db, level, sortOrder) {
     .bind(level, sortOrder)
     .first();
 
-  return result ? toStoryRecord(result) : null;
+  return withQuestionsForStory(db, result ? toStoryRecord(result) : null, includeQuestions);
 }
 
-export async function getStoryById(db, storyId) {
+export async function getStoryById(db, storyId, { includeQuestions = false } = {}) {
   const result = await db
     .prepare(`
       SELECT id, level, display_order, question_index, title, paragraphs_json, show_word_count, is_enabled, created_at, updated_at
@@ -52,7 +81,7 @@ export async function getStoryById(db, storyId) {
     .bind(storyId)
     .first();
 
-  return result ? toStoryRecord(result) : null;
+  return withQuestionsForStory(db, result ? toStoryRecord(result) : null, includeQuestions);
 }
 
 export async function createText(db, payload) {
@@ -83,22 +112,50 @@ export async function createText(db, payload) {
     )
     .run();
 
-  return getStoryById(db, insertResult.meta.last_row_id);
+  const storyId = insertResult.meta.last_row_id;
+  await replaceQuestionsForStory(db, storyId, payload.questions || []);
+  return getStoryById(db, storyId, { includeQuestions: true });
 }
 
 export async function updateText(db, storyId, payload) {
+  const existingStory = await getStoryById(db, storyId);
+
+  if (!existingStory) {
+    return null;
+  }
+
+  let sortOrder = existingStory.sortOrder;
+
+  if (payload.level !== existingStory.level) {
+    const nextOrderRow = await db
+      .prepare(`
+        SELECT COALESCE(MAX(display_order), 0) + 1 AS next_order
+        FROM texts
+        WHERE level = ?1
+      `)
+      .bind(payload.level)
+      .first();
+
+    sortOrder = Number(nextOrderRow?.next_order || 1);
+  }
+
   const now = new Date().toISOString();
   await db
     .prepare(`
       UPDATE texts
-      SET title = ?1,
-          paragraphs_json = ?2,
-          show_word_count = ?3,
-          is_enabled = ?4,
-          updated_at = ?5
-      WHERE id = ?6
+      SET level = ?1,
+          display_order = ?2,
+          question_index = ?2,
+          title = ?3,
+          paragraphs_json = ?4,
+          show_word_count = ?5,
+          is_enabled = ?6,
+          updated_at = ?7
+      WHERE id = ?8
     `)
     .bind(
+      payload.level,
+      sortOrder,
       payload.title,
       JSON.stringify(payload.paragraphs),
       payload.showWordCount ? 1 : 0,
@@ -108,7 +165,8 @@ export async function updateText(db, storyId, payload) {
     )
     .run();
 
-  return getStoryById(db, storyId);
+  await replaceQuestionsForStory(db, storyId, payload.questions || []);
+  return getStoryById(db, storyId, { includeQuestions: true });
 }
 
 export function validateTextPayload(payload, { allowLevel = false } = {}) {
@@ -128,12 +186,19 @@ export function validateTextPayload(payload, { allowLevel = false } = {}) {
     return { ok: false, message: "At least one paragraph is required." };
   }
 
+  const questionValidation = validateQuestionsPayload(payload?.questions);
+
+  if (!questionValidation.ok) {
+    return questionValidation;
+  }
+
   return {
     ok: true,
     value: {
       level: payload?.level,
       title: String(payload.title).trim(),
       paragraphs,
+      questions: questionValidation.value,
       showWordCount: payload?.showWordCount !== false,
       active: payload?.active !== false,
     },

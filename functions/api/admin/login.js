@@ -6,6 +6,7 @@ import {
 } from "../../_shared/auth.js";
 
 export async function onRequestPost(context) {
+  const requestUrl = new URL(context.request.url);
   const payload = await readJson(context.request);
   const email = String(payload?.email || "").trim().toLowerCase();
   const password = String(payload?.password || "");
@@ -50,7 +51,9 @@ export async function onRequestPost(context) {
     },
     {
       headers: {
-        "set-cookie": createSessionCookie(token, getSessionDurationSeconds()),
+        "set-cookie": createSessionCookie(token, getSessionDurationSeconds(), {
+          secure: requestUrl.protocol === "https:",
+        }),
       },
     }
   );

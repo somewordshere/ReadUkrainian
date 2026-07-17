@@ -8,7 +8,7 @@ export async function onRequestGet(context) {
     return auth.response;
   }
 
-  const stories = await listTexts(context.env.DB, { includeDisabled: true });
+  const stories = await listTexts(context.env.DB, { includeDisabled: true, includeQuestions: true });
   return json({ stories });
 }
 
