@@ -51,7 +51,14 @@ function unlockAllQuestions() {
 function clearQuestionResult(questionIndex) {
   const item = getQuestionItem(questionIndex);
   item?.querySelectorAll(".answer-option").forEach((label) => {
-    label.classList.remove("is-correct", "is-wrong", "is-correct-answer");
+    label.classList.remove(
+      "is-correct",
+      "is-wrong",
+      "is-correct-answer",
+      "is-answering-correct",
+      "is-answering-wrong",
+      "is-revealing-correct-answer"
+    );
   });
 
   const feedback = item?.querySelector(".answer-feedback");
@@ -61,11 +68,29 @@ function clearQuestionResult(questionIndex) {
   }
 }
 
-function renderQuestionResult(input) {
+function playAnimation(element, className) {
+  if (!element) {
+    return;
+  }
+
+  element.classList.add(className);
+  const clearAnimationClass = (event) => {
+    if (event.target !== element) {
+      return;
+    }
+
+    element.classList.remove(className);
+    element.removeEventListener("animationend", clearAnimationClass);
+  };
+  element.addEventListener("animationend", clearAnimationClass);
+}
+
+function renderQuestionResult(input, shouldAnimate = false) {
   const questionIndex = Number(input.dataset.questionIndex);
   const inputs = getQuestionInputs(questionIndex);
   const selectedLabel = input.closest(".answer-option");
   const correctInput = inputs.find((candidate) => candidate.dataset.correct === "true");
+  const correctLabel = correctInput?.closest(".answer-option");
   const feedback = getQuestionItem(questionIndex)?.querySelector(".answer-feedback");
   const isCorrect = input.dataset.correct === "true";
 
@@ -73,7 +98,17 @@ function renderQuestionResult(input) {
   selectedLabel.classList.add(isCorrect ? "is-correct" : "is-wrong");
 
   if (!isCorrect) {
-    correctInput?.closest(".answer-option")?.classList.add("is-correct-answer");
+    correctLabel?.classList.add("is-correct-answer");
+  }
+
+  if (shouldAnimate) {
+    playAnimation(
+      selectedLabel,
+      isCorrect ? "is-answering-correct" : "is-answering-wrong"
+    );
+    if (!isCorrect) {
+      playAnimation(correctLabel, "is-revealing-correct-answer");
+    }
   }
 
   const resultMessage = isCorrect
@@ -83,6 +118,9 @@ function renderQuestionResult(input) {
   if (feedback) {
     feedback.textContent = resultMessage;
     feedback.classList.add(isCorrect ? "is-correct" : "is-wrong");
+    if (shouldAnimate) {
+      playAnimation(feedback, "is-revealing");
+    }
   }
 
   return resultMessage;
@@ -258,7 +296,7 @@ function renderQuestions(questions) {
           return;
         }
 
-        const resultMessage = renderQuestionResult(input);
+        const resultMessage = renderQuestionResult(input, true);
         lockQuestion(questionIndex);
         syncProgress(resultMessage);
       });
@@ -342,7 +380,10 @@ restartButton.addEventListener("click", () => {
     input.closest(".answer-option").classList.remove(
       "is-correct",
       "is-wrong",
-      "is-correct-answer"
+      "is-correct-answer",
+      "is-answering-correct",
+      "is-answering-wrong",
+      "is-revealing-correct-answer"
     );
   });
   questionsList.querySelectorAll(".answer-feedback").forEach((feedback) => {

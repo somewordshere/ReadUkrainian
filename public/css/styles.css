@@ -616,6 +616,22 @@ h1 {
   background: var(--paper);
   cursor: pointer;
   line-height: 1.4;
+  transform-origin: center;
+  transition:
+    transform 0.14s cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-color 0.18s ease,
+    background-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.answer-option:not(.is-locked):hover {
+  transform: translateY(-2px);
+  border-color: rgba(29, 107, 82, 0.34);
+  box-shadow: 0 8px 18px rgba(31, 42, 36, 0.08);
+}
+
+.answer-option:not(.is-locked):active {
+  transform: translateY(0) scale(0.975);
 }
 
 .answer-option input {
@@ -663,6 +679,26 @@ h1 {
   box-shadow: inset 0 0 0 1px rgba(29, 107, 82, 0.3);
 }
 
+.answer-option.is-answering-correct {
+  animation: answer-success 0.46s cubic-bezier(0.2, 0.9, 0.25, 1);
+}
+
+.answer-option.is-answering-wrong {
+  animation: answer-error 0.38s ease;
+}
+
+.answer-option.is-revealing-correct-answer {
+  animation: answer-correct-hint 0.58s ease;
+}
+
+.answer-option.is-answering-correct .answer-marker {
+  animation: answer-marker-success 0.46s cubic-bezier(0.2, 0.9, 0.25, 1);
+}
+
+.answer-option.is-answering-wrong .answer-marker {
+  animation: answer-marker-error 0.38s ease;
+}
+
 .answer-feedback {
   min-height: 1.5em;
   margin: 0;
@@ -679,6 +715,10 @@ h1 {
   color: #873729;
 }
 
+.answer-feedback.is-revealing {
+  animation: answer-feedback-in 0.28s ease-out;
+}
+
 .completion-actions {
   display: grid;
   gap: 10px;
@@ -686,6 +726,10 @@ h1 {
   border: 1px solid rgba(29, 107, 82, 0.2);
   border-radius: 16px;
   background: rgba(219, 238, 227, 0.46);
+}
+
+.completion-actions:not([hidden]) {
+  animation: completion-actions-in 0.36s ease-out;
 }
 
 .completion-title {
@@ -725,6 +769,114 @@ h1 {
   border-color: rgba(29, 107, 82, 0.45);
   background: rgba(219, 238, 227, 0.95);
   outline: none;
+}
+
+.review-mistakes-button,
+.restart-button,
+.next-story-link,
+.completion-back-link {
+  transition:
+    transform 0.14s ease,
+    border-color 0.18s ease,
+    background-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.review-mistakes-button:active,
+.restart-button:active,
+.next-story-link:active,
+.completion-back-link:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+@keyframes answer-success {
+  0% {
+    transform: scale(0.975);
+  }
+  55% {
+    transform: scale(1.025);
+    box-shadow: 0 0 0 5px rgba(29, 107, 82, 0.13);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes answer-error {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  50% {
+    transform: translateX(4px);
+  }
+  75% {
+    transform: translateX(-2px);
+  }
+}
+
+@keyframes answer-correct-hint {
+  0% {
+    box-shadow: inset 0 0 0 1px rgba(29, 107, 82, 0.3);
+  }
+  50% {
+    box-shadow:
+      inset 0 0 0 1px rgba(29, 107, 82, 0.3),
+      0 0 0 5px rgba(29, 107, 82, 0.12);
+  }
+  100% {
+    box-shadow: inset 0 0 0 1px rgba(29, 107, 82, 0.3);
+  }
+}
+
+@keyframes answer-marker-success {
+  0% {
+    transform: scale(0.75) rotate(-8deg);
+  }
+  65% {
+    transform: scale(1.15) rotate(4deg);
+  }
+  100% {
+    transform: scale(1) rotate(0);
+  }
+}
+
+@keyframes answer-marker-error {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  35% {
+    transform: rotate(-10deg);
+  }
+  70% {
+    transform: rotate(8deg);
+  }
+}
+
+@keyframes answer-feedback-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes completion-actions-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 @media (max-width: 1100px) {
@@ -905,6 +1057,8 @@ h1 {
   *::before,
   *::after {
     scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
 }
