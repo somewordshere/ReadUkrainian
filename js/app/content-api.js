@@ -40,6 +40,8 @@ function getLegacyStory(level, sortOrder) {
 }
 
 export async function fetchContentIndex() {
+  let apiError = null;
+
   try {
     const response = await fetch("./api/content", {
       headers: { accept: "application/json" },
@@ -50,13 +52,26 @@ export async function fetchContentIndex() {
     }
 
     const payload = await response.json();
+    if (!Array.isArray(payload?.levels) || payload.levels.length === 0) {
+      throw new Error("The content API returned no levels.");
+    }
+
     return payload.levels;
-  } catch {
-    return getLegacyLevels();
+  } catch (error) {
+    apiError = error;
   }
+
+  const legacyLevels = getLegacyLevels();
+  if (legacyLevels.length > 0) {
+    return legacyLevels;
+  }
+
+  throw apiError || new Error("Не вдалося завантажити список текстів.");
 }
 
 export async function fetchStory(storyId, level, legacyOrder) {
+  let apiError = null;
+
   try {
     const url = new URL("./api/content/story", window.location.href);
     if (/^\d+$/.test(String(storyId))) {
@@ -75,8 +90,19 @@ export async function fetchStory(storyId, level, legacyOrder) {
     }
 
     const payload = await response.json();
+    if (!payload?.story) {
+      throw new Error("The content API returned no story.");
+    }
+
     return payload.story;
-  } catch {
-    return getLegacyStory(level, legacyOrder);
+  } catch (error) {
+    apiError = error;
   }
+
+  const legacyStory = getLegacyStory(level, legacyOrder);
+  if (legacyStory) {
+    return legacyStory;
+  }
+
+  throw apiError || new Error("Не вдалося завантажити текст.");
 }

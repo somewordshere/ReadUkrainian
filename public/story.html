@@ -21,15 +21,23 @@
               <span class="bookmark-icon" aria-hidden="true">☆</span>
             </button>
           </div>
-          <div class="story-content" id="storyContent"></div>
+          <div class="story-content" id="storyContent" aria-busy="true">
+            <p class="story-note">Завантажуємо текст…</p>
+          </div>
         </section>
 
         <aside class="questions-card" aria-labelledby="questionsTitle">
           <h2 class="questions-title" id="questionsTitle">Питання</h2>
           <div class="questions-list" id="questionsList"></div>
           <div class="questions-footer">
-            <p class="questions-status" id="questionsStatus">Дайте відповіді на всі 5 питань.</p>
-            <button class="restart-button" id="restartButton" type="button">Почати тест знову</button>
+            <p class="questions-status" id="questionsStatus" aria-live="polite" aria-atomic="true">Завантажуємо питання…</p>
+            <div class="completion-actions" id="completionActions" hidden>
+              <p class="completion-title">Що далі?</p>
+              <button class="review-mistakes-button" id="reviewMistakesButton" type="button" hidden>Переглянути помилки</button>
+              <a class="next-story-link" id="nextStoryLink" href="./index.html" hidden>Наступний текст</a>
+              <a class="completion-back-link" href="./index.html">Повернутися до рівнів</a>
+            </div>
+            <button class="restart-button" id="restartButton" type="button" hidden>Почати тест знову</button>
           </div>
         </aside>
       </main>

@@ -17,7 +17,57 @@
       </header>
 
       <main>
-        <section class="levels" id="levels"></section>
+        <section class="continue-card" id="continueCard" aria-labelledby="continueTitle" hidden>
+          <div>
+            <p class="continue-kicker" id="continueKicker">Продовжити навчання</p>
+            <h2 id="continueTitle"></h2>
+            <p class="continue-meta" id="continueMeta"></p>
+          </div>
+          <a class="continue-link" id="continueLink" href="./story.html">Відкрити текст</a>
+        </section>
+
+        <section class="library-tools" id="libraryTools" aria-labelledby="libraryToolsTitle" hidden>
+          <div class="library-tools-heading">
+            <div>
+              <p class="continue-kicker">Бібліотека</p>
+              <h2 id="libraryToolsTitle">Знайдіть наступний текст</h2>
+            </div>
+            <button class="clear-filters-button" id="clearFiltersButton" type="button">Очистити фільтри</button>
+          </div>
+          <div class="library-controls">
+            <label class="library-field library-search-field">
+              <span>Пошук</span>
+              <input id="storySearch" type="search" placeholder="Назва, тема або рівень" autocomplete="off" />
+            </label>
+            <label class="library-field">
+              <span>Тема</span>
+              <select id="topicFilter">
+                <option value="all">Усі теми</option>
+              </select>
+            </label>
+            <label class="library-field">
+              <span>Статус</span>
+              <select id="statusFilter">
+                <option value="all">Усі тексти</option>
+                <option value="incomplete">Ще не завершені</option>
+                <option value="completed">Завершені</option>
+                <option value="bookmarked">У закладках</option>
+              </select>
+            </label>
+          </div>
+          <p class="library-summary" id="librarySummary" aria-live="polite"></p>
+        </section>
+
+        <section class="library-state" id="libraryState" role="status" aria-live="polite">
+          <p id="libraryStateMessage">Завантажуємо тексти…</p>
+          <button class="retry-button" id="retryLibraryButton" type="button" hidden>Спробувати ще раз</button>
+        </section>
+
+        <section class="levels" id="levels" aria-busy="true" aria-label="Рівні та тексти"></section>
+
+        <noscript>
+          <p class="library-state">Для роботи бібліотеки потрібно увімкнути JavaScript.</p>
+        </noscript>
       </main>
     </div>
 

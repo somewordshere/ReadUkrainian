@@ -1,5 +1,7 @@
 const PROGRESS_STORAGE_KEY = "isuk-progress";
 const PROGRESS_WINDOW_KEY = "__isukProgress__";
+const LAST_STORY_STORAGE_KEY = "isuk-last-story";
+const LAST_STORY_WINDOW_KEY = "__isukLastStory__";
 const LEGACY_STORY_TITLES_BY_LEVEL = {
   "A1": [
     "Розклад занять студента",
@@ -374,4 +376,76 @@ function setStoryBookmarked(level, storyId, title, bookmarked) {
   };
 
   saveProgress(progress);
+}
+
+function parseLastVisitedStory(raw) {
+  try {
+    const story = raw ? JSON.parse(raw) : null;
+    return story && story.level && (story.storyId || story.sortOrder) ? story : null;
+  } catch (error) {
+    return null;
+  }
+}
+
+function getLastVisitedStory() {
+  const local = getBrowserStorage("localStorage");
+  const session = getBrowserStorage("sessionStorage");
+  let windowValue = null;
+
+  try {
+    const parsedWindowName = window.name ? JSON.parse(window.name) : {};
+    windowValue = parsedWindowName[LAST_STORY_WINDOW_KEY] || null;
+  } catch (error) {
+    windowValue = null;
+  }
+
+  for (const storage of [local, session]) {
+    try {
+      const story = parseLastVisitedStory(storage?.getItem(LAST_STORY_STORAGE_KEY));
+      if (story) {
+        return story;
+      }
+    } catch (error) {
+      // Continue to the next available persistence layer.
+    }
+  }
+
+  return parseLastVisitedStory(windowValue);
+}
+
+function setLastVisitedStory(story) {
+  if (!story?.level || (!story.storyId && !story.sortOrder)) {
+    return;
+  }
+
+  const normalizedStory = {
+    level: story.level,
+    storyId: story.storyId,
+    sortOrder: story.sortOrder,
+    title: story.title || "",
+    visitedAt: new Date().toISOString(),
+  };
+  const serialized = JSON.stringify(normalizedStory);
+
+  for (const storage of [getBrowserStorage("localStorage"), getBrowserStorage("sessionStorage")]) {
+    try {
+      storage?.setItem(LAST_STORY_STORAGE_KEY, serialized);
+    } catch (error) {
+      // The window.name fallback below still preserves the learner's place.
+    }
+  }
+
+  try {
+    let parsedWindowName = {};
+    try {
+      parsedWindowName = window.name ? JSON.parse(window.name) : {};
+    } catch (error) {
+      parsedWindowName = {};
+    }
+
+    parsedWindowName[LAST_STORY_WINDOW_KEY] = serialized;
+    window.name = JSON.stringify(parsedWindowName);
+  } catch (error) {
+    // Progress persistence is best-effort when browser storage is restricted.
+  }
 }

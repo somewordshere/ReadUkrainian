@@ -75,3 +75,4 @@ This file is tracked in GitHub and linked from the site version footer.
 0.69 - Replaced admin-facing text terminology with story terminology.
 0.70 - Renamed the admin page heading to Stories editor.
 0.71 - Separated stable story IDs from ordering and made enabled stories display with consecutive numbers.
+0.72 - Added library discovery, resilient static fallbacks, accessible radio quizzes, clearer completion actions, and improved focus and contrast.
