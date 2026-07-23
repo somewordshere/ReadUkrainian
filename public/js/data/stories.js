@@ -13,3 +13,7 @@ function isLevelActive(levelId) {
 function isStoryActive(story) {
   return story?.active !== false;
 }
+
+window.storiesByLevel = storiesByLevel;
+window.isLevelActive = isLevelActive;
+window.isStoryActive = isStoryActive;
