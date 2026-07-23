@@ -76,3 +76,4 @@ This file is tracked in GitHub and linked from the site version footer.
 0.70 - Renamed the admin page heading to Stories editor.
 0.71 - Separated stable story IDs from ordering and made enabled stories display with consecutive numbers.
 0.72 - Added library discovery, resilient static fallbacks, accessible radio quizzes, clearer completion actions, and improved focus and contrast.
+0.73 - Added responsive press, answer-result, feedback, and completion animations to the story quizzes with reduced-motion support.
