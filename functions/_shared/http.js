@@ -8,8 +8,8 @@ export function json(data, init = {}) {
   });
 }
 
-export function error(status, message) {
-  return json({ error: message }, { status });
+export function error(status, message, init = {}) {
+  return json({ error: message }, { ...init, status });
 }
 
 export async function readJson(request) {
@@ -29,7 +29,16 @@ export function getCookie(request, name) {
 
   const cookies = cookieHeader.split(";").map((cookie) => cookie.trim());
   const target = cookies.find((cookie) => cookie.startsWith(`${name}=`));
-  return target ? decodeURIComponent(target.slice(name.length + 1)) : null;
+
+  if (!target) {
+    return null;
+  }
+
+  try {
+    return decodeURIComponent(target.slice(name.length + 1));
+  } catch {
+    return null;
+  }
 }
 
 function buildSessionCookie(parts, secure) {

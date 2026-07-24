@@ -61,7 +61,21 @@ async function derivePassword(secret, salt, iterations) {
     keyMaterial,
     256
   );
-  return toBase64Url(new Uint8Array(derived));
+  return new Uint8Array(derived);
+}
+
+function equalBytes(left, right) {
+  if (left.length !== right.length) {
+    return false;
+  }
+
+  let difference = 0;
+
+  for (let index = 0; index < left.length; index += 1) {
+    difference |= left[index] ^ right[index];
+  }
+
+  return difference === 0;
 }
 
 export async function verifyPassword(password, storedHash) {
@@ -77,8 +91,18 @@ export async function verifyPassword(password, storedHash) {
     return false;
   }
 
-  const actual = await derivePassword(password, salt, iterations);
-  return actual === expected;
+  try {
+    const expectedBytes = fromBase64Url(expected);
+
+    if (expectedBytes.length !== 32) {
+      return false;
+    }
+
+    const actualBytes = await derivePassword(password, salt, iterations);
+    return equalBytes(actualBytes, expectedBytes);
+  } catch {
+    return false;
+  }
 }
 
 export async function createSessionToken(secret, payload) {
@@ -92,22 +116,26 @@ export async function createSessionToken(secret, payload) {
 }
 
 export async function readSessionToken(secret, token) {
-  if (!token || !token.includes(".")) {
-    return null;
-  }
+  const tokenParts = String(token || "").split(".");
 
-  const [encodedPayload, signature] = token.split(".");
-  const valid = await verifySignature(secret, encodedPayload, signature);
-
-  if (!valid) {
+  if (tokenParts.length !== 2) {
     return null;
   }
 
   try {
-    const payload = JSON.parse(decodeText(fromBase64Url(encodedPayload)));
-    if (payload.exp <= Date.now()) {
+    const [encodedPayload, signature] = tokenParts;
+    const valid = await verifySignature(secret, encodedPayload, signature);
+
+    if (!valid) {
       return null;
     }
+
+    const payload = JSON.parse(decodeText(fromBase64Url(encodedPayload)));
+
+    if (!Number.isFinite(payload?.exp) || payload.exp <= Date.now()) {
+      return null;
+    }
+
     return payload;
   } catch {
     return null;

@@ -4,20 +4,21 @@ import vm from "node:vm";
 
 const rootDir = process.cwd();
 const storyFiles = [
-  "js/data/stories.js",
-  "js/data/a1-stories.js",
-  "js/data/a2-stories.js",
-  "js/data/b1-stories.js",
+  "public/js/data/stories.js",
+  "public/js/data/a1-stories.js",
+  "public/js/data/a2-stories.js",
+  "public/js/data/b1-stories.js",
 ];
 const questionFiles = [
-  "js/app/questions.js",
-  "js/data/a1-questions.js",
-  "js/data/a2-questions.js",
-  "js/data/b1-questions.js",
+  "public/js/app/questions.js",
+  "public/js/data/a1-questions.js",
+  "public/js/data/a2-questions.js",
+  "public/js/data/b1-questions.js",
 ];
 
 async function runFiles(files, setupSource, outputExpression, filename) {
   const context = {};
+  context.window = context;
   vm.createContext(context);
   const combinedSourceParts = [setupSource];
 
