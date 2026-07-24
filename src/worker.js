@@ -11,73 +11,78 @@ import {
   onRequestGet as getAdminText,
   onRequestPut as updateAdminText,
 } from "../functions/api/admin/texts/[id].js";
+import { error } from "../functions/_shared/http.js";
 
-function buildContext(request, env, params = {}) {
-  return { request, env, params };
+const EXACT_API_ROUTES = new Map([
+  ["/api/content", { GET: getContent }],
+  ["/api/content/story", { GET: getStory }],
+  ["/api/admin/login", { POST: login }],
+  ["/api/admin/logout", { POST: logout }],
+  ["/api/admin/session", { GET: session }],
+  ["/api/admin/texts", { GET: listAdminTexts, POST: createAdminText }],
+]);
+
+const PARAMETERIZED_API_ROUTES = [
+  {
+    pattern: /^\/api\/admin\/texts\/(\d+)$/,
+    handlers: { GET: getAdminText, PUT: updateAdminText },
+    getParams: (match) => ({ id: match[1] }),
+  },
+];
+
+function matchApiRoute(pathname) {
+  const exactHandlers = EXACT_API_ROUTES.get(pathname);
+
+  if (exactHandlers) {
+    return { handlers: exactHandlers, params: {} };
+  }
+
+  for (const route of PARAMETERIZED_API_ROUTES) {
+    const match = pathname.match(route.pattern);
+
+    if (match) {
+      return {
+        handlers: route.handlers,
+        params: route.getParams(match),
+      };
+    }
+  }
+
+  return null;
 }
 
-function notFound() {
-  return new Response(JSON.stringify({ error: "Not found." }), {
-    status: 404,
-    headers: {
-      "content-type": "application/json; charset=utf-8",
-    },
+async function handleApiRequest(request, env, pathname) {
+  const route = matchApiRoute(pathname);
+
+  if (!route) {
+    return error(404, "Not found.");
+  }
+
+  const handler = route.handlers[request.method];
+
+  if (!handler) {
+    return error(405, "Method not allowed.", {
+      headers: { allow: Object.keys(route.handlers).join(", ") },
+    });
+  }
+
+  return handler({
+    request,
+    env,
+    params: route.params,
   });
 }
 
+export async function handleRequest(request, env) {
+  const { pathname } = new URL(request.url);
+
+  if (pathname.startsWith("/api/")) {
+    return handleApiRequest(request, env, pathname);
+  }
+
+  return env.ASSETS.fetch(request);
+}
+
 export default {
-  async fetch(request, env) {
-    const url = new URL(request.url);
-    const { pathname } = url;
-
-    if (pathname === "/api/content" && request.method === "GET") {
-      return getContent(buildContext(request, env));
-    }
-
-    if (pathname === "/api/content/story" && request.method === "GET") {
-      return getStory(buildContext(request, env));
-    }
-
-    if (pathname === "/api/admin/login" && request.method === "POST") {
-      return login(buildContext(request, env));
-    }
-
-    if (pathname === "/api/admin/logout" && request.method === "POST") {
-      return logout(buildContext(request, env));
-    }
-
-    if (pathname === "/api/admin/session" && request.method === "GET") {
-      return session(buildContext(request, env));
-    }
-
-    if (pathname === "/api/admin/texts") {
-      if (request.method === "GET") {
-        return listAdminTexts(buildContext(request, env));
-      }
-
-      if (request.method === "POST") {
-        return createAdminText(buildContext(request, env));
-      }
-    }
-
-    const textMatch = pathname.match(/^\/api\/admin\/texts\/(\d+)$/);
-
-    if (textMatch) {
-      const context = buildContext(request, env, { id: textMatch[1] });
-
-      if (request.method === "GET") {
-        return getAdminText(context);
-      }
-
-      if (request.method === "PUT") {
-        return updateAdminText(context);
-      }
-    }
-
-    if (pathname.startsWith("/api/")) {
-      return notFound();
-    }
-
-    return env.ASSETS.fetch(request);
-  },
+  fetch: handleRequest,
 };

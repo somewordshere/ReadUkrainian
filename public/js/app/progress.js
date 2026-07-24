@@ -348,10 +348,6 @@ function clearStoryProgress(level, storyId, title) {
   saveProgress(progress);
 }
 
-function isStoryCompleted(level, storyId, title) {
-  return Boolean(getStoryProgress(level, storyId, title)?.completed);
-}
-
 function isStoryBookmarked(level, storyId, title) {
   return Boolean(getStoryProgress(level, storyId, title)?.bookmarked);
 }

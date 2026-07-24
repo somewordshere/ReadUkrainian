@@ -1,6 +1,11 @@
 import { listQuestionsForStories, listQuestionsForStory, replaceQuestionsForStory, validateQuestionsPayload } from "./questions.js";
 import { LEVELS, LEVELS_BY_ID } from "./levels.js";
 
+const TEXT_COLUMNS = `
+  id, level, display_order, question_index, title, paragraphs_json,
+  show_word_count, is_enabled, created_at, updated_at
+`;
+
 function toStoryRecord(row) {
   return {
     storyId: row.id,
@@ -43,10 +48,23 @@ async function withQuestionsForStory(db, story, includeQuestions) {
   };
 }
 
+async function getNextDisplayOrder(db, level) {
+  const row = await db
+    .prepare(`
+      SELECT COALESCE(MAX(display_order), 0) + 1 AS next_order
+      FROM texts
+      WHERE level = ?1
+    `)
+    .bind(level)
+    .first();
+
+  return Number(row?.next_order || 1);
+}
+
 export async function listTexts(db, { includeDisabled = false, includeQuestions = false } = {}) {
   const filterSql = includeDisabled ? "" : "WHERE is_enabled = 1";
   const statement = db.prepare(`
-    SELECT id, level, display_order, question_index, title, paragraphs_json, show_word_count, is_enabled, created_at, updated_at
+    SELECT ${TEXT_COLUMNS}
     FROM texts
     ${filterSql}
     ORDER BY level ASC, display_order ASC
@@ -59,7 +77,7 @@ export async function listTexts(db, { includeDisabled = false, includeQuestions 
 export async function getStoryByLevelAndOrder(db, level, sortOrder, { includeQuestions = false } = {}) {
   const result = await db
     .prepare(`
-      SELECT id, level, display_order, question_index, title, paragraphs_json, show_word_count, is_enabled, created_at, updated_at
+      SELECT ${TEXT_COLUMNS}
       FROM texts
       WHERE level = ?1 AND display_order = ?2
       LIMIT 1
@@ -73,7 +91,7 @@ export async function getStoryByLevelAndOrder(db, level, sortOrder, { includeQue
 export async function getStoryById(db, storyId, { includeQuestions = false } = {}) {
   const result = await db
     .prepare(`
-      SELECT id, level, display_order, question_index, title, paragraphs_json, show_word_count, is_enabled, created_at, updated_at
+      SELECT ${TEXT_COLUMNS}
       FROM texts
       WHERE id = ?1
       LIMIT 1
@@ -85,16 +103,7 @@ export async function getStoryById(db, storyId, { includeQuestions = false } = {
 }
 
 export async function createText(db, payload) {
-  const nextOrderRow = await db
-    .prepare(`
-      SELECT COALESCE(MAX(display_order), 0) + 1 AS next_order
-      FROM texts
-      WHERE level = ?1
-    `)
-    .bind(payload.level)
-    .first();
-
-  const sortOrder = Number(nextOrderRow?.next_order || 1);
+  const sortOrder = await getNextDisplayOrder(db, payload.level);
   const now = new Date().toISOString();
   const insertResult = await db
     .prepare(`
@@ -127,16 +136,7 @@ export async function updateText(db, storyId, payload) {
   let sortOrder = existingStory.sortOrder;
 
   if (payload.level !== existingStory.level) {
-    const nextOrderRow = await db
-      .prepare(`
-        SELECT COALESCE(MAX(display_order), 0) + 1 AS next_order
-        FROM texts
-        WHERE level = ?1
-      `)
-      .bind(payload.level)
-      .first();
-
-    sortOrder = Number(nextOrderRow?.next_order || 1);
+    sortOrder = await getNextDisplayOrder(db, payload.level);
   }
 
   const now = new Date().toISOString();
