@@ -1,19 +1,19 @@
-import { requireAdmin } from "../../../_shared/auth.js";
+import { requirePermission } from "../../../_shared/auth.js";
 import { error, json, readJson } from "../../../_shared/http.js";
-import { createText, listTexts, validateTextPayload } from "../../../_shared/texts.js";
+import { createTextDraft, listAdminTextSummaries, validateTextPayload } from "../../../_shared/texts.js";
 
 export async function onRequestGet(context) {
-  const auth = await requireAdmin(context);
+  const auth = await requirePermission(context, "read");
   if (!auth.ok) {
     return auth.response;
   }
 
-  const stories = await listTexts(context.env.DB, { includeDisabled: true, includeQuestions: true });
+  const stories = await listAdminTextSummaries(context.env.DB);
   return json({ stories });
 }
 
 export async function onRequestPost(context) {
-  const auth = await requireAdmin(context);
+  const auth = await requirePermission(context, "edit");
   if (!auth.ok) {
     return auth.response;
   }
@@ -25,6 +25,6 @@ export async function onRequestPost(context) {
     return error(400, validation.message);
   }
 
-  const story = await createText(context.env.DB, validation.value);
+  const story = await createTextDraft(context.env.DB, validation.value, auth.session);
   return json({ story }, { status: 201 });
 }

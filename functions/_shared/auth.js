@@ -2,6 +2,12 @@ import { error, getCookie } from "./http.js";
 
 const SESSION_DURATION_SECONDS = 60 * 60 * 24 * 14;
 
+const ROLE_PERMISSIONS = Object.freeze({
+  editor: Object.freeze(["read", "edit"]),
+  publisher: Object.freeze(["read", "edit", "publish", "restore"]),
+  admin: Object.freeze(["read", "edit", "publish", "restore"]),
+});
+
 function toBase64Url(bytes) {
   const binary = Array.from(bytes, (value) => String.fromCharCode(value)).join("");
   return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
@@ -157,6 +163,26 @@ export async function requireAdmin(context) {
   }
 
   return { ok: true, session };
+}
+
+export function getPermissionsForRole(role) {
+  return [...(ROLE_PERMISSIONS[String(role || "").toLowerCase()] || [])];
+}
+
+export async function requirePermission(context, permission) {
+  const auth = await requireAdmin(context);
+
+  if (!auth.ok) {
+    return auth;
+  }
+
+  const permissions = getPermissionsForRole(auth.session.role);
+
+  if (!permissions.includes(permission)) {
+    return { ok: false, response: error(403, "You do not have permission to perform this action.") };
+  }
+
+  return { ...auth, permissions };
 }
 
 export function getSessionDurationSeconds() {

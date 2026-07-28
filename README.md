@@ -47,7 +47,15 @@ The command updates:
 
 ## Admin access
 
-`public/admin.html` supports creating, editing, enabling, and disabling stories and questions through authenticated API routes.
+`public/admin.html` is a role-aware publishing workspace. It loads story summaries first, supports search and status filters, saves edits as private drafts, previews unpublished work, publishes or unpublishes explicitly, and can restore transactional revision checkpoints. Quiz questions can be collapsed, reordered, duplicated, removed, and restored with undo.
+
+Available roles are:
+
+- `editor` — view stories and save drafts
+- `publisher` — editor access plus publish, unpublish, and restore
+- `admin` — full publishing access
+
+Permissions are enforced by the Worker; hiding a button in the browser is not the security boundary.
 
 Generate a PBKDF2 password hash for an admin user:
 
@@ -66,6 +74,12 @@ The Worker also requires a `SESSION_SECRET`:
 
 ```powershell
 npx.cmd wrangler secret put SESSION_SECRET
+```
+
+Apply D1 migrations before deploying a Worker that uses the editor workflow:
+
+```powershell
+npx.cmd wrangler d1 migrations apply readukrainian_db --remote
 ```
 
 ## Deployment
