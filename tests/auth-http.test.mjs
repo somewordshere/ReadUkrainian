@@ -4,6 +4,7 @@ import test from "node:test";
 
 import {
   createSessionToken,
+  getPermissionsForRole,
   readSessionToken,
   verifyPassword,
 } from "../functions/_shared/auth.js";
@@ -53,4 +54,11 @@ test("returns null for malformed encoded cookies instead of throwing", () => {
 
   assert.equal(getCookie(request, "admin_session"), null);
   assert.equal(getCookie(request, "theme"), "dark");
+});
+
+test("maps editor roles to least-privilege server permissions", () => {
+  assert.deepEqual(getPermissionsForRole("editor"), ["read", "edit"]);
+  assert.deepEqual(getPermissionsForRole("publisher"), ["read", "edit", "publish", "restore"]);
+  assert.deepEqual(getPermissionsForRole("admin"), ["read", "edit", "publish", "restore"]);
+  assert.deepEqual(getPermissionsForRole("unknown"), []);
 });

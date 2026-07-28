@@ -1,9 +1,9 @@
-import { requireAdmin } from "../../../_shared/auth.js";
+import { requirePermission } from "../../../_shared/auth.js";
 import { error, json, readJson } from "../../../_shared/http.js";
-import { getStoryById, updateText, validateTextPayload } from "../../../_shared/texts.js";
+import { getAdminStoryById, saveTextDraft, validateTextPayload } from "../../../_shared/texts.js";
 
 export async function onRequestGet(context) {
-  const auth = await requireAdmin(context);
+  const auth = await requirePermission(context, "read");
   if (!auth.ok) {
     return auth.response;
   }
@@ -14,7 +14,7 @@ export async function onRequestGet(context) {
     return error(400, "Invalid story ID.");
   }
 
-  const story = await getStoryById(context.env.DB, storyId, { includeQuestions: true });
+  const story = await getAdminStoryById(context.env.DB, storyId);
 
   if (!story) {
     return error(404, "Story not found.");
@@ -24,7 +24,7 @@ export async function onRequestGet(context) {
 }
 
 export async function onRequestPut(context) {
-  const auth = await requireAdmin(context);
+  const auth = await requirePermission(context, "edit");
   if (!auth.ok) {
     return auth.response;
   }
@@ -35,7 +35,7 @@ export async function onRequestPut(context) {
     return error(400, "Invalid story ID.");
   }
 
-  const existing = await getStoryById(context.env.DB, storyId);
+  const existing = await getAdminStoryById(context.env.DB, storyId);
 
   if (!existing) {
     return error(404, "Story not found.");
@@ -48,6 +48,6 @@ export async function onRequestPut(context) {
     return error(400, validation.message);
   }
 
-  const story = await updateText(context.env.DB, storyId, validation.value);
+  const story = await saveTextDraft(context.env.DB, storyId, validation.value, auth.session);
   return json({ story });
 }

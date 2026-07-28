@@ -11,6 +11,10 @@ import {
   onRequestGet as getAdminText,
   onRequestPut as updateAdminText,
 } from "../functions/api/admin/texts/[id].js";
+import { onRequestPost as publishAdminText } from "../functions/api/admin/texts/publish.js";
+import { onRequestPost as unpublishAdminText } from "../functions/api/admin/texts/unpublish.js";
+import { onRequestGet as listAdminTextRevisions } from "../functions/api/admin/texts/revisions.js";
+import { onRequestPost as restoreAdminTextRevision } from "../functions/api/admin/texts/restore.js";
 import { error } from "../functions/_shared/http.js";
 
 const EXACT_API_ROUTES = new Map([
@@ -23,6 +27,26 @@ const EXACT_API_ROUTES = new Map([
 ]);
 
 const PARAMETERIZED_API_ROUTES = [
+  {
+    pattern: /^\/api\/admin\/texts\/(\d+)\/revisions\/(\d+)\/restore$/,
+    handlers: { POST: restoreAdminTextRevision },
+    getParams: (match) => ({ id: match[1], revisionId: match[2] }),
+  },
+  {
+    pattern: /^\/api\/admin\/texts\/(\d+)\/revisions$/,
+    handlers: { GET: listAdminTextRevisions },
+    getParams: (match) => ({ id: match[1] }),
+  },
+  {
+    pattern: /^\/api\/admin\/texts\/(\d+)\/publish$/,
+    handlers: { POST: publishAdminText },
+    getParams: (match) => ({ id: match[1] }),
+  },
+  {
+    pattern: /^\/api\/admin\/texts\/(\d+)\/unpublish$/,
+    handlers: { POST: unpublishAdminText },
+    getParams: (match) => ({ id: match[1] }),
+  },
   {
     pattern: /^\/api\/admin\/texts\/(\d+)$/,
     handlers: { GET: getAdminText, PUT: updateAdminText },

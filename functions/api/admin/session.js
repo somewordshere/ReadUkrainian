@@ -1,5 +1,5 @@
 import { json } from "../../_shared/http.js";
-import { requireAdmin } from "../../_shared/auth.js";
+import { getPermissionsForRole, requireAdmin } from "../../_shared/auth.js";
 
 export async function onRequestGet(context) {
   const auth = await requireAdmin(context);
@@ -14,6 +14,7 @@ export async function onRequestGet(context) {
       id: auth.session.userId,
       email: auth.session.email,
       role: auth.session.role,
+      permissions: getPermissionsForRole(auth.session.role),
     },
   });
 }

@@ -52,7 +52,7 @@ export async function listQuestionsForStories(db, storyIds) {
   return questionsByStoryId;
 }
 
-export async function replaceQuestionsForStory(db, storyId, questions) {
+export function buildReplaceQuestionStatements(db, storyId, questions) {
   const statements = [
     db.prepare("DELETE FROM questions WHERE story_id = ?1").bind(storyId),
   ];
@@ -74,7 +74,7 @@ export async function replaceQuestionsForStory(db, storyId, questions) {
     );
   });
 
-  await db.batch(statements);
+  return statements;
 }
 
 export function validateQuestionsPayload(payload) {

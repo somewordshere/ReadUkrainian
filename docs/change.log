@@ -78,3 +78,4 @@ This file is tracked in GitHub and linked from the site version footer.
 0.72 - Added library discovery, resilient static fallbacks, accessible radio quizzes, clearer completion actions, and improved focus and contrast.
 0.73 - Added responsive press, answer-result, feedback, and completion animations to the story quizzes with reduced-motion support.
 0.74 - Removed the duplicate frontend tree, repaired seed generation, hardened session parsing, refactored API routing and data queries, and expanded automated coverage.
+0.75 - Added a role-aware draft, preview, publish, revision, and restore workflow with scalable story navigation and safer quiz authoring.

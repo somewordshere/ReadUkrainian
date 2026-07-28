@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="uk">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin | Історії українською</title>
+    <title>Story editor | Read Ukrainian</title>
     <link rel="stylesheet" href="./css/styles.css" />
   </head>
   <body class="admin-page">
@@ -11,7 +11,7 @@
       <section class="admin-login" id="loginSection">
         <form id="loginForm" class="admin-login-form" action="./api/admin/login" method="post" aria-label="Admin login">
           <label class="admin-login-field">
-            <span class="visually-hidden">Username</span>
+            <span class="visually-hidden">Email</span>
             <input name="email" type="email" placeholder="Email" autocomplete="username" required />
           </label>
           <label class="admin-login-field">
@@ -25,45 +25,115 @@
 
       <section class="admin-panel" id="adminSection" hidden>
         <header class="admin-topbar">
-          <div><p class="admin-kicker">Read Ukrainian</p><h1>Stories editor</h1></div>
+          <div>
+            <p class="admin-kicker">Read Ukrainian</p>
+            <h1>Stories editor</h1>
+            <p class="admin-user-summary" id="userSummary"></p>
+          </div>
           <button class="admin-logout-button" id="logoutButton" type="button">Log out</button>
         </header>
+
         <div class="admin-workspace">
           <div class="admin-sidebar-column">
-            <button class="admin-add-story-button" id="addStoryButton" type="button">Add Story</button>
+            <button class="admin-add-story-button" id="addStoryButton" type="button">+ Add story</button>
             <aside class="admin-sidebar" aria-label="Story list">
-              <div class="admin-sidebar-heading"><h2>All stories</h2><span id="textCount"></span></div>
+              <div class="admin-sidebar-heading">
+                <h2>All stories</h2>
+                <span id="textCount"></span>
+              </div>
+              <div class="admin-list-filters" aria-label="Filter stories">
+                <label>
+                  <span class="visually-hidden">Search stories</span>
+                  <input id="storySearch" type="search" placeholder="Search title or ID…" />
+                </label>
+                <div class="admin-filter-row">
+                  <label>
+                    <span class="visually-hidden">Filter by level</span>
+                    <select id="levelFilter">
+                      <option value="all">All levels</option>
+                      <option value="A1">A1</option>
+                      <option value="A2">A2</option>
+                      <option value="B1">B1</option>
+                    </select>
+                  </label>
+                  <label>
+                    <span class="visually-hidden">Filter by status</span>
+                    <select id="statusFilter">
+                      <option value="all">All statuses</option>
+                      <option value="draft">Draft</option>
+                      <option value="published">Published</option>
+                      <option value="published_with_draft">Published + draft</option>
+                      <option value="unpublished">Unpublished</option>
+                    </select>
+                  </label>
+                </div>
+              </div>
               <div class="admin-text-list" id="textsList"></div>
             </aside>
           </div>
-          <section class="admin-editor-card">
+
+          <section class="admin-editor-card" aria-busy="false">
             <form id="editorForm" class="admin-form">
               <div class="admin-editor-heading">
-                <div><p class="admin-kicker" id="editorKicker">Selected story</p><h2 id="editorTitle">Edit story</h2></div>
+                <div>
+                  <p class="admin-kicker" id="editorKicker">Selected story</p>
+                  <div class="admin-title-line">
+                    <h2 id="editorTitle">Edit story</h2>
+                    <span class="admin-story-status" id="storyStatus">Published</span>
+                  </div>
+                </div>
                 <div class="admin-meta-fields">
-                  <label><span>Level</span><select name="level"><option value="A1">A1</option><option value="A2">A2</option><option value="B1">B1</option></select></label>
-                  <label id="storyIdField"><span>Story ID</span><input name="storyId" type="number" readonly /></label>
+                  <label>
+                    <span>Level</span>
+                    <select name="level"><option value="A1">A1</option><option value="A2">A2</option><option value="B1">B1</option></select>
+                  </label>
+                  <label id="storyIdField">
+                    <span>Story ID</span>
+                    <input name="storyId" type="number" readonly />
+                  </label>
                 </div>
               </div>
+
+              <div class="admin-editor-attribution" id="editorAttribution"></div>
               <label><span>Title</span><input name="title" type="text" required /></label>
-              <label><span>Paragraphs</span><textarea name="paragraphs" rows="15" required></textarea></label>
+              <label><span>Paragraphs <small>Separate paragraphs with a blank line</small></span><textarea name="paragraphs" rows="15" required></textarea></label>
+
               <section class="admin-questions-panel" aria-labelledby="questionsEditorTitle">
                 <div class="admin-questions-header">
                   <div>
                     <p class="admin-kicker">Quiz</p>
                     <h3 id="questionsEditorTitle">Questions</h3>
-                    <p class="admin-questions-copy">Each question needs 1 correct answer and 3 wrong answers.</p>
+                    <p class="admin-questions-copy">Each question needs one correct answer and three distinct wrong answers.</p>
                   </div>
-                  <button class="admin-secondary-button" id="addQuestionButton" type="button">Add Question</button>
+                  <button class="admin-secondary-button" id="addQuestionButton" type="button">+ Add question</button>
                 </div>
                 <div class="admin-questions-list" id="questionsEditor"></div>
-              </section>
-              <div class="admin-form-footer">
-                <div class="admin-toggles">
-                  <label class="admin-checkbox"><input name="active" type="checkbox" checked /><span>Enabled</span></label>
-                  <label class="admin-checkbox"><input name="showWordCount" type="checkbox" checked /><span>Show word count</span></label>
+                <div class="admin-undo-bar" id="undoBar" hidden>
+                  <span>Question removed.</span>
+                  <button id="undoQuestionButton" type="button">Undo</button>
                 </div>
-                <button class="admin-primary-button" id="editorSubmitButton" type="submit">Save changes</button>
+              </section>
+
+              <section class="admin-history-panel" aria-labelledby="historyTitle">
+                <div class="admin-history-heading">
+                  <div><p class="admin-kicker">Safety net</p><h3 id="historyTitle">Revision history</h3></div>
+                  <button class="admin-text-action" id="refreshHistoryButton" type="button">Refresh</button>
+                </div>
+                <p class="admin-history-help">A checkpoint preserves the previous version before a published story changes, is unpublished, or is restored.</p>
+                <div class="admin-history-list" id="historyList"></div>
+              </section>
+
+              <div class="admin-save-bar">
+                <div>
+                  <label class="admin-checkbox"><input name="showWordCount" type="checkbox" checked /><span>Show word count</span></label>
+                  <p class="admin-save-state" id="saveState" aria-live="polite">No unsaved changes</p>
+                </div>
+                <div class="admin-save-actions">
+                  <button class="admin-secondary-button" id="previewButton" type="button">Preview</button>
+                  <button class="admin-danger-button" id="unpublishButton" type="button">Unpublish</button>
+                  <button class="admin-secondary-button" id="saveDraftButton" type="submit">Save draft</button>
+                  <button class="admin-primary-button" id="publishButton" type="button">Publish</button>
+                </div>
               </div>
               <p class="admin-status" id="editorStatus" aria-live="polite"></p>
             </form>
@@ -71,6 +141,16 @@
         </div>
       </section>
     </main>
+
+    <dialog class="admin-preview-dialog" id="previewDialog" aria-labelledby="previewTitle">
+      <div class="admin-preview-toolbar">
+        <div><p class="admin-kicker">Learner preview</p><h2 id="previewTitle"></h2></div>
+        <button class="admin-secondary-button" id="closePreviewButton" type="button">Close</button>
+      </div>
+      <article class="admin-preview-story" id="previewStory"></article>
+      <section class="admin-preview-quiz" id="previewQuiz"></section>
+    </dialog>
+
     <script type="module" src="./js/app/admin.js"></script>
   </body>
 </html>

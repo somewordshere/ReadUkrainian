@@ -50,10 +50,22 @@ test("returns 405 with allowed methods for known API routes", async () => {
     new Request("https://example.com/api/admin/texts/12", { method: "DELETE" }),
     env
   );
+  const publishResponse = await handleRequest(
+    new Request("https://example.com/api/admin/texts/12/publish", { method: "GET" }),
+    env
+  );
+  const revisionsResponse = await handleRequest(
+    new Request("https://example.com/api/admin/texts/12/revisions", { method: "POST" }),
+    env
+  );
 
   assert.equal(contentResponse.status, 405);
   assert.equal(contentResponse.headers.get("allow"), "GET");
   assert.deepEqual(await contentResponse.json(), { error: "Method not allowed." });
   assert.equal(textResponse.status, 405);
   assert.equal(textResponse.headers.get("allow"), "GET, PUT");
+  assert.equal(publishResponse.status, 405);
+  assert.equal(publishResponse.headers.get("allow"), "POST");
+  assert.equal(revisionsResponse.status, 405);
+  assert.equal(revisionsResponse.headers.get("allow"), "GET");
 });
