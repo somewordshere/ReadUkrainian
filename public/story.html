@@ -21,9 +21,40 @@
               <span class="bookmark-icon" aria-hidden="true">☆</span>
             </button>
           </div>
+          <p class="story-speech-hint" id="storySpeechHint" hidden>
+            Виділіть одне слово, щоб прослухати вимову. Аудіо безкоштовно надходить із сервера.
+          </p>
           <div class="story-content" id="storyContent" aria-busy="true">
-            <p class="story-note">Завантажуємо текст…</p>
+            <div class="story-text" id="storyText">
+              <p class="story-note">Завантажуємо текст…</p>
+            </div>
+            <div class="story-meta" id="storyMeta"></div>
           </div>
+          <div
+            class="selection-speech-popover"
+            id="selectionSpeechPopover"
+            role="group"
+            aria-label="Озвучення вибраного тексту"
+            hidden
+          >
+            <button
+              class="selection-speech-button"
+              id="selectionSpeechButton"
+              type="button"
+              aria-pressed="false"
+            >
+              <span class="selection-speech-icon" id="selectionSpeechIcon" aria-hidden="true">▶</span>
+              <span id="selectionSpeechLabel">Прослухати</span>
+            </button>
+            <p class="selection-speech-unavailable" id="selectionSpeechUnavailable" hidden></p>
+          </div>
+          <p
+            class="visually-hidden"
+            id="selectionSpeechStatus"
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+          ></p>
         </section>
 
         <aside class="questions-card" aria-labelledby="questionsTitle">

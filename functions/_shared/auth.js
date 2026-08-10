@@ -1,11 +1,12 @@
 import { error, getCookie } from "./http.js";
 
 const SESSION_DURATION_SECONDS = 60 * 60 * 24 * 14;
+const MAX_PASSWORD_HASH_ITERATIONS = 1_000_000;
 
 const ROLE_PERMISSIONS = Object.freeze({
   editor: Object.freeze(["read", "edit"]),
   publisher: Object.freeze(["read", "edit", "publish", "restore"]),
-  admin: Object.freeze(["read", "edit", "publish", "restore"]),
+  admin: Object.freeze(["read", "edit", "publish", "restore", "settings"]),
 });
 
 function toBase64Url(bytes) {
@@ -93,7 +94,11 @@ export async function verifyPassword(password, storedHash) {
 
   const iterations = Number(rawIterations);
 
-  if (!Number.isFinite(iterations) || iterations < 1000 || iterations > 100000) {
+  if (
+    !Number.isFinite(iterations) ||
+    iterations < 1000 ||
+    iterations > MAX_PASSWORD_HASH_ITERATIONS
+  ) {
     return false;
   }
 

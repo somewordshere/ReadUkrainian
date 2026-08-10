@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { pbkdf2Sync } from "node:crypto";
+import { fileURLToPath } from "node:url";
 import test from "node:test";
 
 import {
@@ -32,6 +34,27 @@ test("verifies valid password hashes and rejects incorrect or malformed hashes",
   assert.equal(await verifyPassword(password, "not-a-password-hash"), false);
 });
 
+test("generates current password hashes from stdin without accepting argv secrets", async () => {
+  const password = "a generated admin password";
+  const scriptPath = fileURLToPath(
+    new URL("../scripts/generate-password-hash.mjs", import.meta.url)
+  );
+  const generated = spawnSync(process.execPath, [scriptPath], {
+    input: `${password}\n`,
+    encoding: "utf8",
+  });
+
+  assert.equal(generated.status, 0, generated.stderr);
+  assert.match(generated.stdout.trim(), /^pbkdf2_sha256\$600000\$/);
+  assert.equal(await verifyPassword(password, generated.stdout.trim()), true);
+
+  const rejected = spawnSync(process.execPath, [scriptPath, password], {
+    encoding: "utf8",
+  });
+  assert.notEqual(rejected.status, 0);
+  assert.equal(rejected.stdout, "");
+});
+
 test("round-trips session tokens and safely rejects tampering", async () => {
   const secret = "a sufficiently long test secret";
   const token = await createSessionToken(secret, {
@@ -59,6 +82,12 @@ test("returns null for malformed encoded cookies instead of throwing", () => {
 test("maps editor roles to least-privilege server permissions", () => {
   assert.deepEqual(getPermissionsForRole("editor"), ["read", "edit"]);
   assert.deepEqual(getPermissionsForRole("publisher"), ["read", "edit", "publish", "restore"]);
-  assert.deepEqual(getPermissionsForRole("admin"), ["read", "edit", "publish", "restore"]);
+  assert.deepEqual(getPermissionsForRole("admin"), [
+    "read",
+    "edit",
+    "publish",
+    "restore",
+    "settings",
+  ]);
   assert.deepEqual(getPermissionsForRole("unknown"), []);
 });

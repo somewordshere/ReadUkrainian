@@ -1,12 +1,21 @@
 {
+  "name": "readukrainian",
+  "version": "0.79.0",
+  "private": true,
+  "description": "Ukrainian reading practice app deployed as a Cloudflare Worker.",
   "type": "module",
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "scripts": {
     "dev": "wrangler dev",
     "seed": "node scripts/build-content-seed.mjs",
+    "speech:plan": "node scripts/speech/generate-speech-assets.mjs --plan",
+    "speech:build": "node scripts/speech/generate-speech-assets.mjs --bootstrap",
     "test": "node --test",
     "deploy": "wrangler deploy"
   },
   "devDependencies": {
-    "wrangler": "^4.100.0"
+    "wrangler": "^4.120.1"
   }
 }
