@@ -1,5 +1,6 @@
 import { fetchContentIndex, fetchStory } from "./content-api.js";
 import { findNextIncompleteStory, getStoryHref } from "./library-utils.mjs";
+import { initSelectionSpeech } from "./selection-speech.js";
 
 const params = new URLSearchParams(window.location.search);
 const level = params.get("level") || "A1";
@@ -9,6 +10,8 @@ const legacyOrder = Number(params.get("order") || params.get("text")) || 1;
 const storyLevel = document.getElementById("storyLevel");
 const storyTitle = document.getElementById("storyTitle");
 const storyContent = document.getElementById("storyContent");
+const storyText = document.getElementById("storyText");
+const storyMeta = document.getElementById("storyMeta");
 const questionsList = document.getElementById("questionsList");
 const questionsStatus = document.getElementById("questionsStatus");
 const restartButton = document.getElementById("restartButton");
@@ -16,6 +19,16 @@ const bookmarkButton = document.getElementById("bookmarkButton");
 const completionActions = document.getElementById("completionActions");
 const reviewMistakesButton = document.getElementById("reviewMistakesButton");
 const nextStoryLink = document.getElementById("nextStoryLink");
+const selectionSpeech = initSelectionSpeech({
+  root: storyText,
+  hint: document.getElementById("storySpeechHint"),
+  popover: document.getElementById("selectionSpeechPopover"),
+  button: document.getElementById("selectionSpeechButton"),
+  icon: document.getElementById("selectionSpeechIcon"),
+  label: document.getElementById("selectionSpeechLabel"),
+  unavailable: document.getElementById("selectionSpeechUnavailable"),
+  status: document.getElementById("selectionSpeechStatus"),
+});
 
 const questionInputs = [];
 let storyAvailable = false;
@@ -333,6 +346,7 @@ function configureNextStory() {
 }
 
 function resetStoryUi() {
+  selectionSpeech.reset();
   storyAvailable = false;
   currentStory = null;
   currentQuestionCount = 0;
@@ -340,7 +354,8 @@ function resetStoryUi() {
   questionInputs.length = 0;
   storyLevel.textContent = `Рівень ${level}`;
   storyTitle.textContent = "Завантаження…";
-  storyContent.replaceChildren();
+  storyText.replaceChildren();
+  storyMeta.replaceChildren();
   questionsList.replaceChildren();
   questionsStatus.textContent = "Завантажуємо питання…";
   storyContent.setAttribute("aria-busy", "true");
@@ -353,6 +368,7 @@ function renderStoryError() {
   const message = document.createElement("p");
   const retry = document.createElement("button");
 
+  selectionSpeech.reset();
   storyTitle.textContent = "Не вдалося завантажити текст";
   message.className = "story-note";
   message.textContent = "Перевірте з’єднання та спробуйте ще раз.";
@@ -360,7 +376,8 @@ function renderStoryError() {
   retry.type = "button";
   retry.textContent = "Спробувати ще раз";
   retry.addEventListener("click", initStory);
-  storyContent.replaceChildren(message, retry);
+  storyText.replaceChildren(message, retry);
+  storyMeta.replaceChildren();
   storyContent.setAttribute("aria-busy", "false");
   questionsStatus.textContent = "Питання недоступні, доки текст не завантажено.";
   bookmarkButton.hidden = true;
@@ -449,14 +466,15 @@ async function initStory() {
     storyAvailable = Boolean(story) && isLevelActive(storyLevelId) && isStoryActive(story);
     storyLevel.textContent = `Рівень ${storyLevelId}`;
     storyTitle.textContent = storyAvailable ? story.title : "Текст недоступний";
-    storyContent.replaceChildren();
+    storyText.replaceChildren();
+    storyMeta.replaceChildren();
     storyContent.setAttribute("aria-busy", "false");
 
     if (!storyAvailable) {
       const unavailableElement = document.createElement("p");
       unavailableElement.className = "story-note";
       unavailableElement.textContent = "Цей текст зараз недоступний для читача.";
-      storyContent.appendChild(unavailableElement);
+      storyText.appendChild(unavailableElement);
       questionsStatus.textContent = "Питання недоступні, бо текст вимкнений.";
       restartButton.hidden = true;
       bookmarkButton.hidden = true;
@@ -475,7 +493,7 @@ async function initStory() {
       const element = document.createElement("p");
       element.className = "story-note";
       element.textContent = paragraph;
-      storyContent.appendChild(element);
+      storyText.appendChild(element);
     });
 
     if (story.showWordCount) {
@@ -485,8 +503,11 @@ async function initStory() {
       const countElement = document.createElement("p");
       countElement.className = "word-count-note";
       countElement.textContent = `Кількість слів: ${wordCount}`;
-      storyContent.appendChild(countElement);
+      storyMeta.appendChild(countElement);
     }
+
+    selectionSpeech.setContext({ storyId: story.storyId });
+    selectionSpeech.setEnabled(true);
 
     const questions = story.questions?.length
       ? prepareQuestions(

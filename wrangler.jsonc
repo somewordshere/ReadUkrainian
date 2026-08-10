@@ -3,12 +3,44 @@
   "name": "readukrainian",
   "main": "./src/worker.js",
   "compatibility_date": "2026-06-15",
+  "vars": {
+    "ADMIN_ENABLED": "true",
+    "SPEECH_DAILY_CHARACTER_LIMIT": "4500"
+  },
+  "routes": [
+    {
+      "pattern": "readukrainianapp.com",
+      "custom_domain": true
+    },
+    {
+      "pattern": "www.readukrainianapp.com",
+      "custom_domain": true
+    }
+  ],
   "assets": {
     "directory": "./public",
     "binding": "ASSETS",
     "not_found_handling": "404-page",
-    "run_worker_first": ["/api/*"]
+    "run_worker_first": true
   },
+  "ratelimits": [
+    {
+      "name": "SPEECH_RATE_LIMITER",
+      "namespace_id": "492017",
+      "simple": {
+        "limit": 8,
+        "period": 60
+      }
+    },
+    {
+      "name": "ADMIN_LOGIN_RATE_LIMITER",
+      "namespace_id": "492018",
+      "simple": {
+        "limit": 10,
+        "period": 60
+      }
+    }
+  ],
   "d1_databases": [
     {
       "binding": "DB",

@@ -1,0 +1,21 @@
+Static Ukrainian pronunciation asset attribution
+=================================================
+
+MP3 files in voice-specific subdirectories are generated at build time with:
+
+* Voice model: uk_UA-ukrainian_tts-medium
+* Supported generated speakers: 0 ("lada", path "lada-medium"),
+  1 ("mykyta", path "mykyta"), and 2 ("tetiana", path "tetiana")
+* Voice repository: https://huggingface.co/rhasspy/piper-voices
+* Voice model page: https://huggingface.co/rhasspy/piper-voices/tree/main/uk/uk_UA/ukrainian_tts/medium
+* Voice repository license: MIT
+* Model-card training dataset: Multi-speaker Ukrainian TTS dataset, CC0
+* Build engine: Piper (https://github.com/OHF-Voice/piper1-gpl), GPL-3.0
+
+The Piper executable, Python package, FFmpeg build helper, ONNX model, and source
+training data are build dependencies only. They are not distributed in this
+public directory or served by the application. The provider-backed runtime voices
+are "lada" (uk_UA-lada-x_low, Piper) and "mai" (mai_uk, VITS); neither is produced
+by this medium-model generator.
+This notice is attribution and a record of provenance; it does not change the
+license of the application's source.

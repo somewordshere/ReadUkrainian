@@ -33,6 +33,38 @@
           <button class="admin-logout-button" id="logoutButton" type="button">Log out</button>
         </header>
 
+        <form
+          class="admin-speech-settings"
+          id="speechSettingsForm"
+          aria-labelledby="speechSettingsTitle"
+          aria-busy="false"
+          hidden
+        >
+          <div class="admin-speech-settings-copy">
+            <p class="admin-kicker">Audio</p>
+            <h2 id="speechSettingsTitle">Pronunciation voice</h2>
+            <p>Choose the server-generated voice learners hear when they select a Ukrainian word.</p>
+          </div>
+          <div class="admin-speech-settings-controls">
+            <label for="speechVoiceSelect">
+              <span>Voice</span>
+              <select
+                id="speechVoiceSelect"
+                name="voiceId"
+                aria-describedby="speechVoiceDescription speechSettingsStatus"
+                disabled
+              >
+                <option value="">Loading voices…</option>
+              </select>
+              <small id="speechVoiceDescription"></small>
+            </label>
+            <button class="admin-primary-button" id="saveSpeechSettingsButton" type="submit" disabled>
+              Save voice
+            </button>
+          </div>
+          <p class="admin-status admin-speech-settings-status" id="speechSettingsStatus" aria-live="polite"></p>
+        </form>
+
         <div class="admin-workspace">
           <div class="admin-sidebar-column">
             <button class="admin-add-story-button" id="addStoryButton" type="button">+ Add story</button>
