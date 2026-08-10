@@ -20,6 +20,72 @@ export async function readJson(request) {
   }
 }
 
+export async function readLimitedJson(request, maximumBytes) {
+  const contentType = request.headers
+    .get("content-type")
+    ?.split(";", 1)[0]
+    .trim()
+    .toLowerCase();
+
+  if (contentType !== "application/json") {
+    return { ok: false, status: 415, message: "Content-Type must be application/json." };
+  }
+
+  const declaredLength = Number(request.headers.get("content-length"));
+
+  if (Number.isFinite(declaredLength) && declaredLength > maximumBytes) {
+    return { ok: false, status: 413, message: "Request body is too large." };
+  }
+
+  if (!request.body) {
+    return { ok: false, status: 400, message: "A JSON request body is required." };
+  }
+
+  const reader = request.body.getReader();
+  const chunks = [];
+  let totalBytes = 0;
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+
+      if (done) {
+        break;
+      }
+
+      totalBytes += value.byteLength;
+
+      if (totalBytes > maximumBytes) {
+        await reader.cancel();
+        return { ok: false, status: 413, message: "Request body is too large." };
+      }
+
+      chunks.push(value);
+    }
+  } catch {
+    return { ok: false, status: 400, message: "Invalid JSON request body." };
+  } finally {
+    reader.releaseLock();
+  }
+
+  const bytes = new Uint8Array(totalBytes);
+  let offset = 0;
+
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+
+  try {
+    return {
+      ok: true,
+      value: JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes)),
+    };
+  } catch {
+    return { ok: false, status: 400, message: "Invalid JSON request body." };
+  }
+}
+
 export function getCookie(request, name) {
   const cookieHeader = request.headers.get("cookie");
 

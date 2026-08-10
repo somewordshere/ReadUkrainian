@@ -1,6 +1,37 @@
-.wrangler/
+# Dependencies and generated build/runtime state
 node_modules/
+.wrangler/
+.speech-build/
+coverage/
+ux-audit/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.db
+*.db-shm
+*.db-wal
+*.log
+
+# Generated speech is a release artifact, not source
+public/speech/**/*.mp3
+public/speech/**/*.wav
+
+# Local environments and secrets
 .dev.vars
 .dev.vars.*
+.env
+.env.*
+!.env.example
+
+# Python and operating-system state
+.venv/
+__pycache__/
+*.py[cod]
+.DS_Store
+Thumbs.db
+
+# Local Codex/audit and handover material
+.agents/
+.codex/
 A2-STORIES-CONSOLIDATED-HANDOVER.md
 OLD_HANDOVER.md

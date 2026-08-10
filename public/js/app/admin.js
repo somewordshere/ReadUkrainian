@@ -6,6 +6,11 @@ const loginForm = byId("loginForm");
 const loginStatus = byId("loginStatus");
 const logoutButton = byId("logoutButton");
 const userSummary = byId("userSummary");
+const speechSettingsForm = byId("speechSettingsForm");
+const speechVoiceSelect = byId("speechVoiceSelect");
+const speechVoiceDescription = byId("speechVoiceDescription");
+const saveSpeechSettingsButton = byId("saveSpeechSettingsButton");
+const speechSettingsStatus = byId("speechSettingsStatus");
 const addStoryButton = byId("addStoryButton");
 const textsList = byId("textsList");
 const textCount = byId("textCount");
@@ -53,6 +58,9 @@ let cleanFingerprint = "";
 let cleanStateMessage = "No unsaved changes";
 let removedQuestion = null;
 let requestPending = false;
+let speechSettingsPending = false;
+let speechSettingsReady = false;
+let savedSpeechVoiceId = "";
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -78,6 +86,108 @@ function formatDate(value) {
 
 function hasPermission(permission) {
   return currentUser?.permissions?.includes(permission) || false;
+}
+
+function updateSpeechVoiceDescription() {
+  const selectedOption = speechVoiceSelect.selectedOptions[0];
+  speechVoiceDescription.textContent = selectedOption?.dataset.description || "";
+}
+
+function updateSpeechSettingsControls() {
+  speechVoiceSelect.disabled = speechSettingsPending || !speechSettingsReady;
+  saveSpeechSettingsButton.disabled = speechSettingsPending
+    || !speechSettingsReady
+    || !speechVoiceSelect.value
+    || speechVoiceSelect.value === savedSpeechVoiceId;
+}
+
+function setSpeechSettingsPending(pending) {
+  speechSettingsPending = pending;
+  speechSettingsForm.setAttribute("aria-busy", String(pending));
+  updateSpeechSettingsControls();
+}
+
+function populateSpeechVoices(voices, selectedVoiceId) {
+  speechVoiceSelect.replaceChildren();
+
+  voices.forEach((voice) => {
+    const voiceId = voice.id || voice.voiceId;
+    if (!voiceId) return;
+
+    const option = document.createElement("option");
+    option.value = voiceId;
+    option.textContent = voice.label || voice.name || voiceId;
+    option.dataset.description = voice.description || "";
+    speechVoiceSelect.appendChild(option);
+  });
+
+  if (!speechVoiceSelect.options.length) {
+    const option = document.createElement("option");
+    option.value = "";
+    option.textContent = "No voices available";
+    speechVoiceSelect.appendChild(option);
+    throw new Error("No pronunciation voices are available.");
+  }
+
+  const hasSelectedVoice = Array.from(speechVoiceSelect.options)
+    .some((option) => option.value === selectedVoiceId);
+  speechVoiceSelect.value = hasSelectedVoice ? selectedVoiceId : speechVoiceSelect.options[0].value;
+  updateSpeechVoiceDescription();
+}
+
+async function loadSpeechSettings() {
+  if (!hasPermission("settings")) {
+    speechSettingsForm.hidden = true;
+    return;
+  }
+
+  speechSettingsForm.hidden = false;
+  speechSettingsReady = false;
+  setSpeechSettingsPending(true);
+  setStatus(speechSettingsStatus, "Loading voice settings…");
+
+  try {
+    const payload = await api("./api/admin/settings/speech", { method: "GET" });
+    const voices = Array.isArray(payload.voices) ? payload.voices : [];
+    const selectedVoiceId = payload.setting?.voiceId || payload.voiceId || "";
+    populateSpeechVoices(voices, selectedVoiceId);
+    savedSpeechVoiceId = speechVoiceSelect.value;
+    speechSettingsReady = true;
+    const selectedLabel = speechVoiceSelect.selectedOptions[0]?.textContent || savedSpeechVoiceId;
+    setStatus(speechSettingsStatus, `Current voice: ${selectedLabel}.`);
+  } catch (error) {
+    speechSettingsReady = false;
+    setStatus(speechSettingsStatus, `Could not load voice settings: ${error.message}`, true);
+  } finally {
+    setSpeechSettingsPending(false);
+  }
+}
+
+async function saveSpeechSettings() {
+  if (!speechSettingsReady || speechSettingsPending || !speechVoiceSelect.value) return;
+
+  const requestedVoiceId = speechVoiceSelect.value;
+  setSpeechSettingsPending(true);
+  setStatus(speechSettingsStatus, "Saving voice…");
+
+  try {
+    const payload = await api("./api/admin/settings/speech", {
+      method: "PUT",
+      body: JSON.stringify({ voiceId: requestedVoiceId }),
+    });
+    const savedVoiceId = payload.setting?.voiceId || payload.voiceId || requestedVoiceId;
+    const hasSavedVoice = Array.from(speechVoiceSelect.options)
+      .some((option) => option.value === savedVoiceId);
+    if (hasSavedVoice) speechVoiceSelect.value = savedVoiceId;
+    savedSpeechVoiceId = speechVoiceSelect.value;
+    updateSpeechVoiceDescription();
+    const selectedLabel = speechVoiceSelect.selectedOptions[0]?.textContent || savedSpeechVoiceId;
+    setStatus(speechSettingsStatus, `Pronunciation voice changed to ${selectedLabel}.`);
+  } catch (error) {
+    setStatus(speechSettingsStatus, `Could not save voice: ${error.message}`, true);
+  } finally {
+    setSpeechSettingsPending(false);
+  }
 }
 
 function getParagraphs(value) {
@@ -604,6 +714,8 @@ async function enterAdminPanel(user) {
   adminSection.hidden = false;
   userSummary.textContent = `${user.email} · ${user.role}`;
   addStoryButton.hidden = !hasPermission("edit");
+  speechSettingsForm.hidden = !hasPermission("settings");
+  if (hasPermission("settings")) void loadSpeechSettings();
 
   try {
     await loadSummaries();
@@ -660,6 +772,21 @@ logoutButton.addEventListener("click", async () => {
 [storySearch, levelFilter, statusFilter].forEach((control) => {
   control.addEventListener("input", renderStoryList);
   control.addEventListener("change", renderStoryList);
+});
+
+speechVoiceSelect.addEventListener("change", () => {
+  updateSpeechVoiceDescription();
+  updateSpeechSettingsControls();
+  if (speechVoiceSelect.value !== savedSpeechVoiceId) {
+    setStatus(speechSettingsStatus, "Voice change not saved yet.");
+  } else {
+    const selectedLabel = speechVoiceSelect.selectedOptions[0]?.textContent || savedSpeechVoiceId;
+    setStatus(speechSettingsStatus, `Current voice: ${selectedLabel}.`);
+  }
+});
+speechSettingsForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  await saveSpeechSettings();
 });
 
 addStoryButton.addEventListener("click", enterCreateMode);

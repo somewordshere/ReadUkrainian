@@ -79,3 +79,7 @@ This file is tracked in GitHub and linked from the site version footer.
 0.73 - Added responsive press, answer-result, feedback, and completion animations to the story quizzes with reduced-motion support.
 0.74 - Removed the duplicate frontend tree, repaired seed generation, hardened session parsing, refactored API routing and data queries, and expanded automated coverage.
 0.75 - Added a role-aware draft, preview, publish, revision, and restore workflow with scalable story navigation and safer quiz authoring.
+0.76 - Added server-generated Ukrainian pronunciation for selected story text, with AI disclosure, story validation, rate limiting, a daily usage budget, and audio caching.
+0.77 - Removed device-dependent speech and added free server-side Ukrainian word audio using static Piper assets with a guarded, cached Piper API fallback.
+0.78 - Added an admin-controlled Ukrainian pronunciation voice selector, voice-isolated audio caching, and login throttling for the enabled admin panel.
+0.79 - Removed three unsupported voice aliases, added the catalog-backed MAI voice, preserved WAV audio correctly, and refreshed speech on replay so voice changes take effect.
