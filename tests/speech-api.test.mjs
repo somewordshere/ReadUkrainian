@@ -37,6 +37,7 @@ function fakeDb(
     quotaThrows = false,
     queries = [],
     voiceId = "lada",
+    speechEnabled = true,
     voiceSettingThrows = false,
   } = {}
 ) {
@@ -49,6 +50,7 @@ function fakeDb(
           ? null
           : {
               voiceId,
+              enabled: speechEnabled ? 1 : 0,
               version: 1,
               updatedAt: "2026-08-06 00:00:00",
               updatedByUserId: 1,
@@ -125,6 +127,7 @@ function createContext({
   quotaAllowed = true,
   quotaThrows = false,
   voiceId = "lada",
+  speechEnabled = true,
   voiceSettingThrows = false,
   request,
   now,
@@ -141,6 +144,7 @@ function createContext({
       quotaThrows,
       queries: dbQueries,
       voiceId,
+      speechEnabled,
       voiceSettingThrows,
     }),
     ASSETS: {
@@ -400,6 +404,47 @@ test("fails closed when the selected voice cannot be read", async () => {
   assert.equal(harness.providerCalls.length, 0);
 });
 
+test("returns a no-store 404 before story, assets, cache, limits, or provider when speech is disabled", async () => {
+  const harness = createContext({
+    speechEnabled: false,
+    row() {
+      throw new Error("The story must not be read while speech is disabled.");
+    },
+    staticFetch() {
+      throw new Error("Assets must not be read while speech is disabled.");
+    },
+    cache: {
+      async match() {
+        throw new Error("Cache must not be read while speech is disabled.");
+      },
+      async put() {
+        throw new Error("Cache must not be written while speech is disabled.");
+      },
+    },
+    providerFetch() {
+      throw new Error("The provider must not be called while speech is disabled.");
+    },
+    rateLimitSuccess: false,
+    quotaThrows: true,
+  });
+
+  const response = await onRequestPost(harness.context);
+
+  assert.equal(response.status, 404);
+  assert.equal(response.headers.get("cache-control"), "no-store");
+  assert.equal(response.headers.get("x-speech-disabled"), "true");
+  assert.equal(harness.assetCalls.length, 0);
+  assert.equal(harness.providerCalls.length, 0);
+  assert.equal(harness.rateLimitCalls.length, 0);
+  assert.equal(harness.waitUntilPromises.length, 0);
+  assert.equal(harness.dbQueries.length, 1);
+  assert.match(harness.dbQueries[0], /FROM speech_settings/);
+  assert.equal(
+    harness.dbQueries.some((query) => query.includes("speech_usage_daily")),
+    false
+  );
+});
+
 test("polls a valid job and downloads audio from the provider CDN", async () => {
   const responses = [
     jsonResponse({ uuid: COMPACT_JOB_UUID }),
@@ -647,11 +692,11 @@ test("requires same-origin JSON and a valid active story", async () => {
   const wrongType = createContext({ request: wrongTypeRequest });
   assert.equal((await onRequestPost(wrongType.context)).status, 415);
 
-  const disabled = createContext({
+  const disabledStory = createContext({
     row: storyRow({ is_enabled: 0 }),
   });
-  assert.equal((await onRequestPost(disabled.context)).status, 404);
-  assert.equal(disabled.assetCalls.length, 0);
+  assert.equal((await onRequestPost(disabledStory.context)).status, 404);
+  assert.equal(disabledStory.assetCalls.length, 0);
 
   const badStoryId = createContext({
     payload: { storyId: 0, text: "добрий" },

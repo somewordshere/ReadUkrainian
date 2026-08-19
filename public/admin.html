@@ -42,8 +42,20 @@
         >
           <div class="admin-speech-settings-copy">
             <p class="admin-kicker">Audio</p>
-            <h2 id="speechSettingsTitle">Pronunciation voice</h2>
-            <p>Choose the server-generated voice learners hear when they select a Ukrainian word.</p>
+            <h2 id="speechSettingsTitle">Pronunciation</h2>
+            <p id="speechSettingsDescription">
+              Turn word pronunciation on or off and choose the server-generated voice learners hear.
+            </p>
+            <label class="admin-checkbox admin-speech-enabled">
+              <input
+                id="speechEnabledCheckbox"
+                name="enabled"
+                type="checkbox"
+                aria-describedby="speechSettingsDescription speechSettingsStatus"
+                disabled
+              />
+              <span>Enable pronunciation for learners</span>
+            </label>
           </div>
           <div class="admin-speech-settings-controls">
             <label for="speechVoiceSelect">
@@ -59,11 +71,41 @@
               <small id="speechVoiceDescription"></small>
             </label>
             <button class="admin-primary-button" id="saveSpeechSettingsButton" type="submit" disabled>
-              Save voice
+              Save audio settings
             </button>
           </div>
           <p class="admin-status admin-speech-settings-status" id="speechSettingsStatus" aria-live="polite"></p>
         </form>
+
+        <section
+          class="admin-dictionary-settings"
+          id="dictionarySettingsSection"
+          aria-labelledby="dictionarySettingsTitle"
+          aria-busy="false"
+          hidden
+        >
+          <div class="admin-dictionary-settings-copy">
+            <p class="admin-kicker">Dictionary</p>
+            <h2 id="dictionarySettingsTitle">Ukrainian → English</h2>
+            <p>Translations are stored on the server. Checking for an update reads only the source version page and never replaces reviewed entries.</p>
+          </div>
+          <dl class="admin-dictionary-version">
+            <div><dt>Installed source version</dt><dd id="dictionaryCurrentVersion">—</dd></div>
+            <div><dt>Available source version</dt><dd id="dictionaryAvailableVersion">Not checked</dd></div>
+            <div><dt>Last checked</dt><dd id="dictionaryLastChecked">Never</dd></div>
+          </dl>
+          <button class="admin-secondary-button" id="checkDictionaryUpdateButton" type="button" hidden>
+            Check for update
+          </button>
+          <p class="admin-status admin-dictionary-settings-status" id="dictionarySettingsStatus" aria-live="polite"></p>
+          <div class="admin-dictionary-review" id="dictionaryReviewSection" hidden>
+            <div class="admin-dictionary-review-heading">
+              <h3>Pending suggestions</h3>
+              <button class="admin-text-action" id="refreshDictionarySuggestionsButton" type="button">Refresh</button>
+            </div>
+            <div class="admin-dictionary-suggestions" id="dictionarySuggestionsList"></div>
+          </div>
+        </section>
 
         <div class="admin-workspace">
           <div class="admin-sidebar-column">
@@ -130,6 +172,19 @@
               <label><span>Title</span><input name="title" type="text" required /></label>
               <label><span>Paragraphs <small>Separate paragraphs with a blank line</small></span><textarea name="paragraphs" rows="15" required></textarea></label>
 
+              <section class="admin-dictionary-coverage" id="dictionaryCoveragePanel" aria-labelledby="dictionaryCoverageTitle">
+                <div class="admin-dictionary-coverage-heading">
+                  <div>
+                    <p class="admin-kicker">Translation coverage</p>
+                    <h3 id="dictionaryCoverageTitle">English dictionary</h3>
+                    <p>Missing translations are warnings and do not prevent publication.</p>
+                  </div>
+                  <button class="admin-secondary-button" id="checkDictionaryCoverageButton" type="button">Check translations</button>
+                </div>
+                <p class="admin-status" id="dictionaryCoverageStatus" aria-live="polite"></p>
+                <div class="admin-dictionary-missing" id="dictionaryMissingList"></div>
+              </section>
+
               <section class="admin-questions-panel" aria-labelledby="questionsEditorTitle">
                 <div class="admin-questions-header">
                   <div>
@@ -181,6 +236,45 @@
       </div>
       <article class="admin-preview-story" id="previewStory"></article>
       <section class="admin-preview-quiz" id="previewQuiz"></section>
+    </dialog>
+
+    <dialog class="admin-dictionary-dialog" id="dictionarySuggestionDialog" aria-labelledby="dictionarySuggestionTitle">
+      <form class="admin-form" id="dictionarySuggestionForm">
+        <div class="admin-preview-toolbar">
+          <div>
+            <p class="admin-kicker">Dictionary suggestion</p>
+            <h2 id="dictionarySuggestionTitle">Suggest a translation</h2>
+          </div>
+          <button class="admin-secondary-button" id="closeDictionarySuggestionButton" type="button">Close</button>
+        </div>
+        <div class="admin-question-grid">
+          <label><span>Selected form</span><input name="word" type="text" readonly /></label>
+          <label><span>Lemma</span><input name="lemma" type="text" required /></label>
+          <label>
+            <span>Part of speech</span>
+            <select name="partOfSpeech" required>
+              <option value="noun">Noun</option>
+              <option value="verb">Verb</option>
+              <option value="adjective">Adjective</option>
+              <option value="adverb">Adverb</option>
+              <option value="proper-noun">Proper name</option>
+              <option value="pronoun">Pronoun</option>
+              <option value="preposition">Preposition</option>
+              <option value="conjunction">Conjunction</option>
+              <option value="particle">Particle</option>
+              <option value="interjection">Interjection</option>
+              <option value="numeral">Numeral</option>
+            </select>
+          </label>
+          <label><span>English translation</span><input name="translation" type="text" maxlength="500" required /></label>
+        </div>
+        <label><span>Grammar tags <small>Optional, comma-separated</small></span><input name="tags" type="text" placeholder="past, plural" /></label>
+        <label><span>Explanation <small>Optional review note</small></span><textarea name="explanation" rows="3" maxlength="500"></textarea></label>
+        <div class="admin-save-actions">
+          <button class="admin-primary-button" type="submit">Send for approval</button>
+        </div>
+        <p class="admin-status" id="dictionarySuggestionStatus" aria-live="polite"></p>
+      </form>
     </dialog>
 
     <script type="module" src="./js/app/admin.js"></script>

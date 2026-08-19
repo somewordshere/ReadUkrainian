@@ -7,10 +7,20 @@ const loginStatus = byId("loginStatus");
 const logoutButton = byId("logoutButton");
 const userSummary = byId("userSummary");
 const speechSettingsForm = byId("speechSettingsForm");
+const speechEnabledCheckbox = byId("speechEnabledCheckbox");
 const speechVoiceSelect = byId("speechVoiceSelect");
 const speechVoiceDescription = byId("speechVoiceDescription");
 const saveSpeechSettingsButton = byId("saveSpeechSettingsButton");
 const speechSettingsStatus = byId("speechSettingsStatus");
+const dictionarySettingsSection = byId("dictionarySettingsSection");
+const dictionaryCurrentVersion = byId("dictionaryCurrentVersion");
+const dictionaryAvailableVersion = byId("dictionaryAvailableVersion");
+const dictionaryLastChecked = byId("dictionaryLastChecked");
+const checkDictionaryUpdateButton = byId("checkDictionaryUpdateButton");
+const dictionarySettingsStatus = byId("dictionarySettingsStatus");
+const dictionaryReviewSection = byId("dictionaryReviewSection");
+const refreshDictionarySuggestionsButton = byId("refreshDictionarySuggestionsButton");
+const dictionarySuggestionsList = byId("dictionarySuggestionsList");
 const addStoryButton = byId("addStoryButton");
 const textsList = byId("textsList");
 const textCount = byId("textCount");
@@ -25,6 +35,10 @@ const editorTitle = byId("editorTitle");
 const storyStatus = byId("storyStatus");
 const storyIdField = byId("storyIdField");
 const editorAttribution = byId("editorAttribution");
+const dictionaryCoveragePanel = byId("dictionaryCoveragePanel");
+const checkDictionaryCoverageButton = byId("checkDictionaryCoverageButton");
+const dictionaryCoverageStatus = byId("dictionaryCoverageStatus");
+const dictionaryMissingList = byId("dictionaryMissingList");
 const addQuestionButton = byId("addQuestionButton");
 const questionsEditor = byId("questionsEditor");
 const undoBar = byId("undoBar");
@@ -41,6 +55,10 @@ const previewTitle = byId("previewTitle");
 const previewStory = byId("previewStory");
 const previewQuiz = byId("previewQuiz");
 const closePreviewButton = byId("closePreviewButton");
+const dictionarySuggestionDialog = byId("dictionarySuggestionDialog");
+const dictionarySuggestionForm = byId("dictionarySuggestionForm");
+const closeDictionarySuggestionButton = byId("closeDictionarySuggestionButton");
+const dictionarySuggestionStatus = byId("dictionarySuggestionStatus");
 
 const STATUS_LABELS = {
   draft: "Draft",
@@ -61,6 +79,9 @@ let requestPending = false;
 let speechSettingsPending = false;
 let speechSettingsReady = false;
 let savedSpeechVoiceId = "";
+let savedSpeechEnabled = false;
+let dictionarySettingsPending = false;
+let dictionaryCoveragePending = false;
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -74,6 +95,12 @@ function setStatus(element, message, isError = false) {
   element.textContent = message || "";
   element.classList.toggle("is-error", Boolean(message) && isError);
   element.classList.toggle("is-success", Boolean(message) && !isError);
+}
+
+function setCoverageStatus(message, incomplete = false) {
+  setStatus(dictionaryCoverageStatus, message);
+  dictionaryCoverageStatus.classList.toggle("is-warning", incomplete);
+  if (incomplete) dictionaryCoverageStatus.classList.remove("is-success");
 }
 
 function formatDate(value) {
@@ -93,12 +120,29 @@ function updateSpeechVoiceDescription() {
   speechVoiceDescription.textContent = selectedOption?.dataset.description || "";
 }
 
+function speechSettingsAreDirty() {
+  return speechVoiceSelect.value !== savedSpeechVoiceId
+    || speechEnabledCheckbox.checked !== savedSpeechEnabled;
+}
+
+function currentSpeechSettingsStatus() {
+  if (!savedSpeechEnabled) {
+    return "Pronunciation is off for learners.";
+  }
+
+  const selectedLabel = speechVoiceSelect.selectedOptions[0]?.textContent || savedSpeechVoiceId;
+  return `Pronunciation is on. Current voice: ${selectedLabel}.`;
+}
+
 function updateSpeechSettingsControls() {
-  speechVoiceSelect.disabled = speechSettingsPending || !speechSettingsReady;
+  speechEnabledCheckbox.disabled = speechSettingsPending || !speechSettingsReady;
+  speechVoiceSelect.disabled = speechSettingsPending
+    || !speechSettingsReady
+    || !speechEnabledCheckbox.checked;
   saveSpeechSettingsButton.disabled = speechSettingsPending
     || !speechSettingsReady
     || !speechVoiceSelect.value
-    || speechVoiceSelect.value === savedSpeechVoiceId;
+    || !speechSettingsAreDirty();
 }
 
 function setSpeechSettingsPending(pending) {
@@ -144,20 +188,21 @@ async function loadSpeechSettings() {
   speechSettingsForm.hidden = false;
   speechSettingsReady = false;
   setSpeechSettingsPending(true);
-  setStatus(speechSettingsStatus, "Loading voice settings…");
+  setStatus(speechSettingsStatus, "Loading audio settings…");
 
   try {
     const payload = await api("./api/admin/settings/speech", { method: "GET" });
     const voices = Array.isArray(payload.voices) ? payload.voices : [];
     const selectedVoiceId = payload.setting?.voiceId || payload.voiceId || "";
     populateSpeechVoices(voices, selectedVoiceId);
+    speechEnabledCheckbox.checked = payload.setting?.enabled === true;
     savedSpeechVoiceId = speechVoiceSelect.value;
+    savedSpeechEnabled = speechEnabledCheckbox.checked;
     speechSettingsReady = true;
-    const selectedLabel = speechVoiceSelect.selectedOptions[0]?.textContent || savedSpeechVoiceId;
-    setStatus(speechSettingsStatus, `Current voice: ${selectedLabel}.`);
+    setStatus(speechSettingsStatus, currentSpeechSettingsStatus());
   } catch (error) {
     speechSettingsReady = false;
-    setStatus(speechSettingsStatus, `Could not load voice settings: ${error.message}`, true);
+    setStatus(speechSettingsStatus, `Could not load audio settings: ${error.message}`, true);
   } finally {
     setSpeechSettingsPending(false);
   }
@@ -167,26 +212,253 @@ async function saveSpeechSettings() {
   if (!speechSettingsReady || speechSettingsPending || !speechVoiceSelect.value) return;
 
   const requestedVoiceId = speechVoiceSelect.value;
+  const requestedEnabled = speechEnabledCheckbox.checked;
   setSpeechSettingsPending(true);
-  setStatus(speechSettingsStatus, "Saving voice…");
+  setStatus(speechSettingsStatus, "Saving audio settings…");
 
   try {
     const payload = await api("./api/admin/settings/speech", {
       method: "PUT",
-      body: JSON.stringify({ voiceId: requestedVoiceId }),
+      body: JSON.stringify({ voiceId: requestedVoiceId, enabled: requestedEnabled }),
     });
     const savedVoiceId = payload.setting?.voiceId || payload.voiceId || requestedVoiceId;
+    const savedEnabled = typeof payload.setting?.enabled === "boolean"
+      ? payload.setting.enabled
+      : requestedEnabled;
     const hasSavedVoice = Array.from(speechVoiceSelect.options)
       .some((option) => option.value === savedVoiceId);
     if (hasSavedVoice) speechVoiceSelect.value = savedVoiceId;
+    speechEnabledCheckbox.checked = savedEnabled;
     savedSpeechVoiceId = speechVoiceSelect.value;
+    savedSpeechEnabled = savedEnabled;
     updateSpeechVoiceDescription();
-    const selectedLabel = speechVoiceSelect.selectedOptions[0]?.textContent || savedSpeechVoiceId;
-    setStatus(speechSettingsStatus, `Pronunciation voice changed to ${selectedLabel}.`);
+    setStatus(speechSettingsStatus, currentSpeechSettingsStatus());
   } catch (error) {
-    setStatus(speechSettingsStatus, `Could not save voice: ${error.message}`, true);
+    setStatus(speechSettingsStatus, `Could not save audio settings: ${error.message}`, true);
   } finally {
     setSpeechSettingsPending(false);
+  }
+}
+
+function renderDictionaryVersion(dictionary) {
+  dictionaryCurrentVersion.textContent = dictionary?.currentRevision || "Unavailable";
+  dictionaryAvailableVersion.textContent = dictionary?.availableRevision || "Not checked";
+  dictionaryLastChecked.textContent = dictionary?.lastCheckedAt
+    ? formatDate(dictionary.lastCheckedAt)
+    : "Never";
+
+  const updateAvailable = Boolean(
+    dictionary?.currentRevision
+    && dictionary?.availableRevision
+    && dictionary.availableRevision > dictionary.currentRevision
+  );
+  setStatus(
+    dictionarySettingsStatus,
+    updateAvailable
+      ? `A newer source snapshot (${dictionary.availableRevision}) is available. Reviewed data was not changed.`
+      : dictionary?.availableRevision
+        ? "The installed source snapshot is current."
+        : "Use “Check for update” to compare with Kaikki.org."
+  );
+}
+
+function renderDictionarySuggestions(suggestions) {
+  dictionarySuggestionsList.replaceChildren();
+  if (!suggestions.length) {
+    const empty = document.createElement("p");
+    empty.className = "admin-empty-state";
+    empty.textContent = "No suggestions are waiting for review.";
+    dictionarySuggestionsList.appendChild(empty);
+    return;
+  }
+
+  suggestions.forEach((suggestion) => {
+    const row = document.createElement("div");
+    row.className = "admin-dictionary-suggestion-row";
+    const copy = document.createElement("p");
+    const word = document.createElement("strong");
+    word.lang = "uk";
+    word.textContent = suggestion.word;
+    copy.append(
+      word,
+      ` → ${suggestion.translation} · lemma ${suggestion.lemma} · ${suggestion.partOfSpeech}`,
+      document.createElement("br"),
+      `Suggested by ${suggestion.suggestedByEmail} on ${formatDate(suggestion.suggestedAt)}`
+    );
+
+    const actions = document.createElement("div");
+    actions.className = "admin-dictionary-review-actions";
+    const approve = document.createElement("button");
+    approve.type = "button";
+    approve.className = "admin-primary-button";
+    approve.textContent = "Approve";
+    approve.addEventListener("click", () => {
+      void reviewDictionarySuggestion(suggestion.suggestionId, "approve");
+    });
+    const reject = document.createElement("button");
+    reject.type = "button";
+    reject.className = "admin-secondary-button";
+    reject.textContent = "Reject";
+    reject.addEventListener("click", () => {
+      void reviewDictionarySuggestion(suggestion.suggestionId, "reject");
+    });
+    actions.append(approve, reject);
+    row.append(copy, actions);
+    dictionarySuggestionsList.appendChild(row);
+  });
+}
+
+async function loadDictionarySuggestions() {
+  if (!hasPermission("dictionary_approve")) return;
+  dictionarySuggestionsList.textContent = "Loading suggestions…";
+  try {
+    const payload = await api("./api/admin/dictionary/suggestions", { method: "GET" });
+    renderDictionarySuggestions(Array.isArray(payload.suggestions) ? payload.suggestions : []);
+  } catch (error) {
+    dictionarySuggestionsList.textContent = `Could not load suggestions: ${error.message}`;
+  }
+}
+
+async function loadDictionaryStatus() {
+  if (!hasPermission("dictionary_suggest")) {
+    dictionarySettingsSection.hidden = true;
+    return;
+  }
+  dictionarySettingsSection.hidden = false;
+  dictionaryReviewSection.hidden = !hasPermission("dictionary_approve");
+  checkDictionaryUpdateButton.hidden = !hasPermission("settings");
+  dictionarySettingsSection.setAttribute("aria-busy", "true");
+  try {
+    const payload = await api("./api/admin/dictionary/status", { method: "GET" });
+    renderDictionaryVersion(payload.dictionary);
+    if (hasPermission("dictionary_approve")) await loadDictionarySuggestions();
+  } catch (error) {
+    setStatus(dictionarySettingsStatus, `Could not load dictionary status: ${error.message}`, true);
+  } finally {
+    dictionarySettingsSection.setAttribute("aria-busy", "false");
+  }
+}
+
+async function checkDictionaryUpdate() {
+  if (dictionarySettingsPending || !hasPermission("settings")) return;
+  dictionarySettingsPending = true;
+  checkDictionaryUpdateButton.disabled = true;
+  dictionarySettingsSection.setAttribute("aria-busy", "true");
+  setStatus(dictionarySettingsStatus, "Checking the Kaikki.org source version…");
+  try {
+    const payload = await api("./api/admin/dictionary/check-update", {
+      method: "POST",
+      body: "{}",
+    });
+    renderDictionaryVersion({
+      currentRevision: payload.currentRevision,
+      availableRevision: payload.availableRevision,
+      lastCheckedAt: payload.lastCheckedAt,
+    });
+  } catch (error) {
+    setStatus(dictionarySettingsStatus, `Could not check for an update: ${error.message}`, true);
+  } finally {
+    dictionarySettingsPending = false;
+    checkDictionaryUpdateButton.disabled = false;
+    dictionarySettingsSection.setAttribute("aria-busy", "false");
+  }
+}
+
+async function reviewDictionarySuggestion(suggestionId, decision) {
+  dictionarySettingsSection.setAttribute("aria-busy", "true");
+  try {
+    await api(`./api/admin/dictionary/suggestions/${suggestionId}/${decision}`, {
+      method: "POST",
+      body: JSON.stringify({ note: "" }),
+    });
+    setStatus(dictionarySettingsStatus, decision === "approve"
+      ? "Dictionary suggestion approved."
+      : "Dictionary suggestion rejected.");
+    await loadDictionarySuggestions();
+  } catch (error) {
+    setStatus(dictionarySettingsStatus, `Could not review suggestion: ${error.message}`, true);
+  } finally {
+    dictionarySettingsSection.setAttribute("aria-busy", "false");
+  }
+}
+
+function openDictionarySuggestion(word) {
+  dictionarySuggestionForm.reset();
+  dictionarySuggestionForm.elements.word.value = word;
+  dictionarySuggestionForm.elements.lemma.value = word;
+  setStatus(dictionarySuggestionStatus, "");
+  dictionarySuggestionDialog.showModal();
+  dictionarySuggestionForm.elements.lemma.focus();
+}
+
+function renderDictionaryCoverage(coverage) {
+  dictionaryMissingList.replaceChildren();
+  if (!coverage?.available) {
+    dictionaryCoveragePanel.classList.add("is-incomplete");
+    setCoverageStatus(coverage?.message || "Dictionary coverage could not be checked.", true);
+    return;
+  }
+
+  const incomplete = coverage.missingCount > 0;
+  dictionaryCoveragePanel.classList.toggle("is-incomplete", incomplete);
+  setCoverageStatus(
+    incomplete
+      ? `${coverage.coveragePercent}% covered · ${coverage.missingCount} unique words need English translations. Publication is still allowed.`
+      : `100% covered · all ${coverage.totalUniqueWords} unique words have English translations.`,
+    incomplete
+  );
+
+  (coverage.missing || []).forEach(({ word, count }) => {
+    const row = document.createElement("div");
+    row.className = "admin-dictionary-missing-row";
+    const copy = document.createElement("p");
+    const strong = document.createElement("strong");
+    strong.lang = "uk";
+    strong.textContent = word;
+    copy.append(strong, ` · ${count} occurrence${count === 1 ? "" : "s"}`);
+    row.appendChild(copy);
+    if (hasPermission("dictionary_suggest")) {
+      const actions = document.createElement("div");
+      actions.className = "admin-dictionary-missing-actions";
+      const suggest = document.createElement("button");
+      suggest.type = "button";
+      suggest.className = "admin-secondary-button";
+      suggest.textContent = "Suggest translation";
+      suggest.addEventListener("click", () => openDictionarySuggestion(word));
+      actions.appendChild(suggest);
+      row.appendChild(actions);
+    }
+    dictionaryMissingList.appendChild(row);
+  });
+}
+
+function resetDictionaryCoverage() {
+  dictionaryCoveragePanel.classList.remove("is-incomplete");
+  dictionaryMissingList.replaceChildren();
+  setCoverageStatus("Not checked for this draft.");
+}
+
+async function checkDictionaryCoverage() {
+  if (dictionaryCoveragePending) return;
+  dictionaryCoveragePending = true;
+  checkDictionaryCoverageButton.disabled = true;
+  dictionaryCoveragePanel.setAttribute("aria-busy", "true");
+  setCoverageStatus("Checking English translations…");
+  try {
+    const payload = await api("./api/admin/dictionary/coverage", {
+      method: "POST",
+      body: JSON.stringify({
+        paragraphs: getEditorPayload().paragraphs,
+        targetLanguage: "en",
+      }),
+    });
+    renderDictionaryCoverage(payload.coverage);
+  } catch (error) {
+    renderDictionaryCoverage({ available: false, message: error.message });
+  } finally {
+    dictionaryCoveragePending = false;
+    checkDictionaryCoverageButton.disabled = false;
+    dictionaryCoveragePanel.setAttribute("aria-busy", "false");
   }
 }
 
@@ -498,6 +770,7 @@ function populateEditor(story) {
       ? `Last published change ${formatDate(story.updatedAt)}${story.updatedByEmail ? ` by ${story.updatedByEmail}` : ""}`
       : "";
   setStatus(editorStatus, "");
+  resetDictionaryCoverage();
   markClean(story.hasDraft ? `Draft saved ${formatDate(story.draftUpdatedAt)}` : "No unsaved changes");
   updateEditorControls();
   renderStoryList();
@@ -521,6 +794,7 @@ function enterCreateMode() {
   setStoryStatus("draft");
   historyList.innerHTML = '<p class="admin-empty-state">Revision history starts after the first publish.</p>';
   setStatus(editorStatus, "");
+  resetDictionaryCoverage();
   markClean();
   updateEditorControls();
   renderStoryList();
@@ -644,9 +918,19 @@ async function publishStory() {
       body: JSON.stringify(getEditorPayload()),
     });
     populateEditor(payload.story);
+    renderDictionaryCoverage(payload.dictionaryCoverage);
     markClean(`Published ${formatDate(payload.story.publishedAt)}`);
     await Promise.all([loadSummaries(), loadHistory()]);
-    setStatus(editorStatus, "Published. This version is now visible to learners.");
+    const coverageWarnings = (payload.dictionaryCoverages || [payload.dictionaryCoverage])
+      .filter((coverage) => coverage?.missingCount > 0);
+    setStatus(
+      editorStatus,
+      coverageWarnings.length
+        ? `Published with dictionary warnings: ${coverageWarnings
+            .map((coverage) => `${coverage.targetLanguage.toUpperCase()} ${coverage.missingCount} missing`)
+            .join(" · ")}.`
+        : "Published. This version is now visible to learners."
+    );
   } catch (error) {
     setStatus(editorStatus, error.message, true);
   } finally {
@@ -716,9 +1000,10 @@ async function enterAdminPanel(user) {
   addStoryButton.hidden = !hasPermission("edit");
   speechSettingsForm.hidden = !hasPermission("settings");
   if (hasPermission("settings")) void loadSpeechSettings();
+  dictionaryCoveragePanel.hidden = !hasPermission("dictionary_suggest");
 
   try {
-    await loadSummaries();
+    await Promise.all([loadSummaries(), loadDictionaryStatus()]);
     const requestedId = Number(new URL(window.location.href).searchParams.get("story"));
     const initialId = summaries.some((story) => story.storyId === requestedId)
       ? requestedId
@@ -777,16 +1062,59 @@ logoutButton.addEventListener("click", async () => {
 speechVoiceSelect.addEventListener("change", () => {
   updateSpeechVoiceDescription();
   updateSpeechSettingsControls();
-  if (speechVoiceSelect.value !== savedSpeechVoiceId) {
-    setStatus(speechSettingsStatus, "Voice change not saved yet.");
-  } else {
-    const selectedLabel = speechVoiceSelect.selectedOptions[0]?.textContent || savedSpeechVoiceId;
-    setStatus(speechSettingsStatus, `Current voice: ${selectedLabel}.`);
-  }
+  setStatus(
+    speechSettingsStatus,
+    speechSettingsAreDirty() ? "Audio settings have unsaved changes." : currentSpeechSettingsStatus()
+  );
+});
+speechEnabledCheckbox.addEventListener("change", () => {
+  updateSpeechSettingsControls();
+  setStatus(
+    speechSettingsStatus,
+    speechSettingsAreDirty() ? "Audio settings have unsaved changes." : currentSpeechSettingsStatus()
+  );
 });
 speechSettingsForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   await saveSpeechSettings();
+});
+
+checkDictionaryUpdateButton.addEventListener("click", () => void checkDictionaryUpdate());
+refreshDictionarySuggestionsButton.addEventListener("click", () => void loadDictionarySuggestions());
+checkDictionaryCoverageButton.addEventListener("click", () => void checkDictionaryCoverage());
+closeDictionarySuggestionButton.addEventListener("click", () => dictionarySuggestionDialog.close());
+dictionarySuggestionDialog.addEventListener("click", (event) => {
+  if (event.target === dictionarySuggestionDialog) dictionarySuggestionDialog.close();
+});
+dictionarySuggestionForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const submitButton = dictionarySuggestionForm.querySelector('[type="submit"]');
+  submitButton.disabled = true;
+  setStatus(dictionarySuggestionStatus, "Sending suggestion for administrator review…");
+  try {
+    const tags = dictionarySuggestionForm.elements.tags.value
+      .split(",")
+      .map((tag) => tag.trim().toLowerCase())
+      .filter(Boolean);
+    await api("./api/admin/dictionary/suggestions", {
+      method: "POST",
+      body: JSON.stringify({
+        word: dictionarySuggestionForm.elements.word.value,
+        lemma: dictionarySuggestionForm.elements.lemma.value,
+        partOfSpeech: dictionarySuggestionForm.elements.partOfSpeech.value,
+        tags,
+        targetLanguage: "en",
+        translation: dictionarySuggestionForm.elements.translation.value,
+        explanation: dictionarySuggestionForm.elements.explanation.value,
+      }),
+    });
+    setStatus(dictionarySuggestionStatus, "Suggestion sent. An administrator must approve it before learners see it.");
+    await loadDictionaryStatus();
+  } catch (error) {
+    setStatus(dictionarySuggestionStatus, error.message, true);
+  } finally {
+    submitButton.disabled = false;
+  }
 });
 
 addStoryButton.addEventListener("click", enterCreateMode);

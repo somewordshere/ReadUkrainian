@@ -19,6 +19,8 @@ const bookmarkButton = document.getElementById("bookmarkButton");
 const completionActions = document.getElementById("completionActions");
 const reviewMistakesButton = document.getElementById("reviewMistakesButton");
 const nextStoryLink = document.getElementById("nextStoryLink");
+const translationLanguageSelect = document.getElementById("translationLanguageSelect");
+const TRANSLATION_LANGUAGE_STORAGE_KEY = "readukrainian.translation-language";
 const selectionSpeech = initSelectionSpeech({
   root: storyText,
   hint: document.getElementById("storySpeechHint"),
@@ -26,9 +28,37 @@ const selectionSpeech = initSelectionSpeech({
   button: document.getElementById("selectionSpeechButton"),
   icon: document.getElementById("selectionSpeechIcon"),
   label: document.getElementById("selectionSpeechLabel"),
+  translateButton: document.getElementById("selectionTranslateButton"),
+  translateLabel: document.getElementById("selectionTranslateLabel"),
+  translationResult: document.getElementById("selectionTranslationResult"),
   unavailable: document.getElementById("selectionSpeechUnavailable"),
   status: document.getElementById("selectionSpeechStatus"),
 });
+
+function getSavedTranslationLanguage() {
+  try {
+    const savedLanguage = window.localStorage.getItem(TRANSLATION_LANGUAGE_STORAGE_KEY);
+    return savedLanguage === "de" ? "de" : "en";
+  } catch {
+    return "en";
+  }
+}
+
+function setTranslationLanguage(language) {
+  const nextLanguage = language === "de" ? "de" : "en";
+  translationLanguageSelect.value = nextLanguage;
+  selectionSpeech.setTargetLanguage(nextLanguage);
+  try {
+    window.localStorage.setItem(TRANSLATION_LANGUAGE_STORAGE_KEY, nextLanguage);
+  } catch {
+    // Translation still works when storage is unavailable.
+  }
+}
+
+translationLanguageSelect.addEventListener("change", () => {
+  setTranslationLanguage(translationLanguageSelect.value);
+});
+setTranslationLanguage(getSavedTranslationLanguage());
 
 const questionInputs = [];
 let storyAvailable = false;
@@ -508,6 +538,7 @@ async function initStory() {
 
     selectionSpeech.setContext({ storyId: story.storyId });
     selectionSpeech.setEnabled(true);
+    selectionSpeech.setSpeechEnabled(story.speechEnabled === true);
 
     const questions = story.questions?.length
       ? prepareQuestions(

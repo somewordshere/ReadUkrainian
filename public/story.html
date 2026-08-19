@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Історії українською</title>
-    <link rel="stylesheet" href="./css/styles.css" />
+    <link rel="stylesheet" href="./css/styles.next.css" />
   </head>
   <body>
     <div class="page-shell">
@@ -17,12 +17,21 @@
               <p class="story-level" id="storyLevel"></p>
               <h1 class="story-title" id="storyTitle"></h1>
             </div>
-            <button class="bookmark-button" id="bookmarkButton" type="button" aria-label="Додати в закладки">
-              <span class="bookmark-icon" aria-hidden="true">☆</span>
-            </button>
+            <div class="story-heading-actions">
+              <label class="translation-language-control" for="translationLanguageSelect">
+                <span>Переклад</span>
+                <select id="translationLanguageSelect" name="translationLanguage">
+                  <option value="en">English</option>
+                  <option value="de">Deutsch</option>
+                </select>
+              </label>
+              <button class="bookmark-button" id="bookmarkButton" type="button" aria-label="Додати в закладки">
+                <span class="bookmark-icon" aria-hidden="true">☆</span>
+              </button>
+            </div>
           </div>
           <p class="story-speech-hint" id="storySpeechHint" hidden>
-            Виділіть одне слово, щоб прослухати вимову. Аудіо безкоштовно надходить із сервера.
+            Виділіть одне українське слово, щоб перекласти його.
           </p>
           <div class="story-content" id="storyContent" aria-busy="true">
             <div class="story-text" id="storyText">
@@ -34,19 +43,36 @@
             class="selection-speech-popover"
             id="selectionSpeechPopover"
             role="group"
-            aria-label="Озвучення вибраного тексту"
+            aria-label="Дії з вибраним словом"
             hidden
           >
-            <button
-              class="selection-speech-button"
-              id="selectionSpeechButton"
-              type="button"
-              aria-pressed="false"
-            >
-              <span class="selection-speech-icon" id="selectionSpeechIcon" aria-hidden="true">▶</span>
-              <span id="selectionSpeechLabel">Прослухати</span>
-            </button>
+            <div class="selection-word-actions">
+              <button
+                class="selection-speech-button"
+                id="selectionSpeechButton"
+                type="button"
+                aria-pressed="false"
+              >
+                <span class="selection-speech-icon" id="selectionSpeechIcon" aria-hidden="true">▶</span>
+                <span id="selectionSpeechLabel">Прослухати</span>
+              </button>
+              <button
+                class="selection-translate-button"
+                id="selectionTranslateButton"
+                type="button"
+                aria-controls="selectionTranslationResult"
+                aria-expanded="false"
+              >
+                <span aria-hidden="true">文</span>
+                <span id="selectionTranslateLabel">Перекласти</span>
+              </button>
+            </div>
             <p class="selection-speech-unavailable" id="selectionSpeechUnavailable" hidden></p>
+            <div
+              class="selection-translation-result"
+              id="selectionTranslationResult"
+              hidden
+            ></div>
           </div>
           <p
             class="visually-hidden"

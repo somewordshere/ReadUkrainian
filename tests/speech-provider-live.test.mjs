@@ -27,7 +27,7 @@ function liveTestDb() {
         },
         async first() {
           if (sql.includes("FROM speech_settings")) {
-            return { voiceId: "mai", version: 1 };
+            return { voiceId: "mai", enabled: 1, version: 1 };
           }
           if (sql.includes("speech_usage_daily")) {
             return { characters_used: 6 };

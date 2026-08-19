@@ -1,5 +1,5 @@
 import { error } from "../_shared/http.js";
-import { getSpeechVoice } from "../_shared/speech-settings.js";
+import { getSpeechSetting } from "../_shared/speech-settings.js";
 import {
   DEFAULT_SPEECH_VOICE_ID,
   resolveSpeechVoice,
@@ -543,6 +543,23 @@ export async function onRequestPost(context) {
     return noStoreError(422, "Select one Ukrainian word, not a phrase.");
   }
 
+  let speechSetting;
+  try {
+    speechSetting = await getSpeechSetting(context.env.DB);
+  } catch {
+    return noStoreError(503, "Pronunciation is temporarily unavailable.");
+  }
+  if (!speechSetting.enabled) {
+    return noStoreError(404, "Pronunciation is disabled.", {
+      "x-speech-disabled": "true",
+    });
+  }
+
+  const voiceConfig = resolveSpeechVoice(speechSetting.voiceId);
+  if (!voiceConfig) {
+    return noStoreError(503, "Pronunciation is temporarily unavailable.");
+  }
+
   let story;
   try {
     story = await getStoryById(context.env.DB, storyId);
@@ -557,13 +574,6 @@ export async function onRequestPost(context) {
     return noStoreError(404, "The selected word was not found in the published story.");
   }
   if (!context.env.ASSETS || typeof context.env.ASSETS.fetch !== "function") {
-    return noStoreError(503, "Pronunciation is temporarily unavailable.");
-  }
-
-  let voiceConfig;
-  try {
-    voiceConfig = await getSpeechVoice(context.env.DB);
-  } catch {
     return noStoreError(503, "Pronunciation is temporarily unavailable.");
   }
 

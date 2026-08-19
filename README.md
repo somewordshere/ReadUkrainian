@@ -8,7 +8,7 @@ Readers choose a story from the library at A1, A2, or B1 level. They can search 
 
 Stories and questions are loaded from the website's content database. A bundled copy of the learning content acts as a fallback if the content service is temporarily unavailable, keeping the core reading experience reliable.
 
-On a story page, readers can select one Ukrainian word and choose **Прослухати** to hear its pronunciation. The website checks that the word belongs to the active published story before serving prepared or securely generated audio.
+On a story page, readers can select one Ukrainian word to see an English or German translation and Ukrainian grammar. They can also choose **Прослухати** to hear its pronunciation when audio is enabled. Dictionary lookups and generated audio are handled by the server.
 
 ## Website features
 
@@ -20,6 +20,7 @@ On a story page, readers can select one Ukrainian word and choose **Прослу
 - Options to restart a story or continue to the next one
 - Bookmarks and a continue-reading experience
 - One-word Ukrainian pronunciation with clear AI-voice disclosure
+- Server-side, one-word Ukrainian → English and Ukrainian → German dictionaries
 - Responsive layouts for desktop and mobile devices
 - Keyboard-friendly controls, visible focus states, accessible quiz choices, and reduced-motion support
 - Resilient fallback content when live content cannot be loaded
@@ -34,5 +35,16 @@ The website includes a private publishing workspace for the content team. Depend
 - publish or unpublish stories
 - review and restore previous revisions
 - choose the pronunciation voice used across the website
+- review dictionary suggestions and check dictionary coverage before publishing
 
 Drafts remain private until a publisher explicitly releases them, keeping work in progress separate from the public story library.
+
+## Dictionary data
+
+Ukrainian morphology and the primary translations come from Wiktionary data distributed by Kaikki.org. The German dictionary is supplemented with the Creative Commons Attribution-licensed [Linguisto German–Ukrainian dictionary](https://sourceforge.net/projects/linguisto/), release 2018-04-12.
+
+The Linguisto build deliberately accepts only exact, single-word Ukrainian equivalents whose part of speech matches one unambiguous installed lexeme. This avoids automatically publishing phrases and uncertain reverse-dictionary matches. Rebuild the generated D1 seed from an official XDXF download with:
+
+```sh
+npm run dictionary:build:linguisto -- --source PATH_TO_XDXF --revision 2018-04-12
+```

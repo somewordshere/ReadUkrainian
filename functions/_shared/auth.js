@@ -4,9 +4,17 @@ const SESSION_DURATION_SECONDS = 60 * 60 * 24 * 14;
 const MAX_PASSWORD_HASH_ITERATIONS = 1_000_000;
 
 const ROLE_PERMISSIONS = Object.freeze({
-  editor: Object.freeze(["read", "edit"]),
-  publisher: Object.freeze(["read", "edit", "publish", "restore"]),
-  admin: Object.freeze(["read", "edit", "publish", "restore", "settings"]),
+  editor: Object.freeze(["read", "edit", "dictionary_suggest"]),
+  publisher: Object.freeze(["read", "edit", "publish", "restore", "dictionary_suggest"]),
+  admin: Object.freeze([
+    "read",
+    "edit",
+    "publish",
+    "restore",
+    "settings",
+    "dictionary_suggest",
+    "dictionary_approve",
+  ]),
 });
 
 function toBase64Url(bytes) {

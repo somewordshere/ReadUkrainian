@@ -6,6 +6,7 @@ import {
 const SELECT_SETTING_SQL = `
   SELECT
     voice_id AS voiceId,
+    is_enabled AS enabled,
     version,
     updated_at AS updatedAt,
     updated_by_user_id AS updatedByUserId,
@@ -32,6 +33,7 @@ function normalizeSetting(row) {
 
   return {
     voiceId: voice.id,
+    enabled: row?.enabled === true || Number(row?.enabled) === 1,
     version: normalizeVersion(row?.version),
     updatedAt: typeof row?.updatedAt === "string" ? row.updatedAt : null,
     updatedByUserId: row?.updatedByUserId != null && Number.isInteger(Number(row.updatedByUserId))
@@ -51,11 +53,14 @@ export async function getSpeechVoice(db) {
   return resolveSpeechVoice(setting.voiceId) || resolveSpeechVoice(DEFAULT_SPEECH_VOICE_ID);
 }
 
-export async function saveSpeechVoice(db, voiceId, session) {
+export async function saveSpeechSetting(db, { voiceId, enabled }, session) {
   const voice = resolveSpeechVoice(voiceId);
 
   if (!voice) {
     throw new RangeError("Unsupported speech voice.");
+  }
+  if (typeof enabled !== "boolean") {
+    throw new TypeError("Speech enabled state must be a boolean.");
   }
 
   const actor = normalizeActor(session);
@@ -66,21 +71,23 @@ export async function saveSpeechVoice(db, voiceId, session) {
         INSERT INTO speech_settings (
           singleton_id,
           voice_id,
+          is_enabled,
           version,
           updated_at,
           updated_by_user_id,
           updated_by_email
         )
-        VALUES (1, ?, 1, CURRENT_TIMESTAMP, ?, ?)
+        VALUES (1, ?, ?, 1, CURRENT_TIMESTAMP, ?, ?)
         ON CONFLICT(singleton_id) DO UPDATE SET
           voice_id = excluded.voice_id,
+          is_enabled = excluded.is_enabled,
           version = speech_settings.version + 1,
           updated_at = CURRENT_TIMESTAMP,
           updated_by_user_id = excluded.updated_by_user_id,
           updated_by_email = excluded.updated_by_email
       `
     )
-    .bind(voice.id, actor.userId, actor.email)
+    .bind(voice.id, enabled ? 1 : 0, actor.userId, actor.email)
     .run();
 
   return getSpeechSetting(db);
