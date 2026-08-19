@@ -1,5 +1,6 @@
 const COPY = {
-  hint: "Виділіть одне слово, щоб прослухати вимову. Аудіо безкоштовно надходить із сервера.",
+  hint: "Виділіть одне українське слово, щоб прослухати або перекласти.",
+  translationHint: "Виділіть одне українське слово, щоб перекласти його.",
   unsupported: "Цей браузер не підтримує відтворення згенерованого аудіо.",
   listen: "Прослухати",
   stop: "Зупинити",
@@ -15,10 +16,84 @@ const COPY = {
   playAgain: "Аудіо готове. Натисніть «Прослухати» ще раз, щоб відтворити його.",
   playReady: "Аудіо готове — відтворити",
   tooLong: "Виберіть коротше слово — не більше 80 символів.",
+  translate: "Перекласти",
+  translating: "Шукаємо…",
+  translationLoading: "Шукаємо слово у словнику…",
+  translationFailed: "Не вдалося відкрити словник. Спробуйте ще раз.",
+  translationMissing: "Не знайшли перекладу для цього слова. Це може бути ім’я або рідкісна форма.",
+  translationReady: "Переклад і граматичну інформацію завантажено.",
 };
 
+const TARGET_LANGUAGES = new Set(["en", "de"]);
+
 const MAX_AUDIO_BYTES = 8 * 1024 * 1024;
+const MAX_DICTIONARY_RESPONSE_BYTES = 64 * 1024;
 const MAX_SPEECH_CHARACTERS = 80;
+
+const PART_OF_SPEECH_LABELS = Object.freeze({
+  adjective: "прикметник",
+  adverb: "прислівник",
+  character: "літера",
+  conjunction: "сполучник",
+  determiner: "визначник",
+  interjection: "вигук",
+  name: "власна назва",
+  noun: "іменник",
+  numeral: "числівник",
+  particle: "частка",
+  phrase: "фраза",
+  postposition: "післяйменник",
+  prefix: "префікс",
+  preposition: "прийменник",
+  pronoun: "займенник",
+  "proper-noun": "власна назва",
+  proverb: "прислів’я",
+  suffix: "суфікс",
+  verb: "дієслово",
+});
+
+const GRAMMAR_LABELS = Object.freeze({
+  accusative: "знахідний відмінок",
+  adverbial: "дієприслівник",
+  comparative: "вищий ступінь",
+  conditional: "умовний спосіб",
+  dative: "давальний відмінок",
+  feminine: "жіночий рід",
+  "first-person": "1-ша особа",
+  future: "майбутній час",
+  "gender-not-distinguished": "рід не розрізняється",
+  genitive: "родовий відмінок",
+  imperative: "наказовий спосіб",
+  imperfective: "недоконаний вид",
+  infinitive: "інфінітив",
+  instrumental: "орудний відмінок",
+  locative: "місцевий відмінок",
+  masculine: "чоловічий рід",
+  neuter: "середній рід",
+  nominative: "називний відмінок",
+  participle: "дієприкметник",
+  past: "минулий час",
+  perfective: "доконаний вид",
+  plural: "множина",
+  present: "теперішній час",
+  "second-person": "2-га особа",
+  singular: "однина",
+  superlative: "найвищий ступінь",
+  "third-person": "3-тя особа",
+  vocative: "кличний відмінок",
+});
+
+const GRAMMAR_ORDER = Object.freeze([
+  "verbForm",
+  "tense",
+  "mood",
+  "person",
+  "number",
+  "gender",
+  "case",
+  "aspect",
+  "degree",
+]);
 
 export function normalizeSpeechText(value) {
   return String(value || "")
@@ -75,7 +150,19 @@ function clamp(value, minimum, maximum) {
 }
 
 export function initSelectionSpeech(
-  { root, hint, popover, button, icon, label, unavailable, status },
+  {
+    root,
+    hint,
+    popover,
+    button,
+    icon,
+    label,
+    translateButton,
+    translateLabel,
+    translationResult,
+    unavailable,
+    status,
+  },
   dependencies = {}
 ) {
   const fetchImpl = dependencies.fetch || window.fetch?.bind(window);
@@ -90,8 +177,12 @@ export function initSelectionSpeech(
       typeof createObjectURL === "function" &&
       typeof revokeObjectURL === "function"
   );
+  const translationSupported = Boolean(
+    typeof fetchImpl === "function" && typeof AbortControllerImpl === "function"
+  );
 
   let enabled = false;
+  let speechEnabled = true;
   let storyId = null;
   let selectedText = "";
   let selectionIssue = "";
@@ -107,6 +198,10 @@ export function initSelectionSpeech(
   let selectionFrame = 0;
   let statusFrame = 0;
   let interactingWithPopover = false;
+  let translationState = "idle";
+  let translationController = null;
+  let translationToken = 0;
+  let targetLanguage = "en";
 
   function setStatus(message = "") {
     if (statusFrame) {
@@ -126,16 +221,19 @@ export function initSelectionSpeech(
     hint.hidden = !enabled;
     if (!enabled) return;
 
-    hint.textContent = speechSupported ? COPY.hint : COPY.unsupported;
-    hint.classList.toggle("is-unavailable", !speechSupported);
+    hint.textContent = speechEnabled && speechSupported ? COPY.hint : COPY.translationHint;
+    hint.classList.toggle("is-unavailable", !translationSupported);
   }
 
   function updatePopoverContent() {
-    const canRequest = speechSupported && !selectionIssue;
-    button.hidden = !canRequest;
-    unavailable.hidden = canRequest && !visibleError;
+    const validSelection = !selectionIssue;
+    const canRequestSpeech = speechEnabled && speechSupported && storyId && validSelection;
+    const canTranslate = translationSupported && validSelection;
+    button.hidden = !canRequestSpeech;
+    translateButton.hidden = !canTranslate;
+    unavailable.hidden = (canRequestSpeech || canTranslate) && !visibleError;
 
-    if (!canRequest) {
+    if (!canRequestSpeech && !canTranslate) {
       unavailable.textContent = selectionIssue || COPY.unsupported;
       return;
     }
@@ -151,6 +249,143 @@ export function initSelectionSpeech(
         ? COPY.playReady
         : COPY.listen;
     icon.textContent = playbackState === "loading" ? "…" : playbackState === "playing" ? "■" : "▶";
+    const translationLoading = translationState === "loading";
+    translateButton.disabled = translationLoading;
+    translateButton.setAttribute("aria-busy", String(translationLoading));
+    translateButton.setAttribute("aria-expanded", String(!translationResult.hidden));
+    translateLabel.textContent = translationLoading ? COPY.translating : COPY.translate;
+  }
+
+  function clearTranslation({ abort = true } = {}) {
+    translationToken += 1;
+    if (abort && translationController) {
+      translationController.abort();
+    }
+    translationController = null;
+    translationState = "idle";
+    translationResult.hidden = true;
+    translationResult.replaceChildren();
+    updatePopoverContent();
+  }
+
+  function grammarLines(entry) {
+    const lines = (Array.isArray(entry?.forms) ? entry.forms : [])
+      .map((form) => GRAMMAR_ORDER
+        .map((feature) => GRAMMAR_LABELS[form?.grammar?.[feature]])
+        .filter(Boolean)
+        .join(" · "))
+      .filter(Boolean);
+
+    return [...new Set(lines)].slice(0, 3);
+  }
+
+  function appendAttributions(payload) {
+    const attributions = Array.isArray(payload?.attributions) && payload.attributions.length
+      ? payload.attributions
+      : payload?.attribution
+        ? [{
+            name: payload.attribution.sourceName,
+            url: payload.attribution.sourceUrl,
+            licenseName: payload.attribution.licenseName,
+            licenseUrl: payload.attribution.licenseUrl,
+          }]
+        : [];
+    if (!attributions.length) return;
+
+    const paragraph = document.createElement("p");
+    paragraph.className = "selection-translation-attribution";
+    paragraph.append("Джерело: ");
+    attributions.forEach((attribution, index) => {
+      if (index) paragraph.append(" · ");
+      if (attribution.url) {
+        const sourceLink = document.createElement("a");
+        sourceLink.href = attribution.url;
+        sourceLink.target = "_blank";
+        sourceLink.rel = "noopener noreferrer";
+        sourceLink.textContent = attribution.name;
+        paragraph.append(sourceLink);
+      } else {
+        paragraph.append(attribution.name);
+      }
+
+      if (attribution.licenseUrl && attribution.licenseName) {
+        paragraph.append(" (");
+        const licenseLink = document.createElement("a");
+        licenseLink.href = attribution.licenseUrl;
+        licenseLink.target = "_blank";
+        licenseLink.rel = "noopener noreferrer";
+        licenseLink.textContent = attribution.licenseName;
+        paragraph.append(licenseLink, ")");
+      }
+    });
+
+    translationResult.appendChild(paragraph);
+  }
+
+  function renderTranslation(payload) {
+    translationResult.replaceChildren();
+    translationResult.hidden = false;
+
+    const word = document.createElement("p");
+    word.className = "selection-translation-word";
+    word.lang = "uk";
+    word.textContent = selectedText || payload?.query?.text;
+    translationResult.appendChild(word);
+
+    const entries = Array.isArray(payload?.entries) ? payload.entries : [];
+    if (!entries.length) {
+      const empty = document.createElement("p");
+      empty.className = "selection-translation-empty";
+      empty.textContent = COPY.translationMissing;
+      translationResult.appendChild(empty);
+      appendAttributions(payload);
+      return false;
+    }
+
+    const entriesElement = document.createElement("div");
+    entriesElement.className = "selection-translation-entries";
+
+    entries.slice(0, 6).forEach((entry) => {
+      const entryElement = document.createElement("section");
+      entryElement.className = "selection-translation-entry";
+
+      const metadata = document.createElement("p");
+      metadata.className = "selection-translation-meta";
+      const lemma = document.createElement("strong");
+      lemma.lang = "uk";
+      lemma.textContent = entry.lemma || payload.query.text;
+      metadata.append(
+        entry.normalizedLemma === payload.query.text ? "лема " : "форма слова ",
+        lemma,
+        ` · ${PART_OF_SPEECH_LABELS[entry.partOfSpeech] || entry.partOfSpeech || "слово"}`
+      );
+      entryElement.appendChild(metadata);
+
+      grammarLines(entry).forEach((line) => {
+        const grammar = document.createElement("p");
+        grammar.className = "selection-translation-grammar";
+        grammar.textContent = line;
+        entryElement.appendChild(grammar);
+      });
+
+      const translations = document.createElement("ul");
+      translations.className = "selection-translation-list";
+      (entry.translations || []).slice(0, 3).forEach((translation) => {
+        const item = document.createElement("li");
+        item.lang = payload.query.targetLanguage || "en";
+        item.textContent = translation.preferred
+          ? `${translation.text} — у цьому тексті`
+          : translation.text;
+        item.classList.toggle("is-preferred", translation.preferred === true);
+        translations.appendChild(item);
+      });
+      entryElement.appendChild(translations);
+      entriesElement.appendChild(entryElement);
+    });
+
+    translationResult.appendChild(entriesElement);
+    appendAttributions(payload);
+    return true;
   }
 
   function releaseAudio() {
@@ -203,6 +438,7 @@ export function initSelectionSpeech(
     if (suppress && selectedRange) {
       suppressedRange = selectedRange.cloneRange();
     }
+    clearTranslation();
     popover.hidden = true;
     popover.style.visibility = "";
     selectedText = "";
@@ -268,7 +504,7 @@ export function initSelectionSpeech(
   }
 
   function showOffer() {
-    if (!enabled || !storyId || !selectedText || !selectedRange) {
+    if (!enabled || !selectedText || !selectedRange) {
       return;
     }
 
@@ -419,12 +655,85 @@ export function initSelectionSpeech(
     }
   }
 
+  async function requestTranslation() {
+    if (!translationSupported || !selectedText || selectionIssue) return;
+
+    clearTranslation();
+    const token = translationToken + 1;
+    translationToken = token;
+    translationController = new AbortControllerImpl();
+    translationState = "loading";
+    translationResult.hidden = false;
+    const loading = document.createElement("p");
+    loading.className = "selection-translation-empty";
+    loading.textContent = COPY.translationLoading;
+    translationResult.appendChild(loading);
+    updatePopoverContent();
+    positionPopover();
+    setStatus(COPY.translationLoading);
+
+    try {
+      const response = await fetchImpl("/api/dictionary/lookup", {
+        method: "POST",
+        headers: {
+          accept: "application/json",
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ text: selectedText, targetLanguage, storyId }),
+        signal: translationController.signal,
+      });
+
+      if (token !== translationToken) return;
+      if (!response.ok) {
+        throw Object.assign(new Error("Dictionary request failed."), {
+          status: response.status,
+        });
+      }
+
+      const contentType = response.headers.get("content-type") || "";
+      const declaredLength = Number(response.headers.get("content-length"));
+      if (
+        !contentType.startsWith("application/json")
+        || (Number.isFinite(declaredLength) && declaredLength > MAX_DICTIONARY_RESPONSE_BYTES)
+      ) {
+        throw new Error("The dictionary response was invalid.");
+      }
+
+      const payload = await response.json();
+      if (token !== translationToken) return;
+
+      translationController = null;
+      translationState = "ready";
+      const found = renderTranslation(payload);
+      updatePopoverContent();
+      positionPopover();
+      setStatus(found ? COPY.translationReady : COPY.translationMissing);
+    } catch (error) {
+      if (token !== translationToken) return;
+
+      translationController = null;
+      translationState = "error";
+      translationResult.replaceChildren();
+      translationResult.hidden = false;
+      const errorMessage = error?.status === 422 ? COPY.oneWord : COPY.translationFailed;
+      const message = document.createElement("p");
+      message.className = "selection-translation-empty";
+      message.textContent = errorMessage;
+      translationResult.appendChild(message);
+      updatePopoverContent();
+      positionPopover();
+      setStatus(errorMessage);
+    }
+  }
+
   function captureSelection() {
     selectionFrame = 0;
     if (!enabled) return;
 
     const selection = window.getSelection();
-    const active = playbackState === "loading" || playbackState === "playing";
+    const active = playbackState === "loading"
+      || playbackState === "playing"
+      || translationState === "loading";
     if (!selection || selection.isCollapsed || selection.rangeCount === 0) {
       suppressedRange = null;
       if (!active && !interactingWithPopover && !popover.contains(document.activeElement)) {
@@ -447,6 +756,7 @@ export function initSelectionSpeech(
 
     if (text !== selectedText) {
       visibleError = "";
+      clearTranslation();
       stopPlayback();
     }
     selectedText = text;
@@ -486,6 +796,9 @@ export function initSelectionSpeech(
     }
     void requestSpeech();
   });
+  translateButton.addEventListener("click", () => {
+    void requestTranslation();
+  });
 
   popover.addEventListener("pointerdown", () => {
     interactingWithPopover = true;
@@ -517,7 +830,10 @@ export function initSelectionSpeech(
   window.addEventListener("resize", positionPopover);
   window.visualViewport?.addEventListener("resize", positionPopover);
   window.visualViewport?.addEventListener("scroll", positionPopover);
-  window.addEventListener("pagehide", () => stopPlayback());
+  window.addEventListener("pagehide", () => {
+    clearTranslation();
+    stopPlayback();
+  });
 
   updateHint();
   updatePopoverContent();
@@ -525,12 +841,21 @@ export function initSelectionSpeech(
   return {
     reset() {
       enabled = false;
+      speechEnabled = true;
       storyId = null;
       suppressedRange = null;
       selectionIssue = "";
       visibleError = "";
       dismissOffer({ stop: true });
       hint.hidden = true;
+      setStatus();
+    },
+    setTargetLanguage(nextTargetLanguage) {
+      const normalizedLanguage = String(nextTargetLanguage || "").toLowerCase();
+      if (!TARGET_LANGUAGES.has(normalizedLanguage) || normalizedLanguage === targetLanguage) return;
+
+      targetLanguage = normalizedLanguage;
+      clearTranslation();
       setStatus();
     },
     setContext(context = {}) {
@@ -542,12 +867,20 @@ export function initSelectionSpeech(
       storyId = validStoryId;
     },
     setEnabled(nextEnabled) {
-      enabled = Boolean(nextEnabled && storyId);
+      enabled = Boolean(nextEnabled);
       if (!enabled) {
         suppressedRange = null;
         dismissOffer({ stop: true });
       }
       updateHint();
+    },
+    setSpeechEnabled(nextEnabled) {
+      speechEnabled = Boolean(nextEnabled && storyId);
+      if (!speechEnabled) {
+        stopPlayback();
+      }
+      updateHint();
+      updatePopoverContent();
     },
   };
 }

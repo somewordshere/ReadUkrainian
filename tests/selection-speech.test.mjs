@@ -13,16 +13,38 @@ class FakeElement extends EventTarget {
     this.style = {};
     this.textContent = "";
     this.attributes = new Map();
-    this.children = new Set();
+    this.children = [];
     this.classList = { toggle: () => {} };
   }
 
   addChild(child) {
-    this.children.add(child);
+    this.children.push(child);
+  }
+
+  appendChild(child) {
+    this.children.push(child);
+    return child;
+  }
+
+  append(...children) {
+    for (const child of children) {
+      if (typeof child === "string") {
+        const text = new FakeElement();
+        text.textContent = child;
+        this.children.push(text);
+      } else {
+        this.children.push(child);
+      }
+    }
+  }
+
+  replaceChildren(...children) {
+    this.children = [];
+    this.append(...children);
   }
 
   contains(node) {
-    return node === this || this.children.has(node);
+    return node === this || this.children.some((child) => child?.contains?.(node) || child === node);
   }
 
   setAttribute(name, value) {
@@ -76,6 +98,13 @@ function deferred() {
   return { promise, resolve, reject };
 }
 
+function allText(element) {
+  return [
+    element?.textContent || "",
+    ...(element?.children || []).map(allText),
+  ].join(" ");
+}
+
 async function flushAsyncWork() {
   await new Promise((resolve) => setImmediate(resolve));
   await new Promise((resolve) => setImmediate(resolve));
@@ -97,6 +126,8 @@ function createHarness({
   const popover = new FakeElement();
   const button = new FakeElement();
   popover.addChild(button);
+  const translateButton = new FakeElement();
+  popover.addChild(translateButton);
   popover.hidden = true;
   popover.getBoundingClientRect = function getBoundingClientRect() {
     const maximumWidth = Number.parseFloat(this.style.maxWidth);
@@ -108,6 +139,9 @@ function createHarness({
   const hint = new FakeElement();
   const icon = new FakeElement();
   const label = new FakeElement();
+  const translateLabel = new FakeElement();
+  const translationResult = new FakeElement();
+  translationResult.hidden = true;
   const unavailable = new FakeElement();
   const status = new FakeElement();
   const documentTarget = new EventTarget();
@@ -145,7 +179,10 @@ function createHarness({
     ? Object.assign(new EventTarget(), visualViewport)
     : null;
 
-  Object.assign(documentTarget, { activeElement: null });
+  Object.assign(documentTarget, {
+    activeElement: null,
+    createElement: () => new FakeElement(),
+  });
   Object.assign(windowTarget, {
     innerWidth: 1024,
     innerHeight: 768,
@@ -166,7 +203,19 @@ function createHarness({
   globalThis.document = documentTarget;
 
   const controller = initSelectionSpeech(
-    { root, hint, popover, button, icon, label, unavailable, status },
+    {
+      root,
+      hint,
+      popover,
+      button,
+      icon,
+      label,
+      translateButton,
+      translateLabel,
+      translationResult,
+      unavailable,
+      status,
+    },
     {
       fetch: async (...args) => {
         requests.push(args);
@@ -200,6 +249,9 @@ function createHarness({
     revokedUrls,
     selection,
     status,
+    translateButton,
+    translateLabel,
+    translationResult,
     unavailable,
     restore() {
       controller.reset();
@@ -234,8 +286,8 @@ test("posts normalized text and plays the returned server audio", async () => {
       storyId: 42,
       text: "Привіт,",
     });
-    assert.match(harness.hint.textContent, /безкоштовно/);
-    assert.match(harness.hint.textContent, /із сервера/);
+    assert.match(harness.hint.textContent, /прослухати/);
+    assert.match(harness.hint.textContent, /перекласти/);
     assert.doesNotMatch(harness.hint.textContent, /пристро|OpenAI|TTS\.ai/i);
     assert.equal(harness.audios.length, 1);
     assert.equal(harness.audios[0].playCalls, 1);
@@ -354,6 +406,160 @@ test("rejects a multi-word selection locally with clear guidance", () => {
     assert.equal(harness.unavailable.hidden, false);
     assert.match(harness.unavailable.textContent, /лише одне слово/);
     assert.equal(harness.requests.length, 0);
+  } finally {
+    harness.restore();
+  }
+});
+
+test("keeps server-side translation available when pronunciation is disabled", () => {
+  const harness = createHarness({ selectionText: "мали" });
+  try {
+    harness.controller.setContext({ storyId: 42 });
+    harness.controller.setEnabled(true);
+    harness.controller.setSpeechEnabled(false);
+    harness.documentTarget.dispatchEvent(new Event("selectionchange"));
+
+    assert.equal(harness.popover.hidden, false);
+    assert.equal(harness.button.hidden, true);
+    assert.equal(harness.translateButton.hidden, false);
+    assert.match(harness.hint.textContent, /перекласти/);
+  } finally {
+    harness.restore();
+  }
+});
+
+test("requests one selected word and renders lemma, grammar, and translation", async () => {
+  const dictionaryPayload = {
+    query: { text: "мали", sourceLanguage: "uk", targetLanguage: "en" },
+    entries: [{
+      lemma: "мати",
+      normalizedLemma: "мати",
+      partOfSpeech: "verb",
+      forms: [{
+        form: "мали",
+        grammar: {
+          tense: "past",
+          number: "plural",
+          gender: "gender-not-distinguished",
+        },
+      }],
+      translations: [{ text: "to have" }],
+    }],
+    attribution: {
+      sourceName: "English Wiktionary via Kaikki.org",
+      sourceUrl: "https://kaikki.org/dictionary/Ukrainian/",
+      licenseName: "CC BY-SA 4.0 / GFDL",
+      licenseUrl: "https://en.wiktionary.org/wiki/Wiktionary:Copyrights",
+    },
+  };
+  const harness = createHarness({
+    selectionText: "мали",
+    fetchImpl: async (url) => {
+      assert.equal(url, "/api/dictionary/lookup");
+      return Response.json(dictionaryPayload);
+    },
+  });
+  try {
+    showSelection(harness);
+    harness.translateButton.dispatchEvent(new Event("click"));
+    await flushAsyncWork();
+
+    assert.equal(harness.requests.length, 1);
+    assert.deepEqual(JSON.parse(harness.requests[0][1].body), {
+      text: "мали",
+      targetLanguage: "en",
+      storyId: 42,
+    });
+    assert.equal(harness.translationResult.hidden, false);
+    assert.match(allText(harness.translationResult), /мати/);
+    assert.match(allText(harness.translationResult), /минулий час/);
+    assert.match(allText(harness.translationResult), /множина/);
+    assert.match(allText(harness.translationResult), /рід не розрізняється/);
+    assert.match(allText(harness.translationResult), /to have/);
+    assert.equal(harness.translateButton.getAttribute("aria-expanded"), "true");
+  } finally {
+    harness.restore();
+  }
+});
+
+test("switches the server-side dictionary request to German", async () => {
+  const harness = createHarness({
+    selectionText: "мама",
+    fetchImpl: async () => Response.json({
+      query: { text: "мама", sourceLanguage: "uk", targetLanguage: "de" },
+      entries: [{
+        lemma: "мама",
+        normalizedLemma: "мама",
+        partOfSpeech: "noun",
+        forms: [{ form: "мама", grammar: { nominative: "nominative", number: "singular" } }],
+        translations: [{ text: "Mama" }],
+      }],
+      attribution: null,
+    }),
+  });
+  try {
+    harness.controller.setTargetLanguage("de");
+    showSelection(harness);
+    harness.translateButton.dispatchEvent(new Event("click"));
+    await flushAsyncWork();
+
+    assert.deepEqual(JSON.parse(harness.requests[0][1].body), {
+      text: "мама",
+      targetLanguage: "de",
+      storyId: 42,
+    });
+    assert.match(allText(harness.translationResult), /Mama/);
+  } finally {
+    harness.restore();
+  }
+});
+
+test("shows a clear message when the dictionary has no matching entry", async () => {
+  const harness = createHarness({
+    selectionText: "марійка",
+    fetchImpl: async () => Response.json({
+      query: { text: "марійка", sourceLanguage: "uk", targetLanguage: "en" },
+      entries: [],
+      attribution: null,
+    }),
+  });
+  try {
+    showSelection(harness);
+    harness.translateButton.dispatchEvent(new Event("click"));
+    await flushAsyncWork();
+
+    assert.match(allText(harness.translationResult), /Не знайшли перекладу/);
+    assert.match(harness.status.textContent, /Не знайшли перекладу/);
+  } finally {
+    harness.restore();
+  }
+});
+
+test("reset aborts translation and ignores a late dictionary response", async () => {
+  const pending = deferred();
+  const harness = createHarness({
+    selectionText: "мали",
+    fetchImpl: (_url, options) => {
+      options.signal.addEventListener("abort", () => {});
+      return pending.promise;
+    },
+  });
+  try {
+    showSelection(harness);
+    harness.translateButton.dispatchEvent(new Event("click"));
+    assert.equal(harness.translateButton.getAttribute("aria-busy"), "true");
+
+    harness.controller.reset();
+    pending.resolve(Response.json({
+      query: { text: "мали", sourceLanguage: "uk", targetLanguage: "en" },
+      entries: [{ lemma: "мати", forms: [], translations: [{ text: "to have" }] }],
+      attribution: null,
+    }));
+    await flushAsyncWork();
+
+    assert.equal(harness.requests[0][1].signal.aborted, true);
+    assert.equal(harness.translationResult.hidden, true);
+    assert.equal(harness.popover.hidden, true);
   } finally {
     harness.restore();
   }

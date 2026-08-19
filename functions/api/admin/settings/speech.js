@@ -2,7 +2,7 @@ import { requirePermission } from "../../../_shared/auth.js";
 import { error, json } from "../../../_shared/http.js";
 import {
   getSpeechSetting,
-  saveSpeechVoice,
+  saveSpeechSetting,
 } from "../../../_shared/speech-settings.js";
 import {
   listPublicSpeechVoices,
@@ -74,13 +74,19 @@ async function readLimitedJson(request) {
 
 function validatePayload(payload) {
   if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
-    return { ok: false, message: "The request body must contain only voiceId." };
+    return { ok: false, message: "The request body must contain only voiceId and enabled." };
   }
 
   const keys = Object.keys(payload);
 
-  if (keys.length !== 1 || keys[0] !== "voiceId" || typeof payload.voiceId !== "string") {
-    return { ok: false, message: "The request body must contain only voiceId." };
+  if (
+    keys.length !== 2
+    || !Object.hasOwn(payload, "voiceId")
+    || !Object.hasOwn(payload, "enabled")
+    || typeof payload.voiceId !== "string"
+    || typeof payload.enabled !== "boolean"
+  ) {
+    return { ok: false, message: "The request body must contain only voiceId and enabled." };
   }
 
   const voice = resolveSpeechVoice(payload.voiceId);
@@ -89,7 +95,7 @@ function validatePayload(payload) {
     return { ok: false, message: "Unsupported speech voice." };
   }
 
-  return { ok: true, voiceId: voice.id };
+  return { ok: true, voiceId: voice.id, enabled: payload.enabled };
 }
 
 function buildResponse(setting) {
@@ -139,9 +145,9 @@ export async function onRequestPut(context) {
     return noStoreError(400, validation.message);
   }
 
-  const setting = await saveSpeechVoice(
+  const setting = await saveSpeechSetting(
     context.env.DB,
-    validation.voiceId,
+    { voiceId: validation.voiceId, enabled: validation.enabled },
     auth.session
   );
 

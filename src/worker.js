@@ -1,6 +1,16 @@
 import { onRequestGet as getContent } from "../functions/api/content.js";
 import { onRequestGet as getStory } from "../functions/api/content/story.js";
+import { onRequestPost as lookupDictionary } from "../functions/api/dictionary/lookup.js";
 import { onRequestPost as createSpeech } from "../functions/api/speech.js";
+import { onRequestPost as checkDictionaryUpdate } from "../functions/api/admin/dictionary/check-update.js";
+import { onRequestPost as checkDictionaryCoverage } from "../functions/api/admin/dictionary/coverage.js";
+import { onRequestGet as getDictionaryStatus } from "../functions/api/admin/dictionary/status.js";
+import {
+  onRequestGet as listDictionarySuggestions,
+  onRequestPost as createDictionarySuggestion,
+} from "../functions/api/admin/dictionary/suggestions.js";
+import { onRequestPost as approveDictionarySuggestion } from "../functions/api/admin/dictionary/approve.js";
+import { onRequestPost as rejectDictionarySuggestion } from "../functions/api/admin/dictionary/reject.js";
 import { onRequestPost as login } from "../functions/api/admin/login.js";
 import { onRequestPost as logout } from "../functions/api/admin/logout.js";
 import { onRequestGet as session } from "../functions/api/admin/session.js";
@@ -27,15 +37,33 @@ const CANONICAL_HOSTNAME = "readukrainianapp.com";
 const EXACT_API_ROUTES = new Map([
   ["/api/content", { GET: getContent }],
   ["/api/content/story", { GET: getStory }],
+  ["/api/dictionary/lookup", { POST: lookupDictionary }],
   ["/api/speech", { POST: createSpeech }],
   ["/api/admin/login", { POST: login }],
   ["/api/admin/logout", { POST: logout }],
   ["/api/admin/session", { GET: session }],
   ["/api/admin/settings/speech", { GET: getSpeechSettings, PUT: updateSpeechSettings }],
+  ["/api/admin/dictionary/status", { GET: getDictionaryStatus }],
+  ["/api/admin/dictionary/check-update", { POST: checkDictionaryUpdate }],
+  ["/api/admin/dictionary/coverage", { POST: checkDictionaryCoverage }],
+  ["/api/admin/dictionary/suggestions", {
+    GET: listDictionarySuggestions,
+    POST: createDictionarySuggestion,
+  }],
   ["/api/admin/texts", { GET: listAdminTexts, POST: createAdminText }],
 ]);
 
 const PARAMETERIZED_API_ROUTES = [
+  {
+    pattern: /^\/api\/admin\/dictionary\/suggestions\/(\d+)\/approve$/,
+    handlers: { POST: approveDictionarySuggestion },
+    getParams: (match) => ({ id: match[1] }),
+  },
+  {
+    pattern: /^\/api\/admin\/dictionary\/suggestions\/(\d+)\/reject$/,
+    handlers: { POST: rejectDictionarySuggestion },
+    getParams: (match) => ({ id: match[1] }),
+  },
   {
     pattern: /^\/api\/admin\/texts\/(\d+)\/revisions\/(\d+)\/restore$/,
     handlers: { POST: restoreAdminTextRevision },

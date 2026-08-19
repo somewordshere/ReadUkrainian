@@ -1,4 +1,5 @@
 import { error, json } from "../../_shared/http.js";
+import { getSpeechSetting } from "../../_shared/speech-settings.js";
 import { getStoryById, getStoryByLevelAndOrder } from "../../_shared/texts.js";
 
 export async function onRequestGet(context) {
@@ -24,5 +25,15 @@ export async function onRequestGet(context) {
     return error(404, "Story not found.");
   }
 
-  return json({ story });
+  let speechEnabled = false;
+  try {
+    speechEnabled = (await getSpeechSetting(context.env.DB)).enabled;
+  } catch {
+    // Keep reading available and fail closed when the optional audio setting cannot load.
+  }
+
+  return json(
+    { story: { ...story, speechEnabled } },
+    { headers: { "cache-control": "no-store" } }
+  );
 }

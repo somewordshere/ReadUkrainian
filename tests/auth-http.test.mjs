@@ -80,14 +80,22 @@ test("returns null for malformed encoded cookies instead of throwing", () => {
 });
 
 test("maps editor roles to least-privilege server permissions", () => {
-  assert.deepEqual(getPermissionsForRole("editor"), ["read", "edit"]);
-  assert.deepEqual(getPermissionsForRole("publisher"), ["read", "edit", "publish", "restore"]);
+  assert.deepEqual(getPermissionsForRole("editor"), ["read", "edit", "dictionary_suggest"]);
+  assert.deepEqual(getPermissionsForRole("publisher"), [
+    "read",
+    "edit",
+    "publish",
+    "restore",
+    "dictionary_suggest",
+  ]);
   assert.deepEqual(getPermissionsForRole("admin"), [
     "read",
     "edit",
     "publish",
     "restore",
     "settings",
+    "dictionary_suggest",
+    "dictionary_approve",
   ]);
   assert.deepEqual(getPermissionsForRole("unknown"), []);
 });

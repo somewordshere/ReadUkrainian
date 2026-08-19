@@ -99,8 +99,20 @@ test("returns 405 with allowed methods for known API routes", async () => {
     new Request("https://example.com/api/speech"),
     env
   );
+  const dictionaryResponse = await handleRequest(
+    new Request("https://example.com/api/dictionary/lookup"),
+    env
+  );
   const settingsResponse = await handleRequest(
     new Request("https://example.com/api/admin/settings/speech", { method: "DELETE" }),
+    env
+  );
+  const dictionaryStatusResponse = await handleRequest(
+    new Request("https://example.com/api/admin/dictionary/status", { method: "POST" }),
+    env
+  );
+  const dictionaryRefreshResponse = await handleRequest(
+    new Request("https://example.com/api/admin/dictionary/check-update"),
     env
   );
 
@@ -115,7 +127,13 @@ test("returns 405 with allowed methods for known API routes", async () => {
   assert.equal(revisionsResponse.headers.get("allow"), "GET");
   assert.equal(speechResponse.status, 405);
   assert.equal(speechResponse.headers.get("allow"), "POST");
+  assert.equal(dictionaryResponse.status, 405);
+  assert.equal(dictionaryResponse.headers.get("allow"), "POST");
   assert.equal(settingsResponse.status, 405);
   assert.equal(settingsResponse.headers.get("allow"), "GET, PUT");
   assert.equal(settingsResponse.headers.get("cache-control"), "no-store");
+  assert.equal(dictionaryStatusResponse.status, 405);
+  assert.equal(dictionaryStatusResponse.headers.get("allow"), "GET");
+  assert.equal(dictionaryRefreshResponse.status, 405);
+  assert.equal(dictionaryRefreshResponse.headers.get("allow"), "POST");
 });
