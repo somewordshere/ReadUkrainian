@@ -1,3 +1,5 @@
+import { loadLegacyStories } from "./legacy-content.js";
+
 function getLegacyLevels() {
   const descriptions = {
     A1: "Початковий рівень для коротких і простих текстів.",
@@ -61,6 +63,12 @@ export async function fetchContentIndex() {
     apiError = error;
   }
 
+  try {
+    await loadLegacyStories();
+  } catch {
+    throw apiError || new Error("Не вдалося завантажити список текстів.");
+  }
+
   const legacyLevels = getLegacyLevels();
   if (legacyLevels.length > 0) {
     return legacyLevels;
@@ -97,6 +105,12 @@ export async function fetchStory(storyId, level, legacyOrder) {
     return payload.story;
   } catch (error) {
     apiError = error;
+  }
+
+  try {
+    await loadLegacyStories();
+  } catch {
+    throw apiError || new Error("Не вдалося завантажити текст.");
   }
 
   const legacyStory = getLegacyStory(level, legacyOrder);

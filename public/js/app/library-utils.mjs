@@ -56,7 +56,7 @@ export const STORY_TOPICS = [
   },
 ];
 
-export function normalizeSearchText(value = "") {
+function normalizeSearchText(value = "") {
   return String(value)
     .toLocaleLowerCase("uk-UA")
     .replace(/[’ʼ]/g, "'")

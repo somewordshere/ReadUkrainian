@@ -17,6 +17,13 @@ export async function onRequestGet(context) {
     return error(400, "A valid story ID is required.");
   }
 
+  // The speech setting does not depend on the story, so both round-trips are
+  // started together. Failing closed keeps reading available when it cannot load.
+  const speechEnabledPromise = getSpeechSetting(context.env.DB).then(
+    (setting) => setting.enabled,
+    () => false
+  );
+
   const story = Number.isInteger(storyId) && storyId > 0
     ? await getStoryById(context.env.DB, storyId, { includeQuestions: true })
     : await getStoryByLevelAndOrder(context.env.DB, level, legacyOrder, { includeQuestions: true });
@@ -25,12 +32,7 @@ export async function onRequestGet(context) {
     return error(404, "Story not found.");
   }
 
-  let speechEnabled = false;
-  try {
-    speechEnabled = (await getSpeechSetting(context.env.DB)).enabled;
-  } catch {
-    // Keep reading available and fail closed when the optional audio setting cannot load.
-  }
+  const speechEnabled = await speechEnabledPromise;
 
   return json(
     { story: { ...story, speechEnabled } },
