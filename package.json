@@ -10,6 +10,7 @@
   "scripts": {
     "dev": "wrangler dev",
     "seed": "node scripts/build-content-seed.mjs",
+  "wordstock": "node scripts/build-wordstock.mjs",
     "dictionary:build": "node scripts/dictionary/build-dictionary-seed.mjs",
     "dictionary:build:de": "node scripts/dictionary/build-dictionary-seed.mjs --target de",
     "dictionary:build:linguisto": "node scripts/dictionary/build-linguisto-seed.mjs",
