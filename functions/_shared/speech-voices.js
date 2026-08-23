@@ -1,6 +1,6 @@
 export const DEFAULT_SPEECH_VOICE_ID = "lada";
 
-export const SPEECH_VOICES = Object.freeze([
+const SPEECH_VOICES = Object.freeze([
   Object.freeze({
     id: "lada",
     label: "Lada",

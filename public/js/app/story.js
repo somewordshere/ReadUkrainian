@@ -1,4 +1,5 @@
 import { fetchContentIndex, fetchStory } from "./content-api.js";
+import { loadLegacyQuestions } from "./legacy-content.js";
 import { findNextIncompleteStory, getStoryHref } from "./library-utils.mjs";
 import { initSelectionSpeech } from "./selection-speech.js";
 
@@ -359,6 +360,29 @@ function renderQuestions(questions) {
   });
 }
 
+async function resolveQuestions(story, storyLevelId) {
+  if (story.questions?.length) {
+    return prepareQuestions(
+      story.questions,
+      `${storyLevelId}-${story.questionIndex || story.storyId || "story"}`
+    );
+  }
+
+  if (!Number.isInteger(story.questionIndex)) {
+    return [];
+  }
+
+  // The bundled questions are only a fallback, so their data is fetched just for
+  // stories that arrive without questions of their own.
+  try {
+    await loadLegacyQuestions();
+  } catch {
+    return [];
+  }
+
+  return getQuestionsForStory(storyLevelId, story.questionIndex);
+}
+
 function configureNextStory() {
   nextStory = findNextIncompleteStory(
     contentLevels,
@@ -540,14 +564,7 @@ async function initStory() {
     selectionSpeech.setEnabled(true);
     selectionSpeech.setSpeechEnabled(story.speechEnabled === true);
 
-    const questions = story.questions?.length
-      ? prepareQuestions(
-        story.questions,
-        `${storyLevelId}-${story.questionIndex || story.storyId || "story"}`
-      )
-      : Number.isInteger(story.questionIndex)
-        ? getQuestionsForStory(storyLevelId, story.questionIndex)
-        : [];
+    const questions = await resolveQuestions(story, storyLevelId);
 
     configureNextStory();
     renderQuestions(questions);

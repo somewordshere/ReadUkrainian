@@ -36,7 +36,7 @@ export function extractCanonicalSpeechWords(value) {
   return words;
 }
 
-export function speechAssetHash(canonicalWord) {
+function speechAssetHash(canonicalWord) {
   const word = canonicalizeSpeechWord(canonicalWord);
   if (!word) {
     throw new TypeError(`Not one canonical Ukrainian word: ${JSON.stringify(canonicalWord)}`);

@@ -182,12 +182,22 @@ export async function getStoryByLevelAndOrder(db, level, sortOrder, { includeQue
 }
 
 export async function getStoryById(db, storyId, { includeQuestions = false } = {}) {
-  const result = await db
-    .prepare(`SELECT ${TEXT_COLUMNS} FROM texts WHERE id = ?1 LIMIT 1`)
-    .bind(storyId)
-    .first();
+  // The questions lookup only needs the id, so it runs alongside the story query
+  // instead of waiting for it.
+  const [result, questions] = await Promise.all([
+    db
+      .prepare(`SELECT ${TEXT_COLUMNS} FROM texts WHERE id = ?1 LIMIT 1`)
+      .bind(storyId)
+      .first(),
+    includeQuestions ? listQuestionsForStory(db, storyId) : null,
+  ]);
 
-  return withQuestionsForStory(db, result ? toStoryRecord(result) : null, includeQuestions);
+  if (!result) {
+    return null;
+  }
+
+  const story = toStoryRecord(result);
+  return includeQuestions ? { ...story, questions } : story;
 }
 
 export async function getAdminStoryById(db, storyId) {

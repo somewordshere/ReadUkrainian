@@ -288,29 +288,59 @@ function migrateLegacyProgressKeys(progress) {
   return progress;
 }
 
-function loadProgress() {
-  const local = getBrowserStorage("localStorage");
-  const session = getBrowserStorage("sessionStorage");
-  const progress = migrateLegacyProgressKeys(
+// Reading progress is a hot path: the library re-reads it several times per story
+// on every render and keystroke. Merging the three persistence layers is only
+// needed once per page, so the merged state is cached and reused.
+let cachedProgress = null;
+
+function readMergedProgress() {
+  return migrateLegacyProgressKeys(
     mergeProgress(
-      parseProgress(readFromStorage(local)),
-      parseProgress(readFromStorage(session)),
+      parseProgress(readFromStorage(getBrowserStorage("localStorage"))),
+      parseProgress(readFromStorage(getBrowserStorage("sessionStorage"))),
       parseProgress(readFromWindowName())
     )
   );
-
-  if (Object.keys(progress).length > 0) {
-    saveProgress(progress);
-  }
-
-  return progress;
 }
 
-function saveProgress(progress) {
+function loadProgress() {
+  if (cachedProgress) {
+    return cachedProgress;
+  }
+
+  cachedProgress = readMergedProgress();
+
+  // Consolidate the merged view into every layer once per page, so a layer that
+  // was missing entries catches up without writing again on each later read.
+  if (Object.keys(cachedProgress).length > 0) {
+    persistProgress(cachedProgress);
+  }
+
+  return cachedProgress;
+}
+
+function persistProgress(progress) {
   const serialized = JSON.stringify(progress);
   writeToStorage(getBrowserStorage("localStorage"), serialized);
   writeToStorage(getBrowserStorage("sessionStorage"), serialized);
   writeToWindowName(serialized);
+}
+
+function saveProgress(progress) {
+  cachedProgress = progress;
+  persistProgress(progress);
+}
+
+// Another tab writing progress makes this tab's cache stale, so drop it and let
+// the next read rebuild from storage.
+try {
+  window.addEventListener("storage", (event) => {
+    if (!event.key || event.key === PROGRESS_STORAGE_KEY) {
+      cachedProgress = null;
+    }
+  });
+} catch (error) {
+  // Without storage events the cache simply lives for the page's lifetime.
 }
 
 function getStoryProgress(level, storyId, title) {

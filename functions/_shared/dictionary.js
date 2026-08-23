@@ -50,7 +50,7 @@ function normalizePairRow(row) {
   };
 }
 
-export async function getDictionaryLanguagePair(db, sourceLanguage, targetLanguage) {
+async function getDictionaryLanguagePair(db, sourceLanguage, targetLanguage) {
   const row = await db
     .prepare(`
       SELECT
