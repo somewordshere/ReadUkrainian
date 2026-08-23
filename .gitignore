@@ -35,3 +35,6 @@ Thumbs.db
 .codex/
 A2-STORIES-CONSOLIDATED-HANDOVER.md
 OLD_HANDOVER.md
+
+# Generation prompts (local only, not published)
+prompts/
