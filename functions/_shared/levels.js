@@ -10,9 +10,11 @@ export const LEVELS = [
     active: true,
   },
   {
+    // Hidden until B1 has real content: all 15 rows currently hold the same
+    // placeholder paragraph and there are no questions for the level.
     id: "B1",
     description: "Середній рівень для довших і змістовніших текстів.",
-    active: true,
+    active: false,
   },
 ];
 

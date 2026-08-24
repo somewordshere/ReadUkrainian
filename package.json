@@ -1,6 +1,6 @@
 {
   "name": "readukrainian",
-  "version": "0.81.0",
+  "version": "0.82.0",
   "private": true,
   "description": "Ukrainian reading practice app deployed as a Cloudflare Worker.",
   "type": "module",
