@@ -85,3 +85,4 @@ This file is tracked in GitHub and linked from the site version footer.
 0.79 - Removed three unsupported voice aliases, added the catalog-backed MAI voice, preserved WAV audio correctly, and refreshed speech on replay so voice changes take effect.
 0.80 - Added a Ukrainian to German dictionary alongside the English one, with a translation language choice that is remembered between visits.
 0.81 - Stopped rewriting saved progress on every library search and deferred the bundled fallback texts until the content service is unavailable, removing up to 280 KB of start-up JavaScript.
+0.82 - Hid the B1 level until it has real content, since every B1 text was still the same placeholder paragraph and the level had no quiz questions.
