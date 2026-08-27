@@ -64,6 +64,30 @@ test("a published story is cacheable by shared caches", async () => {
   assert.ok(!/no-store/.test(cacheControl));
 });
 
+test("an unpublished story 404s exactly like a missing one", async () => {
+  // A2 #3 «Мій будинок» sat unpublished in production and this route answered
+  // 404, which reads as a deleted row. getStoryByLevelAndOrder has no is_enabled
+  // filter, so the SQL alone suggests the row was gone; the !story.active check
+  // a few lines later is what actually produced the 404. The two cases are
+  // indistinguishable from outside, so diagnose them by querying is_enabled, not
+  // by reading the status code.
+  const db = createDb();
+  db.prepare = ((original) => (sql) => {
+    const statement = original(sql);
+    if (sql.includes("FROM texts")) {
+      const first = statement.first;
+      statement.first = async () => ({ ...(await first()), is_enabled: 0 });
+    }
+    return statement;
+  })(db.prepare.bind(db));
+
+  const request = new Request("https://readukrainianapp.com/api/content/story?id=42");
+  const response = await storyRoute({ request, env: { DB: db } });
+
+  assert.equal(response.status, 404);
+  assert.equal((await response.json()).error, "Story not found.");
+});
+
 test("a missing story is never cached", async () => {
   const request = new Request("https://readukrainianapp.com/api/content/story?id=999");
   const response = await storyRoute({ request, env: { DB: createDb({ story: false }) } });
