@@ -19,7 +19,8 @@
     "speech:build": "node scripts/speech/generate-speech-assets.mjs --bootstrap",
     "test": "node --test",
     "deploy": "wrangler deploy",
-    "check:texts": "node scripts/check-texts.mjs"
+    "check:texts": "node scripts/check-texts.mjs",
+    "check:live": "node scripts/check-live-content.mjs"
   },
   "devDependencies": {
     "wrangler": "^4.120.1"
