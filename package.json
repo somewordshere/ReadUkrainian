@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "wrangler dev",
     "seed": "node scripts/build-content-seed.mjs",
-  "wordstock": "node scripts/build-wordstock.mjs",
+    "wordstock": "node scripts/build-wordstock.mjs",
     "dictionary:build": "node scripts/dictionary/build-dictionary-seed.mjs",
     "dictionary:build:de": "node scripts/dictionary/build-dictionary-seed.mjs --target de",
     "dictionary:build:linguisto": "node scripts/dictionary/build-linguisto-seed.mjs",
@@ -18,7 +18,8 @@
     "speech:plan": "node scripts/speech/generate-speech-assets.mjs --plan",
     "speech:build": "node scripts/speech/generate-speech-assets.mjs --bootstrap",
     "test": "node --test",
-    "deploy": "wrangler deploy"
+    "deploy": "wrangler deploy",
+    "check:texts": "node scripts/check-texts.mjs"
   },
   "devDependencies": {
     "wrangler": "^4.120.1"
