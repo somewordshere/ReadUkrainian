@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Історії українською</title>
     <link rel="stylesheet" href="./css/styles.css" />
+
+    <!-- script.js imports these, so without the hints the browser only learns
+         they exist after script.js has downloaded, and each further level of
+         the graph costs another round trip before the library can be fetched. -->
+    <link rel="modulepreload" href="./js/app/content-api.js" />
+    <link rel="modulepreload" href="./js/app/library-utils.mjs" />
+    <link rel="modulepreload" href="./js/app/legacy-content.js" />
   </head>
   <body>
     <div class="page-shell">
