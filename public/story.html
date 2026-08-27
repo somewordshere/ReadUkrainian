@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Історії українською</title>
     <link rel="stylesheet" href="./css/styles.css" />
+
+    <!-- story.js imports these, so without the hints the browser only learns
+         they exist after story.js has downloaded, and the story request cannot
+         start until the whole graph has resolved. -->
+    <link rel="modulepreload" href="./js/app/content-api.js" />
+    <link rel="modulepreload" href="./js/app/legacy-content.js" />
+    <link rel="modulepreload" href="./js/app/library-utils.mjs" />
+    <link rel="modulepreload" href="./js/app/selection-speech.js" />
   </head>
   <body>
     <div class="page-shell">
