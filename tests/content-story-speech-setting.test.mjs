@@ -57,7 +57,8 @@ test("story content exposes the enabled speech setting", async () => {
   }));
 
   assert.equal(response.status, 200);
-  assert.equal(response.headers.get("cache-control"), "no-store");
+  // Cache-Control is asserted in tests/content-caching.test.mjs, which owns that
+  // policy; this test is about the speech setting reaching the client.
   const payload = await response.json();
   assert.equal(payload.story.storyId, 42);
   assert.equal(payload.story.speechEnabled, true);

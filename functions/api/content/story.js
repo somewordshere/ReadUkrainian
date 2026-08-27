@@ -1,4 +1,4 @@
-import { error, json } from "../../_shared/http.js";
+import { NO_STORE, PUBLISHED_CONTENT_CACHE, error, json } from "../../_shared/http.js";
 import { getSpeechSetting } from "../../_shared/speech-settings.js";
 import { getStoryById, getStoryByLevelAndOrder } from "../../_shared/texts.js";
 
@@ -14,7 +14,9 @@ export async function onRequestGet(context) {
     (!Number.isInteger(storyId) || storyId < 1) &&
     (!level || !Number.isInteger(legacyOrder) || legacyOrder < 1)
   ) {
-    return error(400, "A valid story ID is required.");
+    return error(400, "A valid story ID is required.", {
+      headers: { "cache-control": NO_STORE },
+    });
   }
 
   // The speech setting does not depend on the story, so both round-trips are
@@ -29,13 +31,13 @@ export async function onRequestGet(context) {
     : await getStoryByLevelAndOrder(context.env.DB, level, legacyOrder, { includeQuestions: true });
 
   if (!story || !story.active) {
-    return error(404, "Story not found.");
+    return error(404, "Story not found.", { headers: { "cache-control": NO_STORE } });
   }
 
   const speechEnabled = await speechEnabledPromise;
 
   return json(
     { story: { ...story, speechEnabled } },
-    { headers: { "cache-control": "no-store" } }
+    { headers: { "cache-control": PUBLISHED_CONTENT_CACHE } }
   );
 }
