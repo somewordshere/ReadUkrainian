@@ -102,8 +102,8 @@ test("the reviewed supplement gives every active seeded story word English cover
   const paragraphs = stories.filter((story) => story.active !== false).flatMap((story) => story.paragraphs);
   const coverage = await analyzeDictionaryCoverage(db, paragraphs, { targetLanguage: "en" });
 
-  assert.equal(coverage.totalUniqueWords, 3609);
-  assert.equal(coverage.coveredUniqueWords, 3609);
+  assert.equal(coverage.totalUniqueWords, 4091);
+  assert.equal(coverage.coveredUniqueWords, 4091);
   assert.equal(coverage.coveragePercent, 100);
   assert.deepEqual(coverage.missing, []);
 });
@@ -116,9 +116,13 @@ test("the German Wiktionary and Linguisto seeds form an attributed language pair
   const lookup = await lookupDictionaryWord(db, { text: "мама", targetLanguage: "de" });
   const linguistoLookup = await lookupDictionaryWord(db, { text: "спокійний", targetLanguage: "de" });
 
-  assert.equal(coverage.totalUniqueWords, 3609);
-  assert.equal(coverage.coveredUniqueWords, 2939);
-  assert.equal(coverage.coveragePercent, 81.4);
+  // German is the deliberately partial pair: the German Wiktionary holds only
+  // 473 Ukrainian lexemes to the English edition's 2540, and the curated
+  // supplement writes English translations only, so this pair cannot reach the
+  // 100% the English test asserts.
+  assert.equal(coverage.totalUniqueWords, 4091);
+  assert.equal(coverage.coveredUniqueWords, 2893);
+  assert.equal(coverage.coveragePercent, 70.7);
   assert.ok(coverage.missing.length > 0);
   assert.equal(lookup.entries[0].translations[0].text, "Mama");
   assert.equal(lookup.attribution.sourceRevision, "2026-08-04");
