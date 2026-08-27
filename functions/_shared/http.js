@@ -1,3 +1,13 @@
+// Published content changes only when an editor publishes, and the admin panel
+// reads through /api/admin/* rather than these routes, so a short shared cache
+// costs editors nothing while letting the CDN absorb repeat reads instead of
+// D1. The window is the most a learner can lag behind a publish.
+export const PUBLISHED_CONTENT_CACHE = "public, max-age=60, stale-while-revalidate=300";
+
+// Errors must never be cached: a 404 for a story that is later published, or a
+// rate-limit response, would otherwise stick around at the edge.
+export const NO_STORE = "no-store";
+
 export function json(data, init = {}) {
   const headers = new Headers(init.headers || {});
   headers.set("content-type", "application/json; charset=utf-8");

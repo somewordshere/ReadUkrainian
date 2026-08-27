@@ -58,6 +58,7 @@ Options:
   --scope story|all      Include current story forms or every dictionary form (default: story).
   --content PATH         Story seed JSON used by story scope (default: data/content-seed.json).
   --forms-source PATH    Optional Kaikki JSONL source with richer Ukrainian inflections.
+  --since PATH           Already-applied seed whose statements to omit. Repeatable.
   --output PATH          Generated SQL file (default depends on target language).
   --help                 Show this message.
 `;
@@ -72,6 +73,7 @@ function parseArgs(argv) {
     content: DEFAULT_CONTENT,
     formsSource: "",
     output: "",
+    since: [],
   };
 
   for (let index = 0; index < argv.length; index += 1) {
@@ -101,6 +103,9 @@ function parseArgs(argv) {
         break;
       case "--forms-source":
         options.formsSource = resolve(nextValue());
+        break;
+      case "--since":
+        options.since.push(resolve(nextValue()));
         break;
       case "--output":
         options.output = resolve(nextValue());
@@ -322,6 +327,21 @@ function getEntrySenses(entry) {
     .slice(0, 12);
 }
 
+// Statements are deterministic: ids are content hashes and the formatting is
+// fixed, so a statement identical to one in an already-applied migration will
+// have run already, and re-emitting it only grows the file.
+async function countSkippableStatements(paths) {
+  const seen = new Set();
+  for (const path of paths || []) {
+    const contents = await readFile(path, "utf8");
+    for (const line of contents.split("\n")) {
+      const statement = line.trim();
+      if (statement && !statement.startsWith("--")) seen.add(line);
+    }
+  }
+  return seen;
+}
+
 async function buildDictionary(options) {
   const sourceConfig = SOURCE_CONFIGS[options.targetLanguage];
   const wantedWords = options.scope === "story" ? await loadStoryWords(options.content) : null;
@@ -449,8 +469,19 @@ async function buildDictionary(options) {
     });
   });
 
-  sql.push("", "PRAGMA optimize;", "");
-  await writeFile(options.output, sql.join("\n"), "utf8");
+  // A refresh after a content rewrite re-emits every statement the earlier seed
+  // already contains: rebuilding for the 2026-08-27 rewrite produced 20,987
+  // statements of which 16,222 were byte-identical to 0012. They are harmless,
+  // since every statement is INSERT OR IGNORE, but they made a 4.3 MB migration
+  // that was 77% dead weight, and each future rewrite would add another.
+  // --since drops statements an already-applied migration will have run.
+  const skipped = await countSkippableStatements(options.since);
+  const emitted = skipped.size
+    ? sql.filter((statement) => !statement.trim() || !skipped.has(statement))
+    : sql;
+
+  emitted.push("", "PRAGMA optimize;", "");
+  await writeFile(options.output, emitted.join("\n"), "utf8");
 
   const missingWords = wantedWords
     ? [...wantedWords].filter((word) => !coveredWords.has(word)).sort()
