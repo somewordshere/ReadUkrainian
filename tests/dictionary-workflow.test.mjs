@@ -23,6 +23,12 @@ function createD1Database() {
   for (const migration of readdirSync(migrationsDirectory).filter((file) => file.endsWith(".sql")).sort()) {
     sqlite.exec(readFileSync(new URL(`../migrations/${migration}`, import.meta.url), "utf8"));
   }
+  // Linguisto is not a migration: it is withheld from production, so it lives in
+  // data/optional-seeds and has to be asked for. The German lookups and coverage
+  // figures below therefore describe a dictionary the live site does not have.
+  sqlite.exec(
+    readFileSync(new URL("../data/optional-seeds/dictionary_linguisto_uk_de.sql", import.meta.url), "utf8")
+  );
   sqlite.exec(`
     INSERT INTO users (id, email, password_hash, role) VALUES
       (1, 'admin@example.com', 'unused', 'admin'),
