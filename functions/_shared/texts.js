@@ -11,6 +11,10 @@ const TEXT_COLUMNS = `
   show_word_count, is_enabled, created_at, updated_at
 `;
 
+const TEXT_SUMMARY_COLUMNS = `
+  id, level, display_order, question_index, title, show_word_count, is_enabled
+`;
+
 const ADMIN_TEXT_COLUMNS = `
   ${TEXT_COLUMNS}, draft_json, draft_updated_at, draft_updated_by_user_id,
   draft_updated_by_email, updated_by_user_id, updated_by_email, published_at
@@ -124,6 +128,28 @@ function revisionStatement(db, storyId, action, snapshot, actor, now) {
       VALUES (?1, ?2, ?3, ?4, ?5, ?6)
     `)
     .bind(storyId, action, snapshot, actor.userId, actor.email, now);
+}
+
+// The library listing shows titles and progress markers, never body text, so it
+// selects only the columns groupStories keeps. Reading paragraphs_json here cost
+// 160 KB of story text per request that was parsed and then thrown away.
+export async function listStorySummaries(db) {
+  const result = await db.prepare(`
+    SELECT ${TEXT_SUMMARY_COLUMNS}
+    FROM texts
+    WHERE is_enabled = 1
+    ORDER BY level ASC, display_order ASC
+  `).all();
+
+  return (result.results || []).map((row) => ({
+    storyId: row.id,
+    level: row.level,
+    sortOrder: row.display_order,
+    questionIndex: row.question_index,
+    title: row.title,
+    showWordCount: Boolean(row.show_word_count),
+    active: Boolean(row.is_enabled),
+  }));
 }
 
 export async function listTexts(db, { includeDisabled = false, includeQuestions = false } = {}) {
