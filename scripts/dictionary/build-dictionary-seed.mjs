@@ -6,6 +6,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import process from "node:process";
 import readline from "node:readline";
+import { removeKnownIncorrectForms } from "./form-exclusions.mjs";
 
 import {
   canonicalizeUkrainianWord,
@@ -410,6 +411,9 @@ async function buildDictionary(options) {
     supplementalForms.get(`${entry.pos}\u0000${normalizedEntryLemma}`)?.forEach((analyses, form) => {
       if (!forms.has(form)) forms.set(form, analyses);
     });
+    // Filter last: neither form_of/alt_of aliases nor --forms-source may restore
+    // a corrupt association removed from the main entry's inflection table.
+    removeKnownIncorrectForms(normalizedEntryLemma, entry.pos, forms);
     if (!forms.size) return;
     const senses = getEntrySenses(entry);
     if (!senses.length) return;
