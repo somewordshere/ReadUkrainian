@@ -38,3 +38,6 @@ OLD_HANDOVER.md
 
 # Generation prompts (local only, not published)
 prompts/
+
+# Private backup checkouts and release recovery files
+.local-release/

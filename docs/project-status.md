@@ -1,12 +1,41 @@
 # Read Ukrainian — project status
 
-Last reconciled: **2026-09-06**. This is a dated checkpoint, not a live dashboard.
+Last reconciled: **2026-09-07**. This is a dated checkpoint, not a live dashboard.
+
+## Version 0.83 candidate — not yet published
+
+The prepared batch contains **19 A1 + 103 A2 stories and 610 questions**.
+Production was last verified at **0.82 with 14 A1 + 103 A2**; do not confuse
+candidate counts with the live collection.
+
+- A1 #5, #8 and #9 are repaired locally; their question answers are unchanged.
+- Topics 15–19 have five finished stories and 25 questions. Their word counts are
+  92, 101, 95, 82 and 91, with no sentence over 11 words. An explicit dialogue
+  exception resolves topic 19's conflicting word/turn/paragraph instructions.
+- New English supplement: 40 entries covering 42 previously missing forms.
+  The reconstructed standard database covers **4,129/4,129** distinct forms in
+  real A1/A2 stories. This is coverage, not an exhaustive accuracy assessment.
+- Migrations 0023 and 0024 are prepared. The latter targets exactly eight A1
+  stories and checks their original content before changing anything.
+- The remote preflight on 2026-09-07 matched the reviewed baseline; exactly those
+  two migrations were pending. Recovery information was captured before any write.
+- Automatic checks and a manual production workflow are implemented locally.
+  The GitHub production environment is restricted to main and its account ID is
+  configured. The deployment token is pending. The workflow has not yet run on GitHub.
+  Cloudflare's Git integration was inspected and disconnected on 2026-09-07;
+  the dashboard now offers Connect, so pushes no longer deploy automatically.
+- The separate private curriculum repository contains initial commit `4735455`
+  and updated batch commit `5ec19e4`. Privacy was confirmed and a fresh checkout
+  matched all 22 curriculum files byte for byte on 2026-09-07.
+- No teacher or learner review has been performed.
+
+See [release and recovery procedure](releases.md).
 
 ## Dictionary repair
 
-**Implemented locally and applied to production on 2026-09-06.** Source and
-documentation changes are currently local and uncommitted; future builds must
-use the corrected generator. Migration 0022 is recorded in production D1.
+**Implemented and applied to production on 2026-09-06.** Source and documentation
+are preserved in local commit `7499e35`, awaiting the release branch push.
+Future builds must use the corrected generator. Migration 0022 is recorded in production D1.
 
 Three confirmed imported inflection-table errors attached forms of common words
 to unrelated English dictionary entries:
@@ -93,22 +122,15 @@ The source word pages were inspected on 2026-09-06:
 
 ## Open work
 
-1. Three A1 passages still breach the project's grammar exclusions: #5 uses
-   `якщо`; #8 uses relative `якого`; #9 uses relative `який`. Repair locally,
-   then check affected questions, length and dictionary coverage.
-2. A1 topics 15–40 have specifications but no stories/questions. The proposed
-   first batch is 15–19.
+1. Finish account setup, push and run GitHub checks, and publish the prepared 0.83
+   candidate through the manual workflow. Repeat the production checks after release.
+2. Complete the next A1 batches, topics 20–40, after reviewing the first batch.
 3. Define introduction and consolidation of A2 grammar, vocabulary and reading
    skills across groups of stories. No per-story quota has been adopted.
 4. Develop B1 after the progression of the existing levels is clearer.
-5. Arrange a private versioned backup for `prompts/`. It remains gitignored;
-   external backup has not been verified. The private README was reconciled
-   without publishing the prompts, and its previous text is archived locally.
-6. Validate a supported dictionary-source workflow. The Kaikki postprocessed
+5. Validate a supported dictionary-source workflow. The Kaikki postprocessed
    downloads still responded on 2026-09-06 but are deprecated; the maintainer
    recommends raw extracts. A full replacement-source rebuild remains untested.
-7. Connect the existing automated tests and live-content checks to releases.
-   No GitHub workflows were configured when inspected on 2026-09-06.
 
 ## Resolved and historical findings
 

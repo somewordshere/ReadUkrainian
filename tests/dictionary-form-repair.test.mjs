@@ -125,7 +125,7 @@ test("migration removes only bad associations, preserves lookup coverage and is 
       sqlite.exec(migration(name));
     }
     const adapter = d1(sqlite);
-    const paragraphs = JSON.parse(readFileSync(join(ROOT, "data/content-seed.json"), "utf8"))
+    const paragraphs = JSON.parse(readFileSync(join(ROOT, "tests/fixtures/content-082.json"), "utf8"))
       .filter((story) => story.active !== false && story.level !== "B1").flatMap((story) => story.paragraphs);
     const coverageBefore = await analyzeDictionaryCoverage(adapter, paragraphs);
     const excludedIds = new Map();
