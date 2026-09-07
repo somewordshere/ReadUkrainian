@@ -148,7 +148,7 @@ test("the refresh brings every seeded story into the database", () => {
   const db = createProductionLikeDb();
   db.exec(REFRESH);
 
-  const seeded = JSON.parse(readFileSync(new URL("../data/content-seed.json", import.meta.url), "utf8"));
+  const seeded = JSON.parse(readFileSync(new URL("./fixtures/content-082.json", import.meta.url), "utf8"));
   for (const story of seeded) {
     const stored = row(db, story.level, story.sortOrder);
     assert.ok(stored, `${story.level} #${story.sortOrder} is missing`);

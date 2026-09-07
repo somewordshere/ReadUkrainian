@@ -1,0 +1,10 @@
+import { readFileSync } from "node:fs";
+import assert from "node:assert/strict";
+import { validateMigrationFiles } from "./lib/release-validation.mjs";
+const manifest = JSON.parse(readFileSync(new URL("../data/releases/0.83.json",import.meta.url),"utf8"));
+validateMigrationFiles(manifest,new URL("../migrations/",import.meta.url));
+const pkg = JSON.parse(readFileSync(new URL("../package.json",import.meta.url),"utf8"));
+const lock = JSON.parse(readFileSync(new URL("../package-lock.json",import.meta.url),"utf8"));
+assert.equal(pkg.version,`${manifest.version}.0`); assert.equal(lock.version,pkg.version); assert.equal(lock.packages[""].version,pkg.version);
+assert.ok(readFileSync(new URL("../public/js/app/version.js",import.meta.url),"utf8").includes(`const SITE_VERSION = "${manifest.version}"`));
+console.log("Release versions and immutable migration checksums match.");

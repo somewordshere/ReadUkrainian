@@ -1,6 +1,6 @@
 {
   "name": "readukrainian",
-  "version": "0.82.0",
+  "version": "0.83.0",
   "private": true,
   "description": "Ukrainian reading practice app deployed as a Cloudflare Worker.",
   "type": "module",
@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "wrangler dev",
-    "seed": "node scripts/build-content-seed.mjs",
+    "seed": "node scripts/build-content-seed.mjs --json-only",
     "wordstock": "node scripts/build-wordstock.mjs",
     "dictionary:build": "node scripts/dictionary/build-dictionary-seed.mjs",
     "dictionary:build:de": "node scripts/dictionary/build-dictionary-seed.mjs --target de",
@@ -20,7 +20,11 @@
     "test": "node --test",
     "deploy": "wrangler deploy",
     "check:texts": "node scripts/check-texts.mjs",
-    "check:live": "node scripts/check-live-content.mjs"
+    "check:live": "node scripts/check-live-content.mjs",
+    "check:seeds": "node scripts/build-content-seed.mjs --check",
+    "check:dictionary": "node scripts/check-dictionary-coverage.mjs",
+    "check:release": "node scripts/check-release-files.mjs",
+    "check": "npm run check:seeds && npm run check:texts -- --level A1 --quiet && npm run check:texts -- --level A2 --quiet && npm run check:dictionary && npm run check:release && npm test"
   },
   "devDependencies": {
     "wrangler": "^4.120.1"
