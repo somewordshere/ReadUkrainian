@@ -2,9 +2,11 @@
 
 [Read Ukrainian](https://readukrainianapp.com) is a reading-practice website for learners who want to build confidence with Ukrainian through short stories, pronunciation support, and comprehension quizzes.
 
+See [project status](docs/project-status.md) for verified work, remaining gaps, and the dictionary repair's deployment status.
+
 ## How the website works
 
-Readers choose a story from the library at A1, A2, or B1 level. They can search and filter the collection, read a story, and complete a short multiple-choice quiz. Quiz results, completed stories, and bookmarks are saved in the browser, so readers can return later and continue where they stopped.
+Readers choose a story from the library at A1 or A2 level. B1 is planned and remains hidden until it has real content. They can search and filter the collection, read a story, and complete a short multiple-choice quiz. Quiz results, completed stories, and bookmarks are saved in the browser, so readers can return later and continue where they stopped.
 
 Stories and questions are loaded from the website's content database. A bundled copy of the learning content acts as a fallback if the content service is temporarily unavailable, keeping the core reading experience reliable.
 
@@ -12,7 +14,7 @@ On a story page, readers can select one Ukrainian word to see an English or Germ
 
 ## Website features
 
-- Ukrainian stories organized by A1, A2, and B1 level
+- Ukrainian stories organized by A1 and A2 level
 - Search and filters for level, topic, bookmarks, and reading progress
 - Story word counts and a focused reading layout
 - Multiple-choice comprehension quizzes with immediate feedback
@@ -41,7 +43,7 @@ Drafts remain private until a publisher explicitly releases them, keeping work i
 
 ## Dictionary data
 
-Ukrainian morphology and the primary translations come from Wiktionary data distributed by Kaikki.org. The German dictionary is supplemented with the Creative Commons Attribution-licensed [Linguisto German–Ukrainian dictionary](https://sourceforge.net/projects/linguisto/), release 2018-04-12.
+Ukrainian morphology and the primary translations come from Wiktionary data distributed by Kaikki.org. An optional German supplement has been prepared from the Creative Commons Attribution-licensed [Linguisto German–Ukrainian dictionary](https://sourceforge.net/projects/linguisto/), release 2018-04-12. It has not been published; see [optional seeds](data/optional-seeds/README.md).
 
 The Linguisto build deliberately accepts only exact, single-word Ukrainian equivalents whose part of speech matches one unambiguous installed lexeme. This avoids automatically publishing phrases and uncertain reverse-dictionary matches. Rebuild the generated D1 seed from an official XDXF download with:
 
