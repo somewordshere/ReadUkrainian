@@ -567,6 +567,7 @@ h1 {
   color: var(--muted);
   font-size: 1.1rem;
   line-height: 1.75;
+  white-space: pre-line;
 }
 
 .story-content {

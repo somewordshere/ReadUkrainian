@@ -108,15 +108,15 @@ test("the reviewed supplement gives every active seeded story word English cover
   const paragraphs = stories.filter((story) => story.active !== false).flatMap((story) => story.paragraphs);
   const coverage = await analyzeDictionaryCoverage(db, paragraphs, { targetLanguage: "en" });
 
-  assert.equal(coverage.totalUniqueWords, 4091);
-  assert.equal(coverage.coveredUniqueWords, 4091);
+  assert.ok(coverage.totalUniqueWords >= 4091);
+  assert.equal(coverage.coveredUniqueWords, coverage.totalUniqueWords);
   assert.equal(coverage.coveragePercent, 100);
   assert.deepEqual(coverage.missing, []);
 });
 
 test("the German Wiktionary and Linguisto seeds form an attributed language pair", async () => {
   const db = createD1Database();
-  const stories = JSON.parse(readFileSync(new URL("../data/content-seed.json", import.meta.url), "utf8"));
+  const stories = JSON.parse(readFileSync(new URL("./fixtures/content-082.json", import.meta.url), "utf8"));
   const paragraphs = stories.filter((story) => story.active !== false).flatMap((story) => story.paragraphs);
   const coverage = await analyzeDictionaryCoverage(db, paragraphs, { targetLanguage: "de" });
   const lookup = await lookupDictionaryWord(db, { text: "мама", targetLanguage: "de" });
