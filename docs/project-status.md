@@ -1,40 +1,58 @@
 # Read Ukrainian — project status
 
-Last reconciled: **2026-09-07**. This is a dated checkpoint, not a live dashboard.
+Last reconciled: **2026-09-08**. This is a dated checkpoint, not a live dashboard.
 
-## Version 0.83 candidate — not yet published
+## Version 0.83 — published and verified
 
-The prepared batch contains **19 A1 + 103 A2 stories and 610 questions**.
-Production was last verified at **0.82 with 14 A1 + 103 A2**; do not confuse
-candidate counts with the live collection.
+Production serves **19 A1 + 103 A2 stories: 122 stories and 610 questions** at
+[Read Ukrainian](https://readukrainianapp.com). The
+[manual release](https://github.com/somewordshere/ReadUkrainian/actions/runs/34207575116)
+completed successfully on 2026-09-08 at 09:01 UTC.
 
-- A1 #5, #8 and #9 are repaired locally; their question answers are unchanged.
+- A1 #5, #8 and #9 are repaired in production; their questions and answers are unchanged.
 - Topics 15–19 have five finished stories and 25 questions. Their word counts are
   92, 101, 95, 82 and 91, with no sentence over 11 words. An explicit dialogue
   exception resolves topic 19's conflicting word/turn/paragraph instructions.
 - New English supplement: 40 entries covering 42 previously missing forms.
   The reconstructed standard database covers **4,129/4,129** distinct forms in
   real A1/A2 stories. This is coverage, not an exhaustive accuracy assessment.
-- Migrations 0023 and 0024 are prepared. The latter targets exactly eight A1
-  stories and checks their original content before changing anything.
-- The remote preflight on 2026-09-07 matched the reviewed baseline; exactly those
-  two migrations were pending. Recovery information was captured before any write.
-- Automatic checks and a manual production workflow are implemented locally.
-  The GitHub production environment is restricted to main and its account ID is
-  configured. The deployment token is pending. The workflow has not yet run on GitHub.
+- Migrations 0023 and 0024 were applied on 2026-09-08. The latter targeted exactly
+  A1 #5, #8, #9 and #15–19. The live baseline matched before publication; the final
+  release confirmed zero pending migrations. Recovery information was saved before
+  writes and downloaded locally from the first release run.
+- **151 tests passed, zero failed, one skipped** (the opt-in live audio-provider
+  test). Seed consistency, A1/A2 mechanical checks, migration integrity and complete
+  English coverage passed locally and in GitHub. Historical regression fixtures
+  remain independent of the expanded corpus. Migration tests preserve unrelated
+  content, existing IDs, flags, drafts, revision history and dictionary preferences.
+- Deep live checks matched all 122 story texts and all 610 complete questions,
+  including correct answers and distractors. All 45 dictionary probes passed:
+  42 added vocabulary forms and the three previously repaired associations.
+- Live desktop (1365×900) and mobile viewport (390×844) checks covered reading,
+  quizzes, bookmarks and saved progress after reload. The desktop dictionary
+  selection opened an English definition; mobile dialogue retained its line breaks
+  without horizontal overflow. These were browser checks, not physical-phone tests.
+- Automatic checks run on pushes and pull requests. Production releases require
+  a manual run on main, use the scoped deployment credential in GitHub's production
+  environment, and run one at a time. The workflow has passed end to end.
   Cloudflare's Git integration was inspected and disconnected on 2026-09-07;
   the dashboard now offers Connect, so pushes no longer deploy automatically.
-- The separate private curriculum repository contains initial commit `4735455`
-  and updated batch commit `5ec19e4`. Privacy was confirmed and a fresh checkout
-  matched all 22 curriculum files byte for byte on 2026-09-07.
+- The private curriculum repository contains initial commit `4735455`, batch
+  commit `5ec19e4` and published checkpoint `b04149f`. Privacy was reconfirmed on
+  2026-09-08, and a fresh checkout matched all 22 curriculum files byte for byte.
+  Public prompts remain ignored. See [the release report](release-0.83.md).
 - No teacher or learner review has been performed.
 
-See [release and recovery procedure](releases.md).
+The first deployment succeeded, but Cloudflare Bot Fight Mode challenged direct
+GitHub verification requests. The corrected workflow verifies public endpoints
+through an authenticated temporary Cloudflare preview; the second run passed.
+No bot or firewall protection was disabled. See [release and recovery procedure](releases.md)
+and [commits and release evidence](release-0.83.md).
 
 ## Dictionary repair
 
 **Implemented and applied to production on 2026-09-06.** Source and documentation
-are preserved in local commit `7499e35`, awaiting the release branch push.
+are preserved in pushed commit `7499e35`, merged into main with the A1 release.
 Future builds must use the corrected generator. Migration 0022 is recorded in production D1.
 
 Three confirmed imported inflection-table errors attached forms of common words
@@ -83,8 +101,9 @@ Validation completed on 2026-09-06:
 - The deep live-content check still opens **117 A1/A2 stories** with matching
   paragraphs and five questions each. Hidden B1 placeholders are excluded.
 
-No Worker code or frontend deployment was needed; the public version remains
-0.82. The optional German supplement and pronunciation setting were unchanged.
+No Worker code or frontend deployment was needed for that September 6 repair;
+the public version at that checkpoint was 0.82. The optional German supplement
+and pronunciation setting were unchanged.
 
 ### Audit limitations
 
@@ -104,33 +123,34 @@ The source word pages were inspected on 2026-09-06:
 
 ## Current product and content
 
-- Public version: **0.82** at https://readukrainianapp.com.
-- **14 A1 + 103 A2 stories**, each with five questions. On 2026-09-06 all 117
-  live stories matched the repository paragraphs.
+- Public version: **0.83** at https://readukrainianapp.com.
+- **19 A1 + 103 A2 stories**, each with five questions. On 2026-09-08 all 122
+  live stories and their complete question sets matched the repository.
 - B1 is hidden and has no real content. The 15 repository rows are placeholders.
 - Reading, quizzes, search/filtering, bookmarks, browser-saved progress, and
   private draft/publish/revision workflows are implemented.
 - English and German dictionaries are available. Pronunciation is implemented
   but its production setting was **off** when checked on 2026-09-06.
-- English coverage of real A1/A2 story vocabulary is **4,085/4,085 (100%)**
+- English coverage of real A1/A2 story vocabulary is **4,129/4,129 (100%)**
   in the locally reconstructed standard database. Coverage is not accuracy.
-- German coverage in that database is **1,221/4,085 (29.9%)**. The optional,
-  unpublished Linguisto supplement raises it to **2,888/4,085 (70.7%)** locally.
-  These are local database measurements, not an exhaustive live dictionary audit.
+- Historical German coverage on 2026-09-06 was **1,221/4,085 (29.9%)**. The optional,
+  unpublished Linguisto supplement raised it to **2,888/4,085 (70.7%)** locally.
+  These pre-batch measurements are not current coverage of the expanded collection
+  or an exhaustive live dictionary audit.
 - Both levels pass the mechanical text checker. Warnings remain and the checker
   does not enforce the entire grammar inventory or every sentence/paragraph rule.
 
 ## Open work
 
-1. Finish account setup, push and run GitHub checks, and publish the prepared 0.83
-   candidate through the manual workflow. Repeat the production checks after release.
-2. Complete the next A1 batches, topics 20–40, after reviewing the first batch.
-3. Define introduction and consolidation of A2 grammar, vocabulary and reading
+1. Review the first A1 batch with a Ukrainian teacher and learners when available;
+   complete the next batches, topics 20–40.
+2. Define introduction and consolidation of A2 grammar, vocabulary and reading
    skills across groups of stories. No per-story quota has been adopted.
-4. Develop B1 after the progression of the existing levels is clearer.
-5. Validate a supported dictionary-source workflow. The Kaikki postprocessed
+3. Develop B1 after the progression of the existing levels is clearer.
+4. Validate a supported dictionary-source workflow. The Kaikki postprocessed
    downloads still responded on 2026-09-06 but are deprecated; the maintainer
    recommends raw extracts. A full replacement-source rebuild remains untested.
+5. Expand and review German coverage, and decide when to activate pronunciation.
 
 ## Resolved and historical findings
 
@@ -139,8 +159,8 @@ The source word pages were inspected on 2026-09-06:
   topics 16, 46 and 67 retain **180–220 words**, overriding topic targets and
   preserving before/after-2022 material. It is not awaiting another decision.
 - A2 #3 «Мій будинок» was restored by migration 0021 and verified live.
-- The old “A1 has never been checked / six failures” claim is stale. Passing
-  today's mechanical checker does not resolve the three grammar items above.
+- The old “A1 has never been checked / six failures” claim is stale. The three
+  identified grammar breaches were separately repaired and published in 0.83.
 - The old 71.8% English coverage gap was repaired by refreshes and the reviewed
   supplement. The incorrect dictionary associations were a separate defect.
 - The 71% A2 grammar-overlap figure dates to **2026-08-23**, before the rewrites.
