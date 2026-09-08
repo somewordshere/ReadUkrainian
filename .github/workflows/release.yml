@@ -50,7 +50,7 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: npm run deploy
-      - name: Verify public content and version
-        run: node scripts/check-live-content.mjs --deep --expect-version 0.83 --attempts 4
-      - name: Verify live dictionary additions and repaired lookups
-        run: node scripts/check-live-dictionary.mjs
+      - name: Verify live content, questions, version and dictionary
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: node scripts/verify-release-from-cloudflare.mjs --remote-preview

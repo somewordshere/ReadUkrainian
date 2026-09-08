@@ -8,8 +8,9 @@ deploy production through another integration.
 
 1. In Cloudflare, check the `readukrainian` Worker's **Builds** settings. Disconnect
    automatic Git deployment if configured; retain this manual GitHub workflow.
-2. Create a deployment API token scoped to this Cloudflare account and the site's
-   zone. Start with the **Edit Cloudflare Workers** template and add **D1 Edit**.
+2. Create a deployment API token scoped to this Cloudflare account with
+   **Workers Scripts: Edit** and **D1: Edit**, and to `readukrainianapp.com` with
+   **Workers Routes: Edit** and **Zone: Read**.
    Store the value as `CLOUDFLARE_API_TOKEN` in this repository's `production`
    environment secrets. Do not put it in chat, source files, or command arguments.
 3. Set repository variable `CLOUDFLARE_ACCOUNT_ID` to
@@ -17,6 +18,10 @@ deploy production through another integration.
 
 See [Cloudflare's GitHub Actions setup](https://developers.cloudflare.com/workers/ci-cd/external-cicd/github-actions/).
 An existing local Wrangler OAuth login is not a persistent GitHub deployment credential.
+
+Setup was completed on 2026-09-07: the previous Cloudflare Git build integration
+was disconnected, the scoped token was stored in the GitHub `production`
+environment, and the environment's deployment branch policy permits only `main`.
 
 ## Prepare and publish
 
@@ -47,6 +52,19 @@ checks original text and questions inside the database to reject a concurrent
 editorial content change. Existing IDs, flags, drafts and revision history survive.
 After deployment the workflow checks every public story and all its questions,
 the version, and the added dictionary forms. Cache propagation retries are bounded.
+
+Cloudflare Bot Fight Mode challenged GitHub-hosted verification requests during
+the first 0.83 run. The release therefore uses `verify-release-from-cloudflare.mjs`
+to start an authenticated, temporary Wrangler remote preview. It forwards only
+the fixed public content, version and dictionary endpoints to the deployed custom
+domain. It has no database or editorial bindings and rejects other paths/methods.
+The local listener binds to loopback and the preview process is stopped on exit.
+No persistent verifier is deployed and no bot or firewall setting is weakened.
+This checks the public application's responses from Cloudflare's network; normal
+external browser acceptance remains a separate check. The direct live check
+commands remain available for a network that is not challenged.
+
+See [Cloudflare Bot Fight Mode limitations](https://developers.cloudflare.com/bots/get-started/bot-fight-mode/#limitations).
 
 ## Recovery
 
