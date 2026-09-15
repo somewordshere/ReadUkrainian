@@ -36,4 +36,3 @@ if(!entries)throw new Error('No Ukrainian entries extracted; output is not an ac
 const report={edition:values.edition,revision:values.revision,sourceUrl:values['source-url'],sourceSha256:inputHash.digest('hex'),filteredSha256:outputHash.digest('hex'),sourceLines:lines,ukrainianEntries:entries};
 await writeFile(values.output+'.metadata.json',JSON.stringify(report,null,2)+'\n',{flag:'wx'});
 console.log(JSON.stringify(report,null,2));
-
