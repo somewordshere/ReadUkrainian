@@ -1,3 +1,5 @@
+import {loadReleaseManifest} from "./lib/release-manifest.mjs";
+const release=loadReleaseManifest();
 // Bot Fight Mode challenges hosted CI. Keep it enabled and check the public
 // domain through Wrangler's authenticated, temporary remote preview instead.
 import { spawn, spawnSync } from "node:child_process";
@@ -37,7 +39,7 @@ try {
   }
   if (!ready) throw new Error("Authenticated verification preview did not become ready within the bounded startup attempts.");
   for (const args of [
-    ["scripts/check-live-content.mjs", "--origin", origin, "--deep", "--expect-version", "0.83", "--attempts", "4"],
+    ["scripts/check-live-content.mjs", "--origin", origin, "--deep", "--expect-version", release.version, "--attempts", "4"],
     ["scripts/check-live-dictionary.mjs", "--origin", origin],
   ]) {
     const result = spawnSync(process.execPath, args, { cwd: root, env, stdio: "inherit", timeout: 300000, windowsHide: true });

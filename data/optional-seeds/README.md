@@ -16,4 +16,7 @@ applied to production, so these translations are absent from the live site.
 lookups and coverage figures in that suite include Linguisto data that production
 does not have.
 
-To ship it, move it back into `migrations/` under the next free number.
+Do not move this complete seed into production migrations. Editorial review for
+0.84 found unsuitable senses among the automatic matches. Only the 311 explicit
+approvals in `data/dictionary-german-review-084.json` ship through migration 0026;
+all remaining candidates stay here for further review.
