@@ -16,7 +16,6 @@ import {
 
 const PROJECT_ROOT = resolve(import.meta.dirname, "../..");
 const DEFAULT_SOURCE = resolve(PROJECT_ROOT, "data/dictionary-curated.uk-en.json");
-const DEFAULT_OUTPUT = resolve(PROJECT_ROOT, "migrations/0014_dictionary_curated_seed.sql");
 
 function sqlString(value) {
   return `'${String(value ?? "").replaceAll("'", "''")}'`;
@@ -27,7 +26,7 @@ function hashId(prefix, value) {
 }
 
 function parseArgs(argv) {
-  const options = { source: DEFAULT_SOURCE, output: DEFAULT_OUTPUT };
+  const options = { source: DEFAULT_SOURCE, output: "" };
   for (let index = 0; index < argv.length; index += 1) {
     const argument = argv[index];
     const value = argv[index + 1];
@@ -41,6 +40,7 @@ function parseArgs(argv) {
       throw new Error(`Unknown or incomplete option: ${argument}`);
     }
   }
+  if (!options.output) throw new Error("--output NEW_FILE is required; historical migrations are immutable.");
   return options;
 }
 
@@ -110,7 +110,7 @@ async function main() {
   });
 
   lines.push("", "PRAGMA optimize;", "");
-  await writeFile(options.output, lines.join("\n"), "utf8");
+  await writeFile(options.output, lines.join("\n"), { encoding: "utf8", flag: "wx" });
   process.stdout.write(`${JSON.stringify({
     version: source.version,
     entries: entries.length,

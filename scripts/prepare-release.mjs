@@ -1,3 +1,4 @@
+import { loadReleaseManifest } from "./lib/release-manifest.mjs";
 // Read-only production preflight; saves public content and recovery identifiers locally.
 import { readFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
@@ -6,7 +7,7 @@ import { validateMigrationFiles, pendingMigrations, validateLiveBaseline } from 
 
 if (process.argv.slice(2).join(" ") !== "--remote") throw new Error("Use --remote to check the configured production database.");
 const root = resolve(import.meta.dirname, "..");
-const manifest = JSON.parse(readFileSync(resolve(root,"data/releases/0.83.json"),"utf8"));
+const manifest = loadReleaseManifest(process.env.RELEASE_VERSION);
 validateMigrationFiles(manifest, new URL("../migrations/", import.meta.url));
 function wrangler(args) {
   const result = spawnSync(process.execPath, [resolve(root,"node_modules/wrangler/bin/wrangler.js"),...args], {cwd:root,encoding:"utf8",maxBuffer:8*1024*1024,timeout:120000,env:{...process.env,CI:"true",WRANGLER_SEND_METRICS:"false"}});
@@ -26,6 +27,7 @@ const questions = query(`SELECT id,story_id,display_order,prompt,correct_answer,
 validateLiveBaseline(manifest, rows, questions, applied.includes(manifest.contentMigration));
 const recovery = {
   version:manifest.version, capturedAt:new Date().toISOString(), commit:process.env.GITHUB_SHA || spawnSync("git",["rev-parse","HEAD"],{encoding:"utf8"}).stdout.trim(),
+  speechSetting:query("SELECT voice_id,is_enabled,version,updated_at FROM speech_settings WHERE singleton_id=1"),
   pending, bookmark:wrangler(["d1","time-travel","info","DB","--json"]),
   deployments:wrangler(["deployments","list","--json"]).map(({id,versions,created_on})=>({id,versions,created_on})),
   rows, questions,

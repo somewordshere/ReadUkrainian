@@ -1,0 +1,6095 @@
+{
+  "version": "0.84",
+  "source": "Linguisto 2018-04-12",
+  "policy": "Explicit lemma/translation allowlist, unique existing lexeme, evidence in current stories. Other candidates are deferred, not approved by default.",
+  "reviewKind": "Agent editorial review; no external teacher review",
+  "knownRejected": [
+    {
+      "lemma": "холодно",
+      "translation": "lieblos",
+      "reason": "Wrong sense for weather"
+    },
+    {
+      "lemma": "Хортиця",
+      "translation": "Windhund",
+      "reason": "Proper-name collision"
+    },
+    {
+      "lemma": "відразу",
+      "translation": "plitz",
+      "reason": "Invalid German translation"
+    },
+    {
+      "lemma": "сукня",
+      "translation": "Bluse",
+      "reason": "Different garment"
+    }
+  ],
+  "candidateTranslations": 4587,
+  "accepted": [
+    {
+      "lexemeId": "lex_10ee6c40d3989ba47f27e7ea",
+      "lemma": "а",
+      "partOfSpeech": "conj",
+      "senseId": "linguisto_sense_9d1bc3a0afda2ac0c22e0d3d",
+      "translation": "aber",
+      "evidence": [
+        {
+          "story": "A1#1",
+          "sentence": "Мама працює в школі, тато в магазині, а брат ходить у дитячий садок."
+        },
+        {
+          "story": "A1#1",
+          "sentence": "На кухні мама часто готує суп, а у вітальні ми дивимося телевізор."
+        },
+        {
+          "story": "A1#1",
+          "sentence": "Брат грається з м'ячем, а я дивлюся на дерева."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_c07712964018699be3a3b306",
+      "lemma": "або",
+      "partOfSpeech": "conj",
+      "senseId": "linguisto_sense_d99fc07794a72bbed3bf3b68",
+      "translation": "oder",
+      "evidence": [
+        {
+          "story": "A1#5",
+          "sentence": "Ми часто говоримо про футбол або домашнє завдання."
+        },
+        {
+          "story": "A1#7",
+          "sentence": "Увечері я читаю книжку або допомагаю вдома."
+        },
+        {
+          "story": "A2#3",
+          "sentence": "Я роблю уроки біля вікна, а потім слухаю музику або читаю."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_e22ce60d5db44e211ef5af18",
+      "lemma": "автобус",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_34fb290755f31fa57e9ad5f6",
+      "translation": "Bus",
+      "evidence": [
+        {
+          "story": "A2#11",
+          "sentence": "Мене звати Андрій, і щодня я їжджу на роботу цим автобусом."
+        },
+        {
+          "story": "A2#11",
+          "sentence": "Коли автобус приїжджає, я заходжу через передні двері."
+        },
+        {
+          "story": "A2#40",
+          "sentence": "Я живу в місті, де багато будинків, магазинів і автобусів."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_898180acee5c368d51d1981e",
+      "lemma": "адреса",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_c9f773b522bc26fa8569c340",
+      "translation": "Adresse",
+      "evidence": [
+        {
+          "story": "A1#10",
+          "sentence": "Я кладу лист у сумку і беру адресу."
+        },
+        {
+          "story": "A1#10",
+          "sentence": "Вона питає адресу, і я читаю її з паперу."
+        },
+        {
+          "story": "A2#68",
+          "sentence": "Вона пояснювала все спокійно, записувала адреси і перевіряла кожну посилку."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_a24d1dd68b29e759d7a7c3b7",
+      "lemma": "але",
+      "partOfSpeech": "conj",
+      "senseId": "linguisto_sense_0b9d5ea6050f38579d80e110",
+      "translation": "aber",
+      "evidence": [
+        {
+          "story": "A1#1",
+          "sentence": "Уранці всі поспішають, але ввечері ми знову разом."
+        },
+        {
+          "story": "A1#1",
+          "sentence": "Моя кімната невелика, але в ній є ліжко, стіл і книжки."
+        },
+        {
+          "story": "A1#8",
+          "sentence": "Іграшка вже не нова, але вона дуже дорога для мене."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_715520771d4c214d9ba3cf1c",
+      "lemma": "альбом",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_9b6a62dfe3cb1d397edc3b21",
+      "translation": "Album",
+      "evidence": [
+        {
+          "story": "A2#52",
+          "sentence": "У мене в рюкзаку лежав старий класний альбом."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_8b5821df8c9bae1ee94bdb73",
+      "lemma": "англійський",
+      "partOfSpeech": "adj",
+      "senseId": "linguisto_sense_b1ddf0df91e57fd71f28c324",
+      "translation": "englisch",
+      "evidence": [
+        {
+          "story": "A2#88",
+          "sentence": "Мій зошит поділений навпіл: ліва половина англійська, права польська."
+        },
+        {
+          "story": "A2#88",
+          "sentence": "Одна вчить англійську з нуля, а друга приїхала з Луцька."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_7b758264e35430ba5992065e",
+      "lemma": "аптека",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_021f86d7b54695dd70c90f9c",
+      "translation": "Apotheke",
+      "evidence": [
+        {
+          "story": "A1#13",
+          "sentence": "Ми їдемо через місто і бачимо магазин, аптеку та школу."
+        },
+        {
+          "story": "A2#11",
+          "sentence": "Потім іду пішки повз аптеку і кав'ярню, де вранці завжди пахне кавою."
+        },
+        {
+          "story": "A2#42",
+          "sentence": "Я махаю у відповідь і повертаю за ріг біля аптеки."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_315dd6b6a8adf29ba5f2980d",
+      "lemma": "бабуся",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_f8e26ba72ec3c90d17067ff2",
+      "translation": "Großmutter",
+      "evidence": [
+        {
+          "story": "A1#11",
+          "sentence": "Нам потрібна машина для роботи, школи і поїздок до бабусі."
+        },
+        {
+          "story": "A1#11",
+          "sentence": "Тепер ми можемо зручно їздити до бабусі."
+        },
+        {
+          "story": "A1#13",
+          "sentence": "Сьогодні я їду з мамою на машині до бабусі."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_102950d8495933c87847f908",
+      "lemma": "багажник",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_6c56f7063fe042062fe5b18d",
+      "translation": "Kofferraum",
+      "evidence": [
+        {
+          "story": "A1#11",
+          "sentence": "Тато сідає за кермо, мама відкриває багажник, а я сідаю назад."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_dd9deb2742911912145b47e8",
+      "lemma": "балкон",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_3dd3590e2fbf6187f849901e",
+      "translation": "Balkon",
+      "evidence": [
+        {
+          "story": "A2#46",
+          "sentence": "На балконі тато все одно вішає синьо-жовтий прапор."
+        },
+        {
+          "story": "A2#46",
+          "sentence": "Прапор на балконі видно з вулиці до самого вечора."
+        },
+        {
+          "story": "A2#54",
+          "sentence": "Одна жінка фотографувала синій балкон над кафе."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_df4b4dd0aa569762e5d472bb",
+      "lemma": "батько",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_00ab5ff1833d806fd6dd5c8c",
+      "translation": "Vater",
+      "evidence": [
+        {
+          "story": "A2#3",
+          "sentence": "Я живу з батьками у квартирі на третьому поверсі."
+        },
+        {
+          "story": "A2#16",
+          "sentence": "Батьки кажуть, що головне тепер — безпека і підтримка одне одного."
+        },
+        {
+          "story": "A2#27",
+          "sentence": "Батьки роблять фото і тихо бажають дітям успіху."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_50543f5391164c27707320ed",
+      "lemma": "бачити",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_7d98191ab26018b2ca2e9c96",
+      "translation": "sehen",
+      "evidence": [
+        {
+          "story": "A1#7",
+          "sentence": "Я хочу бачити море і збирати мушлі на пляжі."
+        },
+        {
+          "story": "A1#13",
+          "sentence": "Ми їдемо через місто і бачимо магазин, аптеку та школу."
+        },
+        {
+          "story": "A1#15",
+          "sentence": "З вікна я бачу зелені дерева і доріжку біля дому."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_f47764c2240f9890c23387b7",
+      "lemma": "без",
+      "partOfSpeech": "prep",
+      "senseId": "linguisto_sense_6f86b680321987dd053b074f",
+      "translation": "ohne",
+      "evidence": [
+        {
+          "story": "A2#18",
+          "sentence": "Бабуся рахує: пісних страв має бути дванадцять, тобто без м'яса."
+        },
+        {
+          "story": "A2#38",
+          "sentence": "Деякі слова складні, але ми повторюємо їх разом без поспіху."
+        },
+        {
+          "story": "A2#54",
+          "sentence": "Вони хотіли побачити центр міста без поспіху."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_de93bd502bc9c34b514331e8",
+      "lemma": "берег",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_439f7edf05954249133538cf",
+      "translation": "Ufer",
+      "evidence": [
+        {
+          "story": "A2#45",
+          "sentence": "У Києві Дніпро широкий, тому з мостів добре видно його береги."
+        },
+        {
+          "story": "A2#45",
+          "sentence": "Хтось сидить на березі з вудкою і терпляче ловить рибу."
+        },
+        {
+          "story": "A2#47",
+          "sentence": "Вода тепла, а хвилі іноді легенько штовхають нас до берега."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_569526ccdc04daed355c6b56",
+      "lemma": "береза",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_4facfef993a2b98d2c270704",
+      "translation": "Birke",
+      "evidence": [
+        {
+          "story": "A2#45",
+          "sentence": "На березі часто сидять цілі родини з термосами і бутербродами."
+        },
+        {
+          "story": "A2#45",
+          "sentence": "Хтось сидить на березі з вудкою і терпляче ловить рибу."
+        },
+        {
+          "story": "A2#51",
+          "sentence": "На березі було тепло, світло і дуже спокійно."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_033cd7dda01a063125d30704",
+      "lemma": "березень",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_3d96c1cfccdd0ca910950d4d",
+      "translation": "März",
+      "evidence": [
+        {
+          "story": "A2#20",
+          "sentence": "Восьмого березня я прокидаюся раніше, ніж зазвичай."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_c9de81bc1dfd9256f67f2474",
+      "lemma": "блузка",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_da919545993cc1e390d3018d",
+      "translation": "Bluse",
+      "evidence": [
+        {
+          "story": "A2#66",
+          "sentence": "Зранку мама застібала мені блузку і казала: «Машо, не крутися»."
+        },
+        {
+          "story": "A2#74",
+          "sentence": "Сорочки, блузки, навіть светри — усе вишите."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_12a9c15d4f183a4f4c30b437",
+      "lemma": "бо",
+      "partOfSpeech": "conj",
+      "senseId": "linguisto_sense_91a5ef33487436fdee95078b",
+      "translation": "weil",
+      "evidence": [
+        {
+          "story": "A1#2",
+          "sentence": "Я читаю її багато разів, бо добре знаю героїв."
+        },
+        {
+          "story": "A1#3",
+          "sentence": "Я люблю свій будинок, бо він теплий і спокійний."
+        },
+        {
+          "story": "A1#10",
+          "sentence": "Сьогодні я йду на пошту, бо маю лист для тітки."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_7db65849a210279743ddf045",
+      "lemma": "брат",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_b267255b2f499f5dfbfca26c",
+      "translation": "Bruder",
+      "evidence": [
+        {
+          "story": "A1#1",
+          "sentence": "У будинку живуть мама, тато, мій брат і я."
+        },
+        {
+          "story": "A1#1",
+          "sentence": "Брат грається з м'ячем, а я дивлюся на дерева."
+        },
+        {
+          "story": "A2#13",
+          "sentence": "Іноді ввечері я дивлюся мультфільми з молодшим братом."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_070f12bda711d578d56aaea5",
+      "lemma": "брати",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_c16c3b54e645dc23983de78b",
+      "translation": "nehmen",
+      "evidence": [
+        {
+          "story": "A1#5",
+          "sentence": "Після сніданку я перевіряю сумку і беру ключі."
+        },
+        {
+          "story": "A1#8",
+          "sentence": "Він невеликий, тому я легко беру його з собою."
+        },
+        {
+          "story": "A1#8",
+          "sentence": "Увечері я беру його в руки, читаю книжку і відпочиваю."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_900846a5bd89d04c4590f091",
+      "lemma": "будильник",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_a35175f57886a13940f8f363",
+      "translation": "Wecker",
+      "evidence": [
+        {
+          "story": "A1#5",
+          "sentence": "Перед сном я кладу книжки в сумку і ставлю будильник."
+        },
+        {
+          "story": "A1#15",
+          "sentence": "Перед сном я ставлю будильник і вимикаю лампу."
+        },
+        {
+          "story": "A1#24",
+          "sentence": "О сьомій годині дзвонить будильник біля мого ліжка."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_f8b8f6630ea9dc177ba9c794",
+      "lemma": "будинок",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_ec11cf96897234ea21daf477",
+      "translation": "Haus",
+      "evidence": [
+        {
+          "story": "A1#1",
+          "sentence": "Наша сім'я живе в будинку біля парку."
+        },
+        {
+          "story": "A1#2",
+          "sentence": "З кубиків я будую будинок, а лялька живе в цьому будинку."
+        },
+        {
+          "story": "A1#3",
+          "sentence": "Я живу в невеликому будинку біля саду."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_48a4a7b8cd6d2554e5149a59",
+      "lemma": "будувати",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_58fe826e0e2758c6fc030219",
+      "translation": "bauen",
+      "evidence": [
+        {
+          "story": "A1#2",
+          "sentence": "З кубиків я будую будинок, а лялька живе в цьому будинку."
+        },
+        {
+          "story": "A2#34",
+          "sentence": "Іноді батьки теж виходять надвір і допомагають дітям будувати гірку."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_d4b852141fff81683b156d93",
+      "lemma": "буква",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_f7519b82cc22d3a708cf40c4",
+      "translation": "Buchstabe",
+      "evidence": [
+        {
+          "story": "A2#20",
+          "sentence": "Я довго старався, щоб букви вийшли рівні й гарні."
+        },
+        {
+          "story": "A2#99",
+          "sentence": "Там вони вчать пісні, букви і короткі вірші."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_a0f35128d152cb3d0975e3db",
+      "lemma": "букет",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_90a540c7cd91519c0313f35f",
+      "translation": "Blumenstrauß",
+      "evidence": [
+        {
+          "story": "A2#19",
+          "sentence": "Поруч стоїть старша жінка і тихо поправляє стрічку на букеті."
+        },
+        {
+          "story": "A2#20",
+          "sentence": "Це невеликий букет, але я вибирав його дуже довго."
+        },
+        {
+          "story": "A2#20",
+          "sentence": "Тато теж усміхається і ставить букет у вазу біля вікна."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_192782b6efc3ab266f16ddcf",
+      "lemma": "бути",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_011630606d4c31d444bc1a53",
+      "translation": "sein",
+      "evidence": [
+        {
+          "story": "A1#1",
+          "sentence": "На першому поверсі є кухня і вітальня."
+        },
+        {
+          "story": "A1#1",
+          "sentence": "Моя кімната невелика, але в ній є ліжко, стіл і книжки."
+        },
+        {
+          "story": "A1#2",
+          "sentence": "У моїй кімнаті є полиця з казками і велика коробка з іграшками."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_bb3ab34227216abf632732ee",
+      "lemma": "бібліотека",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_b8cd0d8152dc22ad4f14822e",
+      "translation": "Bibliothek",
+      "evidence": [
+        {
+          "story": "A1#14",
+          "sentence": "Після занять я заходжу в бібліотеку."
+        },
+        {
+          "story": "A2#40",
+          "sentence": "Мені подобається, що школа близько, а після уроків можна піти до бібліотеки."
+        },
+        {
+          "story": "A2#96",
+          "sentence": "У кожній бібліотеці країни є тонка книжка в синій обкладинці."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_9c275ad21e7d2399601a306f",
+      "lemma": "білий",
+      "partOfSpeech": "adj",
+      "senseId": "linguisto_sense_1c16dc3d5571712e9caa7639",
+      "translation": "weiß",
+      "evidence": [
+        {
+          "story": "A1#11",
+          "sentence": "Там стоїть біла машина, вона чиста, велика і дуже гарна."
+        },
+        {
+          "story": "A1#20",
+          "sentence": "На дівчинці біла сорочка, а на жінці теплий светр."
+        },
+        {
+          "story": "A1#21",
+          "sentence": "Узимку на його гілках лежить білий сніг."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_f67b2a3578d9414489761581",
+      "lemma": "біля",
+      "partOfSpeech": "prep",
+      "senseId": "linguisto_sense_2bb8f50c900b1400829c5495",
+      "translation": "neben",
+      "evidence": [
+        {
+          "story": "A1#1",
+          "sentence": "Наша сім'я живе в будинку біля парку."
+        },
+        {
+          "story": "A1#2",
+          "sentence": "Я часто сиджу біля полиці після школи."
+        },
+        {
+          "story": "A1#3",
+          "sentence": "Я живу в невеликому будинку біля саду."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_852fabf8703e0c7dc88cdf53",
+      "lemma": "в",
+      "partOfSpeech": "prep",
+      "senseId": "linguisto_sense_14a3822768cb1471e1a671b6",
+      "translation": "in",
+      "evidence": [
+        {
+          "story": "A1#1",
+          "sentence": "Наша сім'я живе в будинку біля парку."
+        },
+        {
+          "story": "A1#1",
+          "sentence": "На кухні мама часто готує суп, а у вітальні ми дивимося телевізор."
+        },
+        {
+          "story": "A1#1",
+          "sentence": "Моя кімната невелика, але в ній є ліжко, стіл і книжки."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_07cc44a5f4ac40ab3a09bebf",
+      "lemma": "важкий",
+      "partOfSpeech": "adj",
+      "senseId": "linguisto_sense_2678c2903ac8572187d8970e",
+      "translation": "schwer",
+      "evidence": [
+        {
+          "story": "A2#4",
+          "sentence": "Коли задача важка, я не здаюся одразу, а читаю умову ще раз."
+        },
+        {
+          "story": "A2#5",
+          "sentence": "Коли мені важко, Іван допомагає."
+        },
+        {
+          "story": "A2#7",
+          "sentence": "Після заняття руки важкі, але я знаю, що стаю сильнішою."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_6aba4be4e7c7443d1ddfbfb2",
+      "lemma": "важливий",
+      "partOfSpeech": "adj",
+      "senseId": "linguisto_sense_314252da15e42851cf37d9bc",
+      "translation": "wichtig",
+      "evidence": [
+        {
+          "story": "A2#12",
+          "sentence": "У нас важливий урок."
+        },
+        {
+          "story": "A2#16",
+          "sentence": "Я дивлюся на родину і розумію: свято стало тихішим, але воно теж важливе."
+        },
+        {
+          "story": "A2#17",
+          "sentence": "Учителька показує карту дітям і каже, що цього дня країна згадує важливу подію."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_cb757b837679feacdfcb5e63",
+      "lemma": "ваза",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_5287128013a1affe4f91287d",
+      "translation": "Vase",
+      "evidence": [
+        {
+          "story": "A2#20",
+          "sentence": "Тато тихо допомагає мені знайти вазу і чистий конверт."
+        },
+        {
+          "story": "A2#20",
+          "sentence": "Тато теж усміхається і ставить букет у вазу біля вікна."
+        },
+        {
+          "story": "A2#29",
+          "sentence": "Сестра ставить на стіл вазу з польовими квітами."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_1e1709f6df532412b1fac35c",
+      "lemma": "ванна",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_2de155c62546f09f21cb531f",
+      "translation": "Badewanne",
+      "evidence": [
+        {
+          "story": "A1#3",
+          "sentence": "У будинку є чотири кімнати: кухня, спальня, вітальня і ванна кімната."
+        },
+        {
+          "story": "A1#5",
+          "sentence": "Потім я йду у ванну кімнату, мию обличчя і чищу зуби."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_ada3041f2b87dd848b57a072",
+      "lemma": "варити",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_b583b18a5055712012820bbc",
+      "translation": "kochen",
+      "evidence": [
+        {
+          "story": "A2#9",
+          "sentence": "Мама варить кашу на маленькій плиті, поки я вмиваюся і збираю рюкзак."
+        },
+        {
+          "story": "A2#44",
+          "sentence": "Мама варить кашу для всієї сім'ї."
+        },
+        {
+          "story": "A2#59",
+          "sentence": "Після цього я навчився варити гречку в маленькій каструлі."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_338a07566310c26d80e04272",
+      "lemma": "вдома",
+      "partOfSpeech": "adv",
+      "senseId": "linguisto_sense_06394474dd124e7eec3e9fee",
+      "translation": "daheim",
+      "evidence": [
+        {
+          "story": "A1#5",
+          "sentence": "Удома я обідаю і трохи відпочиваю."
+        },
+        {
+          "story": "A1#6",
+          "sentence": "У мене вдома живуть кіт і два собаки."
+        },
+        {
+          "story": "A1#6",
+          "sentence": "Увечері всі лежать біля мене, і вдома стає спокійно."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_2d62589f7ce14131d293fbfc",
+      "lemma": "ведмідь",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_69efc5b20ea9fe812f06b1d3",
+      "translation": "Bär",
+      "evidence": [
+        {
+          "story": "A1#8",
+          "sentence": "Це коричневий ведмедик."
+        },
+        {
+          "story": "A1#8",
+          "sentence": "Коли мені сумно, ведмедик завжди лежить поруч."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_7325b9fd41e18754fcc0ee31",
+      "lemma": "великий",
+      "partOfSpeech": "adj",
+      "senseId": "linguisto_sense_483d2aa5d9f8c4ff5fb95601",
+      "translation": "groß",
+      "evidence": [
+        {
+          "story": "A1#1",
+          "sentence": "Там стоїть диван, стіл і велика шафа."
+        },
+        {
+          "story": "A1#2",
+          "sentence": "У моїй кімнаті є полиця з казками і велика коробка з іграшками."
+        },
+        {
+          "story": "A1#6",
+          "sentence": "Бім великий і добрий, а Рекс малий і швидкий."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_a46c17aa661c66e20fdae6ff",
+      "lemma": "вересень",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_ecd38dcdb1ded2338fc389aa",
+      "translation": "September",
+      "evidence": [
+        {
+          "story": "A2#27",
+          "sentence": "Першого вересня біля школи дуже людно."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_7b5163a94f411aa5505ae06d",
+      "lemma": "веселий",
+      "partOfSpeech": "adj",
+      "senseId": "linguisto_sense_58f5412cbfb746bbb63d5ff4",
+      "translation": "fröhlich",
+      "evidence": [
+        {
+          "story": "A1#9",
+          "sentence": "Мій тато веселий, він працює в офісі і любить музику."
+        },
+        {
+          "story": "A1#17",
+          "sentence": "Він високий і веселий."
+        },
+        {
+          "story": "A2#5",
+          "sentence": "Іван веселий і добрий."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_9a036004853d48ad9585b913",
+      "lemma": "весна",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_fbb411dd26500e93763a3962",
+      "translation": "Frühling",
+      "evidence": [
+        {
+          "story": "A2#35",
+          "sentence": "Сонце означає світло, квітка нагадує про весну, а хвиля схожа на воду."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_e4fb5117211968b11bf8be57",
+      "lemma": "вечеря",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_6253db6342bb542ac78b368c",
+      "translation": "Abendessen",
+      "evidence": [
+        {
+          "story": "A1#4",
+          "sentence": "Потім я дивлюся мультфільм, а мама готує вечерю."
+        },
+        {
+          "story": "A2#18",
+          "sentence": "Свічка горить посеред столу до самого кінця вечері."
+        },
+        {
+          "story": "A2#18",
+          "sentence": "Після вечері до нас приходять діти колядувати."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_0ba6451de5d37b8ad8c2c068",
+      "lemma": "вечір",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_13ec332e8787d51a869c5d06",
+      "translation": "Abend",
+      "evidence": [
+        {
+          "story": "A2#6",
+          "sentence": "Гарного вечора!"
+        },
+        {
+          "story": "A2#16",
+          "sentence": "У місті стало менше гучних вечорів."
+        },
+        {
+          "story": "A2#44",
+          "sentence": "До вечора наша квартира чекатиме порожня."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_39858e83d559a13b9354c251",
+      "lemma": "ви",
+      "partOfSpeech": "pron",
+      "senseId": "linguisto_sense_8d673205f2b4ff23971fc6c9",
+      "translation": "Sie",
+      "evidence": [
+        {
+          "story": "A1#16",
+          "sentence": "Я питаю вчительку:\n— Ви можете повторити слово?"
+        },
+        {
+          "story": "A1#19",
+          "sentence": "Ви хочете червоні яблука чи зелені?"
+        },
+        {
+          "story": "A2#6",
+          "sentence": "Мама: А пакет у вас є?"
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_94249bbe34bd2d8e54b0c1bb",
+      "lemma": "вибирати",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_89f1049c02833def4b3fe503",
+      "translation": "auswählen",
+      "evidence": [
+        {
+          "story": "A1#2",
+          "sentence": "Спочатку я вибираю книжку, а потім відкриваю коробку."
+        },
+        {
+          "story": "A1#22",
+          "sentence": "Уранці я відкриваю двері шафи і вибираю речі для роботи."
+        },
+        {
+          "story": "A2#4",
+          "sentence": "Я довго вибираю потрібний олівець."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_14dcc4c3c7e8838bd11b6bc0",
+      "lemma": "викладач",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_8753c553225ed8723a97eb7c",
+      "translation": "Dozent",
+      "evidence": [
+        {
+          "story": "A2#64",
+          "sentence": "Викладач говорив повільно."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_d7f5c1c6f06534f9cf4ecf7b",
+      "lemma": "вимикати",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_c0a9f3bb570231889520dba2",
+      "translation": "ausmachen",
+      "evidence": [
+        {
+          "story": "A2#49",
+          "sentence": "Учителька вимикає світло і вмикає коротке відео про Майдан."
+        },
+        {
+          "story": "A2#91",
+          "sentence": "Мама вимикає світло, а зелень усе одно видно біля дверей."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_2e21b5b34a03abf6b5bc680c",
+      "lemma": "випічка",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_44e27cdde0d2bdb563cd9449",
+      "translation": "Gebäck",
+      "evidence": [
+        {
+          "story": "A2#32",
+          "sentence": "Усередині тепло, пахне кавою і свіжою випічкою."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_21278a512dc289534ba93d98",
+      "lemma": "високий",
+      "partOfSpeech": "adj",
+      "senseId": "linguisto_sense_f87e69995b15f8ec25d7e326",
+      "translation": "hoch",
+      "evidence": [
+        {
+          "story": "A2#52",
+          "sentence": "Я бачила вузькі вулиці, старі будинки і високі двері."
+        },
+        {
+          "story": "A2#58",
+          "sentence": "Навколо росли ягоди і високі трави."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_0c2e8715c67be6f2c52fc7eb",
+      "lemma": "висіти",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_249b68cc5adfc92190665a1c",
+      "translation": "hängen",
+      "evidence": [
+        {
+          "story": "A1#24",
+          "sentence": "На кухні висить великий годинник, і я часто дивлюся на нього."
+        },
+        {
+          "story": "A2#7",
+          "sentence": "У сумці сохне купальник, а рушник висить на батареї біля вікна."
+        },
+        {
+          "story": "A2#17",
+          "sentence": "У класі на дошці висить велика карта України."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_67862d3e241051610da787d8",
+      "lemma": "витирати",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_7a1e86d233467a3ff14d8c98",
+      "translation": "abwischen",
+      "evidence": [
+        {
+          "story": "A2#14",
+          "sentence": "Складаю книжки, витираю стіл і відкриваю вікно."
+        },
+        {
+          "story": "A2#29",
+          "sentence": "Витираю все рушником і складаю посуд у шафу."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_13ce1ee31211575e5b021758",
+      "lemma": "вишивка",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_836afc2db2b040b18ff72072",
+      "translation": "Stickerei",
+      "evidence": [
+        {
+          "story": "A2#57",
+          "sentence": "Українська вишивка живе в багатьох родинах."
+        },
+        {
+          "story": "A2#57",
+          "sentence": "Тому вишивку носять бережно і з повагою."
+        },
+        {
+          "story": "A2#63",
+          "sentence": "Вона є в піснях, у вишивці і в старих віршах."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_3888406e2c324bdc8299fdc1",
+      "lemma": "вмикати",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_3dfef1bad3fb9d3fdeeefa71",
+      "translation": "anmachen",
+      "evidence": [
+        {
+          "story": "A1#15",
+          "sentence": "Увечері я вмикаю лампу і сідаю на ліжко."
+        },
+        {
+          "story": "A2#2",
+          "sentence": "Тато вмикає радіо, а Марійка сідає малювати просто на підлозі."
+        },
+        {
+          "story": "A2#8",
+          "sentence": "Мама приносить плед і вмикає радіо на кухні."
+        }
+      ]
+    },
+    {
+      "lexemeId": "curated_lex_3e3014efb85f15ebeaef3e31",
+      "lemma": "вміти",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_8232e641029d5db0d2a24209",
+      "translation": "können",
+      "evidence": [
+        {
+          "story": "A2#22",
+          "sentence": "Різати я ще не вмію, тому просто дивлюся і питаю."
+        },
+        {
+          "story": "A2#53",
+          "sentence": "Я ще не вмію так, але бачив, яке воно м'яке."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_8f30f5a2ab2e10c7ed0b3601",
+      "lemma": "внизу",
+      "partOfSpeech": "adv",
+      "senseId": "linguisto_sense_8ced7b3fe3eeb9519f28b76d",
+      "translation": "unten",
+      "evidence": [
+        {
+          "story": "A2#65",
+          "sentence": "Будинки здавалися маленькими, а Дніпро блищав далеко внизу."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_c7874765c453732ba0302bc7",
+      "lemma": "вночі",
+      "partOfSpeech": "adv",
+      "senseId": "linguisto_sense_ce132403ccdcc3e66931ea67",
+      "translation": "nachts",
+      "evidence": [
+        {
+          "story": "A2#56",
+          "sentence": "Одні йдуть до церкви вночі, коли ще темно і тихо."
+        },
+        {
+          "story": "A2#86",
+          "sentence": "Уночі туди краще не заглядати."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_99830d3a04bd6e3cfa13ceb0",
+      "lemma": "вода",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_bb62132034598e6d2ad818e5",
+      "translation": "Wasser",
+      "evidence": [
+        {
+          "story": "A1#4",
+          "sentence": "На кухні я їм хліб із сиром і п'ю воду."
+        },
+        {
+          "story": "A1#6",
+          "sentence": "Коту я даю їжу в миску, а собакам даю воду і сухий корм."
+        },
+        {
+          "story": "A1#13",
+          "sentence": "Потім машина їде біля річки, і я дивлюся на воду."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_85aad52fb09db6b3ae892d2d",
+      "lemma": "волосся",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_547bafa1ade94b3ef7a070db",
+      "translation": "Haar",
+      "evidence": [
+        {
+          "story": "A2#21",
+          "sentence": "Я обережно застібаю ґудзики, розчісую волосся і дивлюся в дзеркало."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_e299d004f7e8d9ada975e369",
+      "lemma": "вона",
+      "partOfSpeech": "pron",
+      "senseId": "linguisto_sense_a8385cae8dd9c7eabad5b14f",
+      "translation": "sie",
+      "evidence": [
+        {
+          "story": "A1#1",
+          "sentence": "Моя кімната невелика, але в ній є ліжко, стіл і книжки."
+        },
+        {
+          "story": "A1#2",
+          "sentence": "Я читаю її багато разів, бо добре знаю героїв."
+        },
+        {
+          "story": "A1#8",
+          "sentence": "Іграшка вже не нова, але вона дуже дорога для мене."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_45e36bbaf5a3e9432bcadb20",
+      "lemma": "вони",
+      "partOfSpeech": "pron",
+      "senseId": "linguisto_sense_f47e2e4fb3bfc42962ac2bc2",
+      "translation": "sie",
+      "evidence": [
+        {
+          "story": "A1#4",
+          "sentence": "На кухні я їм хліб із сиром і п'ю воду."
+        },
+        {
+          "story": "A1#5",
+          "sentence": "На кухні я їм кашу і п'ю теплий чай."
+        },
+        {
+          "story": "A1#5",
+          "sentence": "На перерві я їм яблуко і говорю з другом."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_91e9c1f36d05075b3ae9686d",
+      "lemma": "воно",
+      "partOfSpeech": "pron",
+      "senseId": "linguisto_sense_493daef97cca21cd1b8dc0dd",
+      "translation": "es",
+      "evidence": [
+        {
+          "story": "A1#8",
+          "sentence": "Його звати Тедді."
+        },
+        {
+          "story": "A1#8",
+          "sentence": "Увечері я беру його в руки, читаю книжку і відпочиваю."
+        },
+        {
+          "story": "A1#8",
+          "sentence": "Я часто ставлю Тедді на подушку і кажу йому добраніч."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_6b7ae14c92de6660c981efeb",
+      "lemma": "вправа",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_63e001572631d20ccaaf68d9",
+      "translation": "Übung",
+      "evidence": [
+        {
+          "story": "A1#4",
+          "sentence": "Після уроків я обідаю і роблю вправи."
+        },
+        {
+          "story": "A2#7",
+          "sentence": "Спочатку я роблю вправи біля бортика, а потім пливу повільно."
+        },
+        {
+          "story": "A2#14",
+          "sentence": "Там ми бігаємо, робимо вправи і вчимося працювати разом."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_9a747bfadd14dbff2bcbc1f4",
+      "lemma": "вранці",
+      "partOfSpeech": "adv",
+      "senseId": "linguisto_sense_1915a651318d7dbdcdaa8b85",
+      "translation": "morgens",
+      "evidence": [
+        {
+          "story": "A1#1",
+          "sentence": "Уранці всі поспішають, але ввечері ми знову разом."
+        },
+        {
+          "story": "A1#3",
+          "sentence": "Уранці ми снідаємо там разом і говоримо про день."
+        },
+        {
+          "story": "A1#4",
+          "sentence": "Уранці я прокидаюся і відкриваю вікно."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_7948c72975334b93fd70fc9b",
+      "lemma": "всередині",
+      "partOfSpeech": "adv",
+      "senseId": "linguisto_sense_55071255d345d91c5e9ba597",
+      "translation": "drinnen",
+      "evidence": [
+        {
+          "story": "A2#20",
+          "sentence": "Усередині написано: «Мамо, ти найкраща»."
+        },
+        {
+          "story": "A2#30",
+          "sentence": "Слова написав усередині, великими рівними літерами: «Мамо, я тебе люблю»."
+        },
+        {
+          "story": "A2#32",
+          "sentence": "Усередині тепло, пахне кавою і свіжою випічкою."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_666ecbab559bde234172ffcb",
+      "lemma": "вставати",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_768e86037e64d9b698767ad4",
+      "translation": "aufstehen",
+      "evidence": [
+        {
+          "story": "A1#5",
+          "sentence": "Я прокидаюся о сьомій годині і не поспішаю вставати."
+        },
+        {
+          "story": "A1#14",
+          "sentence": "У понеділок я встаю о сьомій годині, бо перше заняття починається о дев'ятій."
+        },
+        {
+          "story": "A1#24",
+          "sentence": "Я встаю."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_cfb551a161804871d17becd0",
+      "lemma": "втома",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_ebdfbc3eab35911daf1ba442",
+      "translation": "Müdigkeit",
+      "evidence": [
+        {
+          "story": "A2#13",
+          "sentence": "Слухаю спокійні пісні, бо вони допомагають забути про втому."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_53537c927c236bf6994a815c",
+      "lemma": "вулиця",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_91f2a7df64f8538201d9eab8",
+      "translation": "Straße",
+      "evidence": [
+        {
+          "story": "A1#21",
+          "sentence": "Восени листя жовте і червоне, а на вулиці холодно."
+        },
+        {
+          "story": "A2#5",
+          "sentence": "Ми живемо на одній вулиці і ходимо до однієї школи."
+        },
+        {
+          "story": "A2#6",
+          "sentence": "На вулиці вже пахне дощем."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_fc8d8a54fe6534388263a011",
+      "lemma": "вухо",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_96f77f71c23c5c85a550dcae",
+      "translation": "Ohr",
+      "evidence": [
+        {
+          "story": "A1#8",
+          "sentence": "У нього круглі вуха, чорні очі і дуже м'які лапи."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_a8d9f190097af6d1986c6a21",
+      "lemma": "вхід",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_3c9795dbf241f162476cf464",
+      "translation": "Eingang",
+      "evidence": [
+        {
+          "story": "A1#14",
+          "sentence": "Біля входу я зустрічаю друга Андрія."
+        },
+        {
+          "story": "A1#17",
+          "sentence": "У суботу ми зустрічаємося біля входу в парк."
+        },
+        {
+          "story": "A2#6",
+          "sentence": "Молоко у холодильнику біля входу, а свіжий хліб щойно привезли."
+        }
+      ]
+    },
+    {
+      "lexemeId": "curated_lex_3d37d664636a1f4666d7cc69",
+      "lemma": "вчителька",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_359f7ae949dff30d0a92cc64",
+      "translation": "Lehrerin",
+      "evidence": [
+        {
+          "story": "A1#16",
+          "sentence": "Я питаю вчительку:\n— Ви можете повторити слово?"
+        },
+        {
+          "story": "A2#9",
+          "sentence": "Я краще слухаю вчительку і не думаю про їжу до перерви."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_9d53b2ecd1b3fadc8cf13a63",
+      "lemma": "вівторок",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_5685d3a989b6b9bd5df27a2f",
+      "translation": "Dienstag",
+      "evidence": [
+        {
+          "story": "A2#7",
+          "sentence": "У вівторок і четвер я після школи йду не додому, а в басейн."
+        },
+        {
+          "story": "A2#7",
+          "sentence": "Я вже думаю про наступний вівторок."
+        },
+        {
+          "story": "A2#78",
+          "sentence": "У понеділок і вівторок я перечитую записи з уроків."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_db6dbdf4b6ab41156500a63a",
+      "lemma": "від",
+      "partOfSpeech": "prep",
+      "senseId": "linguisto_sense_a92c1c461f5a504110d1a7af",
+      "translation": "von",
+      "evidence": [
+        {
+          "story": "A1#24",
+          "sentence": "О восьмій я снідаю, а потім шукаю ключі від офісу."
+        },
+        {
+          "story": "A2#4",
+          "sentence": "Школа стоїть недалеко від дому, тому вранці можу йти зовсім повільно."
+        },
+        {
+          "story": "A2#7",
+          "sentence": "Басейн зовсім недалеко від нашої школи."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_bc429a8fde0a32d278550282",
+      "lemma": "відвідувати",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_b18617e486244de0b80cad75",
+      "translation": "besuchen",
+      "evidence": [
+        {
+          "story": "A2#40",
+          "sentence": "Моя бабуся живе в селі, і я відвідую її влітку."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_fae95dc9344713d580822bee",
+      "lemma": "відкривати",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_4137b33860534dac7df72b03",
+      "translation": "öffnen",
+      "evidence": [
+        {
+          "story": "A1#2",
+          "sentence": "Спочатку я вибираю книжку, а потім відкриваю коробку."
+        },
+        {
+          "story": "A1#4",
+          "sentence": "Уранці я прокидаюся і відкриваю вікно."
+        },
+        {
+          "story": "A1#11",
+          "sentence": "Тато сідає за кермо, мама відкриває багажник, а я сідаю назад."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_72eae261592a46f346595bf9",
+      "lemma": "відповідати",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_fabfadf079d7537d5c2b91fd",
+      "translation": "antworten",
+      "evidence": [
+        {
+          "story": "A1#12",
+          "sentence": "Данило усміхається і відповідає: Привіт, дуже приємно."
+        },
+        {
+          "story": "A2#49",
+          "sentence": "Учні думають і відповідають по черзі."
+        },
+        {
+          "story": "A2#49",
+          "sentence": "Дівчинка додає, що за неї треба вміти відповідати."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_86889b8ecc7916b234393ac3",
+      "lemma": "відповідь",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_06382b5f76a4039b1b15f5e7",
+      "translation": "Antwort",
+      "evidence": [
+        {
+          "story": "A2#4",
+          "sentence": "Мені подобається рахувати, розв'язувати задачі і знаходити правильну відповідь."
+        },
+        {
+          "story": "A2#17",
+          "sentence": "Діти ставлять кілька запитань і слухають відповіді."
+        },
+        {
+          "story": "A2#42",
+          "sentence": "Я махаю у відповідь і повертаю за ріг біля аптеки."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_6051fea00d9bfe4289edc270",
+      "lemma": "відпочивати",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_4d2b7155efe4179fb2369b16",
+      "translation": "ausruhen",
+      "evidence": [
+        {
+          "story": "A1#5",
+          "sentence": "Удома я обідаю і трохи відпочиваю."
+        },
+        {
+          "story": "A1#8",
+          "sentence": "Увечері я беру його в руки, читаю книжку і відпочиваю."
+        },
+        {
+          "story": "A1#14",
+          "sentence": "Потім я трохи відпочиваю вдома."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_d4d178c8b299436e2955ebfb",
+      "lemma": "відпочинок",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_c880e6a9b12284718b051ca5",
+      "translation": "Erholung",
+      "evidence": [
+        {
+          "story": "A2#45",
+          "sentence": "Дніпро важливий для країни, бо він дає воду, красу і місце для відпочинку."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_095257b0cb3c65222e172095",
+      "lemma": "відро",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_b9e9a1a5788a8cca25a2af71",
+      "translation": "Eimer",
+      "evidence": [
+        {
+          "story": "A2#39",
+          "sentence": "Дідусь несе корм для свиней, а я допомагаю йому тримати відро."
+        },
+        {
+          "story": "A2#77",
+          "sentence": "Уже на тротуарі стоять ящики, відра і перші продавці."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_b9046e2260628d2bd6088fd0",
+      "lemma": "вікно",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_8a3e03fd7b4ffe207b005a75",
+      "translation": "Fenster",
+      "evidence": [
+        {
+          "story": "A1#4",
+          "sentence": "Уранці я прокидаюся і відкриваю вікно."
+        },
+        {
+          "story": "A1#6",
+          "sentence": "Він сірий, тихий і любить сидіти біля вікна."
+        },
+        {
+          "story": "A1#7",
+          "sentence": "Мама готує млинці, а я п'ю чай і дивлюся у вікно."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_7b627e20f76fc656203f2c65",
+      "lemma": "він",
+      "partOfSpeech": "pron",
+      "senseId": "linguisto_sense_95ef93d579f46e5b0a4ac908",
+      "translation": "er",
+      "evidence": [
+        {
+          "story": "A1#3",
+          "sentence": "Я люблю свій будинок, бо він теплий і спокійний."
+        },
+        {
+          "story": "A1#6",
+          "sentence": "Він сірий, тихий і любить сидіти біля вікна."
+        },
+        {
+          "story": "A1#8",
+          "sentence": "Його звати Тедді."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_cea73382be734bdd4c6f12ce",
+      "lemma": "вірш",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_8fc5d4477db433e4e608845b",
+      "translation": "Gedicht",
+      "evidence": [
+        {
+          "story": "A2#63",
+          "sentence": "Вона є в піснях, у вишивці і в старих віршах."
+        },
+        {
+          "story": "A2#72",
+          "sentence": "Діти вчать там привітання, пісні і короткі вірші напам'ять."
+        },
+        {
+          "story": "A2#84",
+          "sentence": "Бабуся прочитала мені один вірш уголос і зупинилася на середині."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_367a5263defc5400f18ba01b",
+      "lemma": "вітальня",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_064bda0290861c31e52fd16e",
+      "translation": "Wohnzimmer",
+      "evidence": [
+        {
+          "story": "A1#1",
+          "sentence": "На першому поверсі є кухня і вітальня."
+        },
+        {
+          "story": "A1#3",
+          "sentence": "У будинку є чотири кімнати: кухня, спальня, вітальня і ванна кімната."
+        },
+        {
+          "story": "A1#3",
+          "sentence": "У вітальні стоїть диван, низький столик і годинник на стіні."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_f24547237884826017b4cb53",
+      "lemma": "вітер",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_29ab6d932fa564966dafd3bd",
+      "translation": "Wind",
+      "evidence": [
+        {
+          "story": "A2#8",
+          "sentence": "На вулиці дме вітер, тому я надягаю теплу куртку і шарф."
+        },
+        {
+          "story": "A2#8",
+          "sentence": "Я чую, як за вікном тихо шумить холодний вітер."
+        },
+        {
+          "story": "A2#40",
+          "sentence": "Яблуня над нами вже зовсім стара і скрипить від вітру."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_8014d72733b100758b65edb0",
+      "lemma": "гараж",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_80b4e611cf02cdb40dc69f30",
+      "translation": "Garage",
+      "evidence": [
+        {
+          "story": "A1#11",
+          "sentence": "Моя сім'я хоче купити нову машину, бо стара машина часто стоїть у гаражі."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_3a159162f55ad04047ed5a9f",
+      "lemma": "гарний",
+      "partOfSpeech": "adj",
+      "senseId": "linguisto_sense_ff4d570685b380d2c814ab63",
+      "translation": "schön",
+      "evidence": [
+        {
+          "story": "A1#11",
+          "sentence": "Там стоїть біла машина, вона чиста, велика і дуже гарна."
+        },
+        {
+          "story": "A1#19",
+          "sentence": "У вас завжди гарний хліб."
+        },
+        {
+          "story": "A2#2",
+          "sentence": "Я кажу, що вони гарні, і вона одразу біжить по нові олівці."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_10cc645b1b42118bdfb478b7",
+      "lemma": "гарячий",
+      "partOfSpeech": "adj",
+      "senseId": "linguisto_sense_6a4281900c3f35bea06b8777",
+      "translation": "heiß",
+      "evidence": [
+        {
+          "story": "A2#2",
+          "sentence": "Мама розливає гарячий чай у великі чашки."
+        },
+        {
+          "story": "A2#7",
+          "sentence": "Мама усміхається і наливає мені гарячий чай."
+        },
+        {
+          "story": "A2#8",
+          "sentence": "Вдома я знімаю куртку, вішаю шарф біля дверей і п'ю гарячий чай."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_0b81696df67d1bff1d00f2eb",
+      "lemma": "гладити",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_059cb01d83830ab96342caaa",
+      "translation": "streicheln",
+      "evidence": [
+        {
+          "story": "A1#6",
+          "sentence": "Мама теж часто гладить Мурчика."
+        },
+        {
+          "story": "A2#10",
+          "sentence": "Я гладжу його по спині і чую, як він муркоче."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_d1ae6ecce170d3fb6e00d29b",
+      "lemma": "говорити",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_5b2b8b28e41fcdf09a67f2c6",
+      "translation": "sprechen",
+      "evidence": [
+        {
+          "story": "A1#3",
+          "sentence": "Уранці ми снідаємо там разом і говоримо про день."
+        },
+        {
+          "story": "A1#5",
+          "sentence": "На перерві я їм яблуко і говорю з другом."
+        },
+        {
+          "story": "A1#9",
+          "sentence": "Ми п'ємо чай, говоримо про день і сміємося."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_a21948b651f7f926fd9b6b77",
+      "lemma": "година",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_ad7ba82d667aeb16e53a3551",
+      "translation": "Stunde",
+      "evidence": [
+        {
+          "story": "A1#5",
+          "sentence": "Я прокидаюся о сьомій годині і не поспішаю вставати."
+        },
+        {
+          "story": "A1#14",
+          "sentence": "У понеділок я встаю о сьомій годині, бо перше заняття починається о дев'ятій."
+        },
+        {
+          "story": "A1#24",
+          "sentence": "О сьомій годині дзвонить будильник біля мого ліжка."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_0108697dc2781eb0b5bc0f2b",
+      "lemma": "годинник",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_793d02e858926e0a399086d5",
+      "translation": "Uhr",
+      "evidence": [
+        {
+          "story": "A1#3",
+          "sentence": "У вітальні стоїть диван, низький столик і годинник на стіні."
+        },
+        {
+          "story": "A1#15",
+          "sentence": "Я читаю кілька сторінок і дивлюся на годинник."
+        },
+        {
+          "story": "A1#24",
+          "sentence": "На кухні висить великий годинник, і я часто дивлюся на нього."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_880e3f800f1af0e179e01434",
+      "lemma": "годувати",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_fb0a09f355029c1e2da2370d",
+      "translation": "füttern",
+      "evidence": [
+        {
+          "story": "A1#6",
+          "sentence": "Щодня я годую тварин."
+        },
+        {
+          "story": "A2#39",
+          "sentence": "Уранці всіх тварин треба годувати."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_4f0d6339e157f589d7926683",
+      "lemma": "гойдалка",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_aa0598c33a1364bd7f74ebbe",
+      "translation": "Schaukel",
+      "evidence": [
+        {
+          "story": "A1#7",
+          "sentence": "Там є гойдалка, лавка і велика доріжка."
+        },
+        {
+          "story": "A2#26",
+          "sentence": "Поруч є дитячий майданчик із гойдалками і гіркою."
+        },
+        {
+          "story": "A2#26",
+          "sentence": "Хтось катається на гойдалці, хтось бігає або малює крейдою на доріжці."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_eead27340b60fab3790e0941",
+      "lemma": "голова",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_c6d1d31ecb6fe00247ff3019",
+      "translation": "Kopf",
+      "evidence": [
+        {
+          "story": "A2#27",
+          "sentence": "Потім старша учениця піднімає маленький дзвоник над головою."
+        },
+        {
+          "story": "A2#41",
+          "sentence": "Вона каже, що Конституція — це головний закон нашої країни."
+        },
+        {
+          "story": "A2#70",
+          "sentence": "Уранці повітря таке чисте, що від нього трохи паморочиться голова."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_582c21aad480a3579a81f2a9",
+      "lemma": "голос",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_dd510cc22857fefd7a89da64",
+      "translation": "Stimme",
+      "evidence": [
+        {
+          "story": "A2#18",
+          "sentence": "Мені подобається слухати ці тонкі голоси біля дверей."
+        },
+        {
+          "story": "A2#38",
+          "sentence": "Я чую голоси друзів навколо і стараюся не збиватися."
+        },
+        {
+          "story": "A2#77",
+          "sentence": "Кожен продавець мав свій голос і свою роль."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_ace67877f3160c1b328aa620",
+      "lemma": "гора",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_1217f6e0c4ba21df228709df",
+      "translation": "Berg",
+      "evidence": [
+        {
+          "story": "A2#58",
+          "sentence": "Щоранку я відкривала вікно і бачила зелені гори."
+        },
+        {
+          "story": "A2#58",
+          "sentence": "Удень ми ходили простими стежками в горах."
+        },
+        {
+          "story": "A2#65",
+          "sentence": "Місто стоїть на горах над Дніпром."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_6a2e720a1c1ddb7f1babd32f",
+      "lemma": "город",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_59e436e08365751696429986",
+      "translation": "Gemüsegarten",
+      "evidence": [
+        {
+          "story": "A2#70",
+          "sentence": "Зате біля хати росте великий сад, а за городом починається стежка до лісу."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_9db0108096879e75f215a16b",
+      "lemma": "готель",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_5fb96708ed77544fcd81ebf1",
+      "translation": "Hotel",
+      "evidence": [
+        {
+          "story": "A2#47",
+          "sentence": "Наш готель недалеко від пляжу, тому зранку ми швидко беремо рушники і йдемо до води."
+        },
+        {
+          "story": "A2#47",
+          "sentence": "Увечері ми гуляємо біля готелю і слухаємо шум води."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_2076345e01be9bab081d4254",
+      "lemma": "готовий",
+      "partOfSpeech": "adj",
+      "senseId": "linguisto_sense_74ccae6a62c22a45213cb04a",
+      "translation": "bereit",
+      "evidence": [
+        {
+          "story": "A1#16",
+          "sentence": "Я готова."
+        },
+        {
+          "story": "A2#9",
+          "sentence": "Тепер я готова до нового дня."
+        },
+        {
+          "story": "A2#22",
+          "sentence": "Коли борщ готовий, уся сім'я сідає за стіл."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_e0cd5fb42ab90bf8b690e0b5",
+      "lemma": "гра",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_20de676a8eb777635cebea5d",
+      "translation": "Spiel",
+      "evidence": [
+        {
+          "story": "A1#1",
+          "sentence": "У шафі лежать книжки і настільні ігри."
+        },
+        {
+          "story": "A1#7",
+          "sentence": "На канікулах день довгий, і я маю більше часу для гри, читання та прогулянок."
+        },
+        {
+          "story": "A2#5",
+          "sentence": "У неділю ми телефонуємо одне одному і плануємо гру на понеділок."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_6da11b1366a7177fe8c74c1a",
+      "lemma": "грати",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_2b0bd87177d7546f4393d7c0",
+      "translation": "spielen",
+      "evidence": [
+        {
+          "story": "A1#7",
+          "sentence": "Ми граємо в м'яч, а потім купуємо морозиво."
+        },
+        {
+          "story": "A1#13",
+          "sentence": "У машині грає тиха музика, тому дорога здається приємною."
+        },
+        {
+          "story": "A1#17",
+          "sentence": "Спочатку гуляємо, а потім граємо в шахи."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_8069c07008e0560491633768",
+      "lemma": "гречка",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_79f862e42f865be6a2bcb5d4",
+      "translation": "Buchweizen",
+      "evidence": [
+        {
+          "story": "A2#59",
+          "sentence": "Після цього я навчився варити гречку в маленькій каструлі."
+        },
+        {
+          "story": "A2#59",
+          "sentence": "Тепер я можу приготувати простий обід для всієї родини: гречку, салат і котлети."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_0480829602a88db0ed8b6ae8",
+      "lemma": "гриб",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_6e7b59379b09b67a6a018825",
+      "translation": "Pilz",
+      "evidence": [
+        {
+          "story": "A2#87",
+          "sentence": "Бабуся додає гриби, квасолю і два простих салати."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_132b065c17557e9a35be10d0",
+      "lemma": "гроші",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_47f194327708f6d2c4a958e2",
+      "translation": "Geld",
+      "evidence": [
+        {
+          "story": "A1#10",
+          "sentence": "Потім жінка бере лист, дає марку, і я плачу гроші."
+        },
+        {
+          "story": "A2#11",
+          "sentence": "Квиток коштує дев'ять гривень, тому дрібні гроші я готую заздалегідь."
+        },
+        {
+          "story": "A2#18",
+          "sentence": "Вони співають короткі колядки, а ми даємо їм цукерки і трохи грошей."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_803204fbd8ea340b5e8a5f8b",
+      "lemma": "грудень",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_0044a87ba5de4e403d8c694d",
+      "translation": "Dezember",
+      "evidence": [
+        {
+          "story": "A2#16",
+          "sentence": "Тридцять першого грудня ми готували святковий стіл, а першого січня прокидалися пізніше."
+        },
+        {
+          "story": "A2#18",
+          "sentence": "У нашій родині Різдво святкують двадцять п'ятого грудня."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_7adc4900374f8bf40b26c90e",
+      "lemma": "груша",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_2c7689031f647f1d4a3628e4",
+      "translation": "Birne",
+      "evidence": [
+        {
+          "story": "A2#70",
+          "sentence": "Увечері ми сидимо під старою грушею і слухаємо, як гуде село."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_df49abdf373f5c3695e103f6",
+      "lemma": "гуляти",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_3a270751e8960a8c3a132e89",
+      "translation": "spazieren",
+      "evidence": [
+        {
+          "story": "A1#4",
+          "sentence": "Увечері я гуляю біля дому."
+        },
+        {
+          "story": "A1#5",
+          "sentence": "Потім я роблю домашнє завдання, гуляю з другом і вечеряю з родиною."
+        },
+        {
+          "story": "A1#7",
+          "sentence": "Удень я гуляю з друзями в парку."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_066488dd9551e224e1415c7b",
+      "lemma": "гілка",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_331f2ae6605d5009d4f969ce",
+      "translation": "Ast",
+      "evidence": [
+        {
+          "story": "A1#21",
+          "sentence": "Узимку на його гілках лежить білий сніг."
+        },
+        {
+          "story": "A2#63",
+          "sentence": "А сьогодні вчителька принесла в клас гілку з червоними ягодами."
+        },
+        {
+          "story": "A2#91",
+          "sentence": "Тільки після цього можна братися за гілки."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_bc9933c35482b437fc2a97ca",
+      "lemma": "гість",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_a4853c163d861fc2d6ddbaae",
+      "translation": "Gast",
+      "evidence": [
+        {
+          "story": "A2#25",
+          "sentence": "Бабуся Олена чекає гостей разом зі своєю маленькою онукою Софійкою."
+        },
+        {
+          "story": "A2#25",
+          "sentence": "Бабуся пояснює, що в Україні гостей часто зустрічають хлібом і сіллю."
+        },
+        {
+          "story": "A2#25",
+          "sentence": "Скоро гості заходять до хати."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_2c5b8f3edb0856c42e9d47e2",
+      "lemma": "давати",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_d2ec68a747562507fb70e409",
+      "translation": "geben",
+      "evidence": [
+        {
+          "story": "A1#6",
+          "sentence": "Коту я даю їжу в миску, а собакам даю воду і сухий корм."
+        },
+        {
+          "story": "A1#10",
+          "sentence": "Потім жінка бере лист, дає марку, і я плачу гроші."
+        },
+        {
+          "story": "A1#13",
+          "sentence": "Я даю їй квіти, мама ставить сумку на стілець, і ми сідаємо за стіл."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_58535b02245c180e765728fe",
+      "lemma": "далі",
+      "partOfSpeech": "adv",
+      "senseId": "linguisto_sense_c4424bbfb6ec89193b12f86a",
+      "translation": "weiter",
+      "evidence": [
+        {
+          "story": "A2#42",
+          "sentence": "Далі дорога веде прямо до школи."
+        },
+        {
+          "story": "A2#50",
+          "sentence": "Далі по вулиці горить ще кілька таких вогників."
+        },
+        {
+          "story": "A2#66",
+          "sentence": "Далі всі плескали, а малюки дивилися знизу вгору."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_9ea772846d5174ffdfb0fbfc",
+      "lemma": "дарувати",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_24645deee33ca963fa5e1adc",
+      "translation": "schenken",
+      "evidence": [
+        {
+          "story": "A2#43",
+          "sentence": "Один друг дарує книжку, а інший приносить кольорові олівці."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_b2292b49882b0924dbd1ea3a",
+      "lemma": "дах",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_9f0258750e51d4183440d4f5",
+      "translation": "Dach",
+      "evidence": [
+        {
+          "story": "A2#34",
+          "sentence": "На дахах будинків теж лежить сніг, і місто здається зовсім новим і тихим."
+        },
+        {
+          "story": "A2#65",
+          "sentence": "З верхніх вулиць видно річку, мости і дахи нижнього міста."
+        },
+        {
+          "story": "A2#67",
+          "sentence": "Опівночі феєрверки освітлювали все небо над дахами і над річкою."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_5e9731e652e113164642b892",
+      "lemma": "два",
+      "partOfSpeech": "num",
+      "senseId": "linguisto_sense_f4dc1abd22ddaf03672711a4",
+      "translation": "zwei",
+      "evidence": [
+        {
+          "story": "A1#6",
+          "sentence": "У мене вдома живуть кіт і два собаки."
+        },
+        {
+          "story": "A1#16",
+          "sentence": "На парті лежать зошит, книжка і дві нові ручки."
+        },
+        {
+          "story": "A1#18",
+          "sentence": "Вона ставить на стіл дві тарілки і чашки."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_81f940766bce339b5a0c0984",
+      "lemma": "двадцять",
+      "partOfSpeech": "num",
+      "senseId": "linguisto_sense_da38e307bc4aa82f2f33b283",
+      "translation": "zwanzig",
+      "evidence": [
+        {
+          "story": "A1#13",
+          "sentence": "Через двадцять хвилин ми приїжджаємо."
+        },
+        {
+          "story": "A1#19",
+          "sentence": "Продавчиня: — Хліб коштує двадцять гривень."
+        },
+        {
+          "story": "A2#15",
+          "sentence": "Сьогодні двадцять шосте квітня, день пам'яті."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_fd73cddb871e8e3b5ee4fc7e",
+      "lemma": "дванадцять",
+      "partOfSpeech": "num",
+      "senseId": "linguisto_sense_4872043b91def84a8bdc86e0",
+      "translation": "zwölf",
+      "evidence": [
+        {
+          "story": "A2#18",
+          "sentence": "Бабуся рахує: пісних страв має бути дванадцять, тобто без м'яса."
+        },
+        {
+          "story": "A2#55",
+          "sentence": "Мене звати Данило, і мені тоді було дванадцять років."
+        },
+        {
+          "story": "A2#87",
+          "sentence": "Їх має бути дванадцять, і жодної менше."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_606e6ce4b8c733f9356211cf",
+      "lemma": "двері",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_88dd0bd0e86a4f6b35d25c50",
+      "translation": "Tür",
+      "evidence": [
+        {
+          "story": "A1#3",
+          "sentence": "Біля дверей стоїть полиця для ключів і взуття."
+        },
+        {
+          "story": "A1#6",
+          "sentence": "Після їжі Рекс біжить у двір, а Бім лягає біля дверей."
+        },
+        {
+          "story": "A1#11",
+          "sentence": "Продавець показує нам двері, фари і нові колеса."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_31770b1db4057d195c15e361",
+      "lemma": "де",
+      "partOfSpeech": "adv",
+      "senseId": "linguisto_sense_7995ab0aa2734a58cf1d006a",
+      "translation": "wo",
+      "evidence": [
+        {
+          "story": "A1#12",
+          "sentence": "На перерві я питаю Данила, де він живе."
+        },
+        {
+          "story": "A2#6",
+          "sentence": "Де у вас каса?"
+        },
+        {
+          "story": "A2#11",
+          "sentence": "Потім іду пішки повз аптеку і кав'ярню, де вранці завжди пахне кавою."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_cc7117bb9ce397a8ed2861bb",
+      "lemma": "дев'ять",
+      "partOfSpeech": "num",
+      "senseId": "linguisto_sense_2977fadab9ffdaf6a6082006",
+      "translation": "neun",
+      "evidence": [
+        {
+          "story": "A2#11",
+          "sentence": "Квиток коштує дев'ять гривень, тому дрібні гроші я готую заздалегідь."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_399c202457e966b6af14f5c7",
+      "lemma": "день",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_cbfe7d1eb55af4b42616d429",
+      "translation": "Tag",
+      "evidence": [
+        {
+          "story": "A1#3",
+          "sentence": "Уранці ми снідаємо там разом і говоримо про день."
+        },
+        {
+          "story": "A1#7",
+          "sentence": "На канікулах день довгий, і я маю більше часу для гри, читання та прогулянок."
+        },
+        {
+          "story": "A1#8",
+          "sentence": "Тедді сидить на моєму ліжку майже весь день."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_ee5ee9a7428ed3c630ebb1af",
+      "lemma": "дерево",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_4613373e15447856ad5ba1f1",
+      "translation": "Baum",
+      "evidence": [
+        {
+          "story": "A1#1",
+          "sentence": "Брат грається з м'ячем, а я дивлюся на дерева."
+        },
+        {
+          "story": "A1#15",
+          "sentence": "З вікна я бачу зелені дерева і доріжку біля дому."
+        },
+        {
+          "story": "A1#21",
+          "sentence": "Біля нашого будинку росте велике дерево."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_783556da4ebfaf60859011be",
+      "lemma": "десять",
+      "partOfSpeech": "num",
+      "senseId": "linguisto_sense_2b52db4b21714a1190d7eee1",
+      "translation": "zehn",
+      "evidence": [
+        {
+          "story": "A2#11",
+          "sentence": "Автобуса треба чекати хвилин десять."
+        },
+        {
+          "story": "A2#13",
+          "sentence": "Спочатку я вечеряю і відпочиваю хвилин десять біля вікна."
+        },
+        {
+          "story": "A2#42",
+          "sentence": "Мене звати Іринка, і дорога займає приблизно десять хвилин."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_0fd5df60518884e5e1093465",
+      "lemma": "дзвонити",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_e0543edc77125127b34b30d7",
+      "translation": "klingeln",
+      "evidence": [
+        {
+          "story": "A1#16",
+          "sentence": "Дзвонить дзвінок, і починається перерва."
+        },
+        {
+          "story": "A1#24",
+          "sentence": "О сьомій годині дзвонить будильник біля мого ліжка."
+        },
+        {
+          "story": "A2#1",
+          "sentence": "Будильник дзвонить о сьомій, і я розплющую очі."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_5f59d4bf3842d5feecc1cb41",
+      "lemma": "дзеркало",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_5dca5f8bac91cff29c170e47",
+      "translation": "Spiegel",
+      "evidence": [
+        {
+          "story": "A1#4",
+          "sentence": "Потім я вмиваюся і зачісуюся перед дзеркалом."
+        },
+        {
+          "story": "A1#22",
+          "sentence": "Я дивлюся в дзеркало і поправляю светр."
+        },
+        {
+          "story": "A2#21",
+          "sentence": "Я обережно застібаю ґудзики, розчісую волосся і дивлюся в дзеркало."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_f3cae459037cfb0ac755c5c7",
+      "lemma": "диван",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_c5665d0a9ff49d1390ed74b3",
+      "translation": "Sofa",
+      "evidence": [
+        {
+          "story": "A1#1",
+          "sentence": "Там стоїть диван, стіл і велика шафа."
+        },
+        {
+          "story": "A1#3",
+          "sentence": "У вітальні стоїть диван, низький столик і годинник на стіні."
+        },
+        {
+          "story": "A1#22",
+          "sentence": "Сідаю на диван і беру книжку."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_1737779615156c7919ecf091",
+      "lemma": "для",
+      "partOfSpeech": "prep",
+      "senseId": "linguisto_sense_1accb3ab0fe0038e3933a7da",
+      "translation": "für",
+      "evidence": [
+        {
+          "story": "A1#3",
+          "sentence": "Біля дверей стоїть полиця для ключів і взуття."
+        },
+        {
+          "story": "A1#7",
+          "sentence": "На канікулах день довгий, і я маю більше часу для гри, читання та прогулянок."
+        },
+        {
+          "story": "A1#8",
+          "sentence": "Іграшка вже не нова, але вона дуже дорога для мене."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_a7f4fa5a15dc75f9f1731df6",
+      "lemma": "довгий",
+      "partOfSpeech": "adj",
+      "senseId": "linguisto_sense_d4e9ff8f66a51ad89d9dde00",
+      "translation": "lang",
+      "evidence": [
+        {
+          "story": "A1#7",
+          "sentence": "На канікулах день довгий, і я маю більше часу для гри, читання та прогулянок."
+        },
+        {
+          "story": "A2#3",
+          "sentence": "Я сідаю біля вікна і довго не хочу нікуди йти."
+        },
+        {
+          "story": "A2#4",
+          "sentence": "Я довго вибираю потрібний олівець."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_cd4dc0e9c24c30fd2f4b6359",
+      "lemma": "довго",
+      "partOfSpeech": "adv",
+      "senseId": "linguisto_sense_86833d4733c665f98fedfc31",
+      "translation": "lange",
+      "evidence": [
+        {
+          "story": "A1#7",
+          "sentence": "Уранці я сплю довше, а потім повільно снідаю."
+        },
+        {
+          "story": "A2#3",
+          "sentence": "Я сідаю біля вікна і довго не хочу нікуди йти."
+        },
+        {
+          "story": "A2#4",
+          "sentence": "Я довго вибираю потрібний олівець."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_b1af5c923a41112214cdd75b",
+      "lemma": "додому",
+      "partOfSpeech": "adv",
+      "senseId": "linguisto_sense_b0ea1a957afb2e780d60132e",
+      "translation": "heim",
+      "evidence": [
+        {
+          "story": "A1#5",
+          "sentence": "Після школи я повертаюся додому."
+        },
+        {
+          "story": "A1#11",
+          "sentence": "Ми купуємо цю машину і їдемо додому повільно."
+        },
+        {
+          "story": "A1#12",
+          "sentence": "Після уроків ми разом ідемо додому."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_6bfb6bcfd65e2e75c7672d73",
+      "lemma": "долоня",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_3b6eeb4498575d4afc2e55b2",
+      "translation": "Handfläche",
+      "evidence": [
+        {
+          "story": "A2#27",
+          "sentence": "Він дзвенить голосно і коротко, і всі плескають у долоні."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_f92162a4457db78c5aa37ed4",
+      "lemma": "дошка",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_0ff183dd999c600fe3dee882",
+      "translation": "Tafel",
+      "evidence": [
+        {
+          "story": "A1#16",
+          "sentence": "Учителька стоїть біля дошки і читає короткий текст."
+        },
+        {
+          "story": "A2#15",
+          "sentence": "На дошці написані дата і одне слово: Чорнобиль."
+        },
+        {
+          "story": "A2#17",
+          "sentence": "У класі на дошці висить велика карта України."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_5ad183fd949aa92f1be48499",
+      "lemma": "дощ",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_6a675cf999d888c413fa56c7",
+      "translation": "Regen",
+      "evidence": [
+        {
+          "story": "A2#5",
+          "sentence": "Зранку він чекає мене біля свого двору, навіть коли йде дощ."
+        },
+        {
+          "story": "A2#6",
+          "sentence": "На вулиці вже пахне дощем."
+        },
+        {
+          "story": "A2#8",
+          "sentence": "Мама каже з кухні: «Дмитре, шапку не забудь.» Дощу поки немає, але погода все одно неприємна."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_b06eca2c91d46ee880067a04",
+      "lemma": "друг",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_2cc644291a0be6cb86b8e826",
+      "translation": "Freund",
+      "evidence": [
+        {
+          "story": "A1#5",
+          "sentence": "На перерві я їм яблуко і говорю з другом."
+        },
+        {
+          "story": "A1#5",
+          "sentence": "Потім я роблю домашнє завдання, гуляю з другом і вечеряю з родиною."
+        },
+        {
+          "story": "A1#7",
+          "sentence": "Удень я гуляю з друзями в парку."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_1c26bf03c0ab8eb5599a904e",
+      "lemma": "життя",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_61e1b8544a33447c7ba6d1b1",
+      "translation": "Leben",
+      "evidence": [
+        {
+          "story": "A2#19",
+          "sentence": "Вона каже, що на Майдані були люди, які хотіли чесного і вільного життя для країни."
+        },
+        {
+          "story": "A2#45",
+          "sentence": "Для багатьох ця річка є частиною щоденного життя."
+        },
+        {
+          "story": "A2#49",
+          "sentence": "Потім вона питає, що означає це слово в їхньому власному житті."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_49b258b6b8d1e8b6a7592db0",
+      "lemma": "жовтень",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_60c74c43ec93aba5206101c9",
+      "translation": "Oktober",
+      "evidence": [
+        {
+          "story": "A2#48",
+          "sentence": "Першого жовтня в Україні вшановують захисників і захисниць."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_64406a9e9fa1a0dc89e188e9",
+      "lemma": "жовтий",
+      "partOfSpeech": "adj",
+      "senseId": "linguisto_sense_486e51addd9b4563260ef5ff",
+      "translation": "gelb",
+      "evidence": [
+        {
+          "story": "A1#21",
+          "sentence": "Восени листя жовте і червоне, а на вулиці холодно."
+        },
+        {
+          "story": "A1#23",
+          "sentence": "Потім дивлюся на жовті квіти біля книжок."
+        },
+        {
+          "story": "A2#4",
+          "sentence": "Ми малюємо осінній парк, жовте листя і лавку біля дерева."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_a360527fd54c07e949e1be6e",
+      "lemma": "жінка",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_34b7bf89892e8e2522b4f629",
+      "translation": "Frau",
+      "evidence": [
+        {
+          "story": "A1#10",
+          "sentence": "На пошті працює привітна жінка."
+        },
+        {
+          "story": "A1#20",
+          "sentence": "Біля парку жінка веде маленьку дівчинку до води."
+        },
+        {
+          "story": "A2#19",
+          "sentence": "Поруч стоїть старша жінка і тихо поправляє стрічку на букеті."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_8c497aab2d98865b1eebee2b",
+      "lemma": "забувати",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_dd5c476c164a0584b7f88953",
+      "translation": "vergessen",
+      "evidence": [
+        {
+          "story": "A2#13",
+          "sentence": "Слухаю спокійні пісні, бо вони допомагають забути про втому."
+        },
+        {
+          "story": "A2#21",
+          "sentence": "Потім мама поправляє комір і просить не забути рюкзак."
+        },
+        {
+          "story": "A2#33",
+          "sentence": "Бабуся розповідає смішні історії, а я слухаю і зовсім забуваю жувати."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_9c200826e4bc20f4f8d13dad",
+      "lemma": "завтра",
+      "partOfSpeech": "adv",
+      "senseId": "linguisto_sense_039ce0ab5bb59194da4decf0",
+      "translation": "morgen",
+      "evidence": [
+        {
+          "story": "A1#12",
+          "sentence": "Завтра ми знову сидимо поруч у класі."
+        },
+        {
+          "story": "A2#12",
+          "sentence": "Аня: А я можу завтра піти до школи?"
+        },
+        {
+          "story": "A2#39",
+          "sentence": "Завтра вранці все почнеться знову, і я вже знаю кожен крок."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_66f4933186ad316a64ff2d11",
+      "lemma": "зазвичай",
+      "partOfSpeech": "adv",
+      "senseId": "linguisto_sense_57d942751e9e5e9831af304b",
+      "translation": "normalerweise",
+      "evidence": [
+        {
+          "story": "A2#20",
+          "sentence": "Восьмого березня я прокидаюся раніше, ніж зазвичай."
+        },
+        {
+          "story": "A2#56",
+          "sentence": "Зазвичай це неділя після весняного повного місяця."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_d2b82d763c9b7ba9ff0191c9",
+      "lemma": "замовляти",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_7165fa3020523144bf7858dd",
+      "translation": "bestellen",
+      "evidence": [
+        {
+          "story": "A2#32",
+          "sentence": "Рома замовляє каву, бо хоче трохи зігрітися."
+        },
+        {
+          "story": "A2#68",
+          "sentence": "Одні замовляли мед до чаю, а інші варення для дітей."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_887d6385a2c6fc538d688b8c",
+      "lemma": "запах",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_df3e137f07b229d865b2fac7",
+      "translation": "Geruch",
+      "evidence": [
+        {
+          "story": "A2#53",
+          "sentence": "Уранці теплий запах наповнив увесь дім і коридор."
+        },
+        {
+          "story": "A2#67",
+          "sentence": "У дитинстві Новий рік починався для мене з запаху мандаринів і хвої."
+        },
+        {
+          "story": "A2#71",
+          "sentence": "Восени з насіння роблять олію, і густий запах стоїть на все подвір'я."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_874eea277b944669aff7ad1c",
+      "lemma": "заряджати",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_fb46bf32e9963741ff848af8",
+      "translation": "aufladen",
+      "evidence": [
+        {
+          "story": "A1#14",
+          "sentence": "Увечері я готую сумку, перевіряю олівці і заряджаю телефон."
+        },
+        {
+          "story": "A1#24",
+          "sentence": "Увечері вдома читаю кілька сторінок і заряджаю телефон."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_05b371483349cfc5516f7cb9",
+      "lemma": "здоров'я",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_e39c6e22c466fd5f131a9daa",
+      "translation": "Gesundheit",
+      "evidence": [
+        {
+          "story": "A2#67",
+          "sentence": "Опівночі ми вітаємо одне одного і бажаємо миру, здоров'я і сил."
+        },
+        {
+          "story": "A2#69",
+          "sentence": "Моя подруга написала коротке побажання здоров'я."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_29dac344c870fab5dd9b1a08",
+      "lemma": "зелений",
+      "partOfSpeech": "adj",
+      "senseId": "linguisto_sense_711bf187e5de186690f0fe10",
+      "translation": "grün",
+      "evidence": [
+        {
+          "story": "A1#15",
+          "sentence": "З вікна я бачу зелені дерева і доріжку біля дому."
+        },
+        {
+          "story": "A1#19",
+          "sentence": "Ви хочете червоні яблука чи зелені?"
+        },
+        {
+          "story": "A2#10",
+          "sentence": "Коли я насипаю корм, він тихо муркоче і дивиться на мене зеленими очима."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_b83535fabb55d08e1e460544",
+      "lemma": "зима",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_a54c6b462c5522fa9efd0601",
+      "translation": "Winter",
+      "evidence": [
+        {
+          "story": "A2#34",
+          "sentence": "Зима холодна, але вона може бути дуже радісною."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_f477c017ff7f917e10996ad6",
+      "lemma": "знати",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_df7cd2f4103529971b20f11e",
+      "translation": "wissen",
+      "evidence": [
+        {
+          "story": "A1#2",
+          "sentence": "Я читаю її багато разів, бо добре знаю героїв."
+        },
+        {
+          "story": "A2#7",
+          "sentence": "Після заняття руки важкі, але я знаю, що стаю сильнішою."
+        },
+        {
+          "story": "A2#14",
+          "sentence": "Я вже знаю, що треба покласти в рюкзак: футболку, воду і рушник."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_c7a4d619ac8ab403b3c7d3b9",
+      "lemma": "пиріг",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_83368c76325122943f6da1c1",
+      "translation": "Kuchen",
+      "evidence": [
+        {
+          "story": "A1#13",
+          "sentence": "Я також беру маленький пиріг у коробці."
+        },
+        {
+          "story": "A2#67",
+          "sentence": "На ньому були олів'є, запечена картопля, мандарини, сирники і мамин пиріг."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_45cd50f9716ad37406a98c7f",
+      "lemma": "питати",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_9f4917ee3181dc4999c4acff",
+      "translation": "fragen",
+      "evidence": [
+        {
+          "story": "A1#10",
+          "sentence": "Вона питає адресу, і я читаю її з паперу."
+        },
+        {
+          "story": "A1#12",
+          "sentence": "На перерві я питаю Данила, де він живе."
+        },
+        {
+          "story": "A1#13",
+          "sentence": "Мама питає мене про школу, і я розповідаю про уроки."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_396bbad03680c92812b6d5f3",
+      "lemma": "пити",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_b2f2d028fa2f56d6c8da7067",
+      "translation": "trinken",
+      "evidence": [
+        {
+          "story": "A1#3",
+          "sentence": "Увечері я читаю у вітальні, а мама п'є чай на кухні."
+        },
+        {
+          "story": "A1#4",
+          "sentence": "На кухні я їм хліб із сиром і п'ю воду."
+        },
+        {
+          "story": "A1#5",
+          "sentence": "На кухні я їм кашу і п'ю теплий чай."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_0d9eca72ed9ece6d69ec5aa1",
+      "lemma": "плакати",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_3093733b983d5687069621ea",
+      "translation": "weinen",
+      "evidence": [
+        {
+          "story": "A1#10",
+          "sentence": "Потім жінка бере лист, дає марку, і я плачу гроші."
+        },
+        {
+          "story": "A1#19",
+          "sentence": "Покупець: — Добре, я плачу карткою."
+        },
+        {
+          "story": "A2#6",
+          "sentence": "Я плачу карткою."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_227d15125bb2b9952537a35a",
+      "lemma": "пляшка",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_93c623351c4a77599496b0dd",
+      "translation": "Flasche",
+      "evidence": [
+        {
+          "story": "A2#6",
+          "sentence": "Мама: Тоді візьму дві пляшки молока і одну хлібину."
+        },
+        {
+          "story": "A2#36",
+          "sentence": "Пляшка яблучного соку коштує двадцять гривень."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_0be5b1bb060f0083fdd2cb48",
+      "lemma": "повітря",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_abbf6e535df33c2ba605df87",
+      "translation": "Luft",
+      "evidence": [
+        {
+          "story": "A2#45",
+          "sentence": "Інші просто приходять подихати свіжим повітрям або посидіти на теплій траві."
+        },
+        {
+          "story": "A2#58",
+          "sentence": "Повітря було свіже, тому всі швидко прокидалися і хотіли йти надвір."
+        },
+        {
+          "story": "A2#58",
+          "sentence": "Ми дихали свіжим повітрям і багато мовчали."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_1dc6076886ae04015388f004",
+      "lemma": "погода",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_91f1945d1c497846057ff118",
+      "translation": "Wetter",
+      "evidence": [
+        {
+          "story": "A2#8",
+          "sentence": "Мама каже з кухні: «Дмитре, шапку не забудь.» Дощу поки немає, але погода все одно неприємна."
+        },
+        {
+          "story": "A2#83",
+          "sentence": "Небезпека приходить не з погодою, а з дорогою."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_2972e7378d5245ffb63f03a8",
+      "lemma": "подарунок",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_345bb9d619de8bcfc1af1ea1",
+      "translation": "Geschenk",
+      "evidence": [
+        {
+          "story": "A1#13",
+          "sentence": "Мама питає, чи я взяв подарунок, і я показую квіти."
+        },
+        {
+          "story": "A2#20",
+          "sentence": "Мама каже, що це найкращий подарунок для неї."
+        },
+        {
+          "story": "A2#30",
+          "sentence": "Мене звати Коля, і подарунок я почав готувати ще в суботу."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_8767a6fec31603b9788c06d1",
+      "lemma": "подобатися",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_af22d0b65ce32fa106cc46ca",
+      "translation": "gefallen",
+      "evidence": [
+        {
+          "story": "A2#3",
+          "sentence": "Найбільше в цій квартирі мені подобається моя кімната."
+        },
+        {
+          "story": "A2#4",
+          "sentence": "Мені подобається рахувати, розв'язувати задачі і знаходити правильну відповідь."
+        },
+        {
+          "story": "A2#13",
+          "sentence": "Малюю я не дуже добре, але мені це подобається."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_e2fba6beacc2bba2e704e394",
+      "lemma": "польський",
+      "partOfSpeech": "adj",
+      "senseId": "linguisto_sense_706e580d98f43a86132d0595",
+      "translation": "polnisch",
+      "evidence": [
+        {
+          "story": "A2#64",
+          "sentence": "Курси польської мови починалися о шостій вечора."
+        },
+        {
+          "story": "A2#64",
+          "sentence": "Там ми пили каву і говорили польською, скільки могли."
+        },
+        {
+          "story": "A2#73",
+          "sentence": "Польська мова здавалася майже своєю."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_3bbfa6ff207dcc271107967f",
+      "lemma": "помідор",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_ada447bd96b6de841f6d0845",
+      "translation": "Tomate",
+      "evidence": [
+        {
+          "story": "A2#28",
+          "sentence": "Біля одного столу він бачить свіжі помідори і зелені огірки."
+        },
+        {
+          "story": "A2#82",
+          "sentence": "Там росли яблуні, сливи, помідори і огірки."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_db1b252a46d001498bcea9e0",
+      "lemma": "понеділок",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_0594fd99b96b25b6c0008ec9",
+      "translation": "Montag",
+      "evidence": [
+        {
+          "story": "A1#14",
+          "sentence": "У понеділок я встаю о сьомій годині, бо перше заняття починається о дев'ятій."
+        },
+        {
+          "story": "A2#5",
+          "sentence": "У неділю ми телефонуємо одне одному і плануємо гру на понеділок."
+        },
+        {
+          "story": "A2#14",
+          "sentence": "У понеділок після школи я йду на тренування."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_b971b5b343b646b8046b73dd",
+      "lemma": "посуд",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_24edf70f615e2d16345c76c1",
+      "translation": "Geschirr",
+      "evidence": [
+        {
+          "story": "A2#29",
+          "sentence": "Щовечора після вечері я мию посуд."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_1169c3942a68e5abbcade2d1",
+      "lemma": "потрібний",
+      "partOfSpeech": "adj",
+      "senseId": "linguisto_sense_d20052f7e207cdf94146aa31",
+      "translation": "nötig",
+      "evidence": [
+        {
+          "story": "A1#9",
+          "sentence": "Коли мені потрібна допомога, родина завжди поруч."
+        },
+        {
+          "story": "A1#11",
+          "sentence": "Нам потрібна машина для роботи, школи і поїздок до бабусі."
+        },
+        {
+          "story": "A1#19",
+          "sentence": "Ще мені потрібні яблука для родини."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_072910382e87c090fbcba777",
+      "lemma": "пошта",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_fe11faf08b7784a1c8c3dad0",
+      "translation": "Post",
+      "evidence": [
+        {
+          "story": "A1#10",
+          "sentence": "Сьогодні я йду на пошту, бо маю лист для тітки."
+        },
+        {
+          "story": "A1#10",
+          "sentence": "На пошті працює привітна жінка."
+        },
+        {
+          "story": "A1#10",
+          "sentence": "Біля пошти стоїть лавка, тому я сідаю на хвилину."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_99effdc917dedcda428cca6d",
+      "lemma": "правда",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_82733ee3650e810f0606d2ac",
+      "translation": "Wahrheit",
+      "evidence": [
+        {
+          "story": "A2#49",
+          "sentence": "Один хлопчик каже, що свобода — це можливість говорити правду."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_c5ef1803752878a83a454998",
+      "lemma": "приходити",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_1f52a59cc9adc4a301fff60b",
+      "translation": "kommen",
+      "evidence": [
+        {
+          "story": "A1#9",
+          "sentence": "У неділю він приходить до нас на обід."
+        },
+        {
+          "story": "A1#12",
+          "sentence": "Сьогодні в наш клас приходить новий хлопець."
+        },
+        {
+          "story": "A2#1",
+          "sentence": "Додому я приходжу о третій."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_731a515b20638eda325caf3b",
+      "lemma": "продавати",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_d9cd3e2a623040b91eb1ed92",
+      "translation": "verkaufen",
+      "evidence": [
+        {
+          "story": "A2#65",
+          "sentence": "Це вузька вулиця, де сидять художники і продають сувеніри."
+        },
+        {
+          "story": "A2#68",
+          "sentence": "Одного дня вона вирішила продавати домашній мед і варення онлайн."
+        },
+        {
+          "story": "A2#77",
+          "sentence": "В одному ряду продавали свіжу рибу, ще мокру і блискучу."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_aa2b108a44133cfe0eeacd4b",
+      "lemma": "продавець",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_3dba0b4ba297e713113247d4",
+      "translation": "Verkäufer",
+      "evidence": [
+        {
+          "story": "A1#11",
+          "sentence": "Продавець показує нам двері, фари і нові колеса."
+        },
+        {
+          "story": "A1#19",
+          "sentence": "Продавчиня: — Добрий день!"
+        },
+        {
+          "story": "A2#6",
+          "sentence": "Продавчиня: Добрий день."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_122dbeed40615a2c55715372",
+      "lemma": "прохолодний",
+      "partOfSpeech": "adj",
+      "senseId": "linguisto_sense_47de67e3b027e0f0bfc1ab77",
+      "translation": "kühl",
+      "evidence": [
+        {
+          "story": "A2#23",
+          "sentence": "Ми йдемо до церкви повільно, бо ранок прохолодний."
+        },
+        {
+          "story": "A2#32",
+          "sentence": "Надворі прохолодно і сіро, тому вони швидко заходять усередину."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_8fbb388e366882b289f9b8da",
+      "lemma": "піаніно",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_3774369b2e861351aa8c57db",
+      "translation": "Klavier",
+      "evidence": [
+        {
+          "story": "A2#38",
+          "sentence": "Учителька заходить до класу і відкриває старе піаніно."
+        },
+        {
+          "story": "A2#38",
+          "sentence": "Учителька грає на піаніно повільно, щоб усі добре зрозуміли ритм."
+        },
+        {
+          "story": "A2#38",
+          "sentence": "Наприкінці ми співаємо всі разом, і піаніно вже ледве чути за голосами."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_a7f22053544f17b3fee2fc7a",
+      "lemma": "підручник",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_b9c4eab2184b24f87bbfbe22",
+      "translation": "Lehrbuch",
+      "evidence": [
+        {
+          "story": "A2#73",
+          "sentence": "Європа перестала бути для мене картинкою з підручника."
+        },
+        {
+          "story": "A2#84",
+          "sentence": "«Кобзар» тепер лежить у мене на столі, поруч із підручниками."
+        },
+        {
+          "story": "A2#94",
+          "sentence": "Для нас це сторінки в підручнику."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_2c2d659c49d2329302da21bb",
+      "lemma": "після",
+      "partOfSpeech": "prep",
+      "senseId": "linguisto_sense_cf3624e9facbb5d7af8bfff8",
+      "translation": "nach",
+      "evidence": [
+        {
+          "story": "A1#2",
+          "sentence": "Я часто сиджу біля полиці після школи."
+        },
+        {
+          "story": "A1#4",
+          "sentence": "Після сніданку я йду до школи."
+        },
+        {
+          "story": "A1#5",
+          "sentence": "Після сніданку я перевіряю сумку і беру ключі."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_b06a2559858e8c959f91d350",
+      "lemma": "піца",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_207a2b17abe858a6c444daa3",
+      "translation": "Pizza",
+      "evidence": [
+        {
+          "story": "A2#33",
+          "sentence": "Найбільше з усього на світі я люблю піцу."
+        },
+        {
+          "story": "A2#33",
+          "sentence": "Піцу я люблю їсти з друзями, а вареники — тільки з бабусею."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_120f53c761bd5aa3c9b88853",
+      "lemma": "піч",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_e588846871217aa3cb7884ea",
+      "translation": "Ofen",
+      "evidence": [
+        {
+          "story": "A2#43",
+          "sentence": "Мама пече його сама і ставить зверху маленькі свічки."
+        },
+        {
+          "story": "A2#56",
+          "sentence": "Наприклад, одна сім'я з Києва пече паску вдома, а сусіди купують її в пекарні."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_9caf0d5517f8d76cf580c487",
+      "lemma": "ранок",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_1189f1f07562cbee48c65369",
+      "translation": "Morgen",
+      "evidence": [
+        {
+          "story": "A1#5",
+          "sentence": "Я все готую ввечері, тому ранок проходить легко."
+        },
+        {
+          "story": "A2#8",
+          "sentence": "Сьогодні ранок хмарний і холодний."
+        },
+        {
+          "story": "A2#9",
+          "sentence": "У чашці воно пахне шоколадом, і ранок стає приємнішим."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_5fae88381af832ab870f9d1b",
+      "lemma": "рецепт",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_febe14469cc68b7ce95ba122",
+      "translation": "Rezept",
+      "evidence": [
+        {
+          "story": "A2#60",
+          "sentence": "Вона знає багато рецептів, але не любить довго про них говорити."
+        },
+        {
+          "story": "A2#90",
+          "sentence": "Він сказав, що в кожній кав'ярні тут свій рецепт і свій характер."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_5231cce26b3d41231eac936e",
+      "lemma": "речення",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_8f3a60b917bbde2396bf55e7",
+      "translation": "Satz",
+      "evidence": [
+        {
+          "story": "A2#73",
+          "sentence": "Я впізнавала окремі слова, а потім губилася в довгих реченнях."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_d0f348243edd1c5c2c84ba8b",
+      "lemma": "риба",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_568157cd53b5ce2d29c214ae",
+      "translation": "Fisch",
+      "evidence": [
+        {
+          "story": "A2#18",
+          "sentence": "На столі кутя, вареники і смажена риба."
+        },
+        {
+          "story": "A2#45",
+          "sentence": "Хтось сидить на березі з вудкою і терпляче ловить рибу."
+        },
+        {
+          "story": "A2#77",
+          "sentence": "В одному ряду продавали свіжу рибу, ще мокру і блискучу."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_cf4147568fc61d94c8cea110",
+      "lemma": "ринок",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_02403cf0579b120e5c1b7395",
+      "translation": "Markt",
+      "evidence": [
+        {
+          "story": "A2#28",
+          "sentence": "У неділю тато йде на ринок."
+        },
+        {
+          "story": "A2#54",
+          "sentence": "Туристи приїхали до Львова вранці і відразу пішли на площу Ринок."
+        },
+        {
+          "story": "A2#77",
+          "sentence": "Друзі казали, що це один із найвідоміших ринків в Україні."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_500692633a0b9e78642d4b9c",
+      "lemma": "рожевий",
+      "partOfSpeech": "adj",
+      "senseId": "linguisto_sense_2fd62626a8835fd10c35d692",
+      "translation": "rosa",
+      "evidence": [
+        {
+          "story": "A2#51",
+          "sentence": "Вода повільно несла квіти, а небо ставало рожевим."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_85da57c78e254a838cd4f52b",
+      "lemma": "розклад",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_73ee92fcbc3f37919f81b79b",
+      "translation": "Zeitplan",
+      "evidence": [
+        {
+          "story": "A1#12",
+          "sentence": "Учитель просить нас показати Данилу розклад."
+        },
+        {
+          "story": "A1#14",
+          "sentence": "Ми разом ідемо в клас і дивимося розклад на дверях."
+        },
+        {
+          "story": "A2#92",
+          "sentence": "Щоранку вона пише розклад і ставить у нього час для перерв."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_99cf8f5e1f0d9d7074cd46f2",
+      "lemma": "розмовляти",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_564d93e930c07d7146cdfe89",
+      "translation": "sprechen",
+      "evidence": [
+        {
+          "story": "A2#1",
+          "sentence": "Після уроків ще трохи розмовляємо біля воріт."
+        },
+        {
+          "story": "A2#5",
+          "sentence": "На перервах ми часто стоїмо біля вікна або розмовляємо з однокласниками."
+        },
+        {
+          "story": "A2#15",
+          "sentence": "Після уроку діти виходять у коридор і довго розмовляють пошепки."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_4e8934e5fc83148be56abf86",
+      "lemma": "рости",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_d1107a247c03aee3a65a5114",
+      "translation": "wachsen",
+      "evidence": [
+        {
+          "story": "A1#21",
+          "sentence": "Біля нашого будинку росте велике дерево."
+        },
+        {
+          "story": "A2#26",
+          "sentence": "У ньому ростуть кілька старих дерев і стоять дві лавки."
+        },
+        {
+          "story": "A2#42",
+          "sentence": "Там ростуть старі дерева, а біля доріжки стоїть зелена дерев'яна лавка."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_a0694f137dc309e25321044d",
+      "lemma": "рукав",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_98b0940ff960f1bb4c330c9e",
+      "translation": "Ärmel",
+      "evidence": [
+        {
+          "story": "A1#22",
+          "sentence": "Мої руки в теплих рукавах."
+        },
+        {
+          "story": "A2#21",
+          "sentence": "На рукавах є червоний орнамент."
+        },
+        {
+          "story": "A2#74",
+          "sentence": "Узор може бути на жакеті, на сукні або на рукаві футболки."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_a3f0e471c10765875bbc4ab3",
+      "lemma": "рушник",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_f860e95af00f92a65ea1e9ca",
+      "translation": "Handtuch",
+      "evidence": [
+        {
+          "story": "A2#7",
+          "sentence": "Беру сумку, купальник і великий рушник."
+        },
+        {
+          "story": "A2#7",
+          "sentence": "У сумці сохне купальник, а рушник висить на батареї біля вікна."
+        },
+        {
+          "story": "A2#14",
+          "sentence": "Я вже знаю, що треба покласти в рюкзак: футболку, воду і рушник."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_2aa105c720a4d8543fb5d77c",
+      "lemma": "рюкзак",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_63c3c9a533b7e455322c0945",
+      "translation": "Rucksack",
+      "evidence": [
+        {
+          "story": "A1#17",
+          "sentence": "У нього є старий велосипед і великий чорний рюкзак."
+        },
+        {
+          "story": "A1#20",
+          "sentence": "Поруч стоїть старий велосипед, а біля нього лежить рюкзак."
+        },
+        {
+          "story": "A2#1",
+          "sentence": "Я снідаю, беру рюкзак і виходжу з дому."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_87615f8501f528783ce84695",
+      "lemma": "різдво",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_8a8ac3f4e8c6103ce0e15348",
+      "translation": "Weihnachten",
+      "evidence": [
+        {
+          "story": "A2#18",
+          "sentence": "У нашій родині Різдво святкують двадцять п'ятого грудня."
+        },
+        {
+          "story": "A2#86",
+          "sentence": "Холодець у нас варять двічі на рік — на Різдво і на Новий рік."
+        },
+        {
+          "story": "A2#87",
+          "sentence": "Сьомого січня наша родина святкує Різдво за юліанським календарем."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_2729c8fcdc72a4b2665ca6f8",
+      "lemma": "рік",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_ea9b86b13f88fb92a5d27300",
+      "translation": "Jahr",
+      "evidence": [
+        {
+          "story": "A1#17",
+          "sentence": "Ми знаємо один одного вже п'ять років."
+        },
+        {
+          "story": "A1#21",
+          "sentence": "Дерево весь рік стоїть біля нашого будинку."
+        },
+        {
+          "story": "A2#9",
+          "sentence": "Це мій сніданок, і він не змінюється роками."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_8f1d5ba135dfc06275f67e98",
+      "lemma": "сад",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_f4310ec996326153af771e7b",
+      "translation": "Garten",
+      "evidence": [
+        {
+          "story": "A1#1",
+          "sentence": "Мама працює в школі, тато в магазині, а брат ходить у дитячий садок."
+        },
+        {
+          "story": "A1#3",
+          "sentence": "Я живу в невеликому будинку біля саду."
+        },
+        {
+          "story": "A2#2",
+          "sentence": "Ми живемо в маленькому будинку біля саду."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_1942bab3c7dae037ad64967d",
+      "lemma": "салат",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_d4feccde7b6a55735b8b0016",
+      "translation": "Salat",
+      "evidence": [
+        {
+          "story": "A2#16",
+          "sentence": "На столі були салат олів'є, мандарини, бутерброди і шампанське для дорослих."
+        },
+        {
+          "story": "A2#28",
+          "sentence": "Дорогою він думає про салат і теплий суп, який сьогодні зварить мама."
+        },
+        {
+          "story": "A2#59",
+          "sentence": "Тепер я можу приготувати простий обід для всієї родини: гречку, салат і котлети."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_734accbc5d1168b3e456d04a",
+      "lemma": "світ",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_346340e3c2855a28c685fc07",
+      "translation": "Welt",
+      "evidence": [
+        {
+          "story": "A2#33",
+          "sentence": "Найбільше з усього на світі я люблю піцу."
+        },
+        {
+          "story": "A2#71",
+          "sentence": "Україна вирощує більше соняшнику, ніж майже будь-яка країна світу."
+        },
+        {
+          "story": "A2#72",
+          "sentence": "Українська — одна з найпоширеніших слов'янських мов у світі."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_e93293b41c1fdd8db9b288a7",
+      "lemma": "свічка",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_6a87cfe5d22a461971e81324",
+      "translation": "Kerze",
+      "evidence": [
+        {
+          "story": "A2#15",
+          "sentence": "На столі стоять маленькі свічки."
+        },
+        {
+          "story": "A2#15",
+          "sentence": "Учителька ставить свічки на підвіконня, і вони горять до кінця дня."
+        },
+        {
+          "story": "A2#18",
+          "sentence": "Мама готує страви, тато ставить свічку на стіл, а я допомагаю складати серветки."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_8799d63594e1cdd01a0a9b4c",
+      "lemma": "серветка",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_f2b04d582f888c8304a238d6",
+      "translation": "Serviette",
+      "evidence": [
+        {
+          "story": "A2#18",
+          "sentence": "Мама готує страви, тато ставить свічку на стіл, а я допомагаю складати серветки."
+        },
+        {
+          "story": "A2#35",
+          "sentence": "Біля вікна лежать серветки і тонкий олівець."
+        },
+        {
+          "story": "A2#35",
+          "sentence": "Вона ставить її на серветку біля вікна, щоб фарба висохла."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_dd259930074f0bab1b2446bc",
+      "lemma": "середа",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_a765ce038f8363fc1acb6952",
+      "translation": "Mittwoch",
+      "evidence": [
+        {
+          "story": "A1#14",
+          "sentence": "У середу в мене українська мова і математика, а в четвер історія."
+        },
+        {
+          "story": "A2#14",
+          "sentence": "У середу в мене знову тренування."
+        },
+        {
+          "story": "A2#75",
+          "sentence": "Гуцули живуть тут, серед лісів, річок і крутих схилів."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_6d0b387b3026933aa7533013",
+      "lemma": "серпень",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_16ecfc8b098334ac5840f8a9",
+      "translation": "August",
+      "evidence": [
+        {
+          "story": "A1#7",
+          "sentence": "У серпні ми їдемо до Одеси, тому я дуже чекаю цю поїздку."
+        },
+        {
+          "story": "A2#46",
+          "sentence": "Двадцять четвертого серпня ми з батьками йшли в центр міста."
+        },
+        {
+          "story": "A2#70",
+          "sentence": "Наприкінці серпня бабуся кладе мені в рюкзак яблука і мед."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_282b06b2838e241039172ac8",
+      "lemma": "серце",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_4d1087800d35e7106c4a3e63",
+      "translation": "Herz",
+      "evidence": [
+        {
+          "story": "A2#48",
+          "sentence": "На ній малюю синє небо, жовте поле і маленьке серце."
+        },
+        {
+          "story": "A2#102",
+          "sentence": "Сказала, що серце ламається не від темряви."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_d059bd33bfc1749d77335f02",
+      "lemma": "сестра",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_066e76beb3411adbbf7dc254",
+      "translation": "Schwester",
+      "evidence": [
+        {
+          "story": "A1#9",
+          "sentence": "У мене є сестра Ліза."
+        },
+        {
+          "story": "A1#18",
+          "sentence": "На кухні вже сидить моя сестра."
+        },
+        {
+          "story": "A1#18",
+          "sentence": "Сестра теж п'є чай, але їсть помідор."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_ea182e9193ceb5bda52babf1",
+      "lemma": "сидіти",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_41f3d4eb20e7de8ac2d7cc97",
+      "translation": "sitzen",
+      "evidence": [
+        {
+          "story": "A1#1",
+          "sentence": "У дворі тато ставить лавку, і влітку ми сидимо там разом."
+        },
+        {
+          "story": "A1#2",
+          "sentence": "Я часто сиджу біля полиці після школи."
+        },
+        {
+          "story": "A1#6",
+          "sentence": "Він сірий, тихий і любить сидіти біля вікна."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_899640a02072ff4075bd9d72",
+      "lemma": "син",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_d71ef7e2042ec6e40648a256",
+      "translation": "Sohn",
+      "evidence": [
+        {
+          "story": "A1#22",
+          "sentence": "Тут є сині штани, біла сорочка і сірий светр."
+        },
+        {
+          "story": "A2#17",
+          "sentence": "Біля карти лежать сині й жовті стрічки."
+        },
+        {
+          "story": "A2#68",
+          "sentence": "Іноді син показував їй, як зробити фото телефоном."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_9515e8135291f97fe989ca67",
+      "lemma": "синій",
+      "partOfSpeech": "adj",
+      "senseId": "linguisto_sense_48da2e7dafd7ef227e0c1651",
+      "translation": "blau",
+      "evidence": [
+        {
+          "story": "A1#20",
+          "sentence": "Небо синє."
+        },
+        {
+          "story": "A1#22",
+          "sentence": "Тут є сині штани, біла сорочка і сірий светр."
+        },
+        {
+          "story": "A1#23",
+          "sentence": "З вікна своєї кімнати я бачу синє небо і зелене дерево."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_45e127a48d97319de087af3a",
+      "lemma": "сир",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_d33ef333ad306f560642faf9",
+      "translation": "Käse",
+      "evidence": [
+        {
+          "story": "A1#4",
+          "sentence": "На кухні я їм хліб із сиром і п'ю воду."
+        },
+        {
+          "story": "A1#18",
+          "sentence": "Я кладу на стіл хліб, сир і помідор."
+        },
+        {
+          "story": "A1#18",
+          "sentence": "Я їм хліб і сир та п'ю чай."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_04edea64e49dc9c71eaf1ab3",
+      "lemma": "слово",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_b15dbb43174ea93be605b773",
+      "translation": "Wort",
+      "evidence": [
+        {
+          "story": "A1#2",
+          "sentence": "Іноді мама слухає мене і допомагає читати нові слова."
+        },
+        {
+          "story": "A1#2",
+          "sentence": "Коли мама читає зі мною, я повторюю нові слова."
+        },
+        {
+          "story": "A1#16",
+          "sentence": "Я уважно слухаю і пишу нові слова в зошиті."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_44bf44aea24d7279cc6fff5c",
+      "lemma": "смачний",
+      "partOfSpeech": "adj",
+      "senseId": "linguisto_sense_e566218b901d7fd103c217d7",
+      "translation": "lecker",
+      "evidence": [
+        {
+          "story": "A2#22",
+          "sentence": "Мені цікаво, як прості овочі стають такою смачною стравою."
+        },
+        {
+          "story": "A2#24",
+          "sentence": "Вони м'які і дуже смачні."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_45a2d83a5e6e1b7b4bd1a3d0",
+      "lemma": "сніг",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_586711846c4dfa6aaf5fe633",
+      "translation": "Schnee",
+      "evidence": [
+        {
+          "story": "A1#21",
+          "sentence": "Узимку на його гілках лежить білий сніг."
+        },
+        {
+          "story": "A2#34",
+          "sentence": "Узимку в Україні часто лежить сніг."
+        },
+        {
+          "story": "A2#81",
+          "sentence": "Я сидів біля вікна і довго дивився, як за склом іде мокрий сніг."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_dd8ca0640ce8b8da93175ab7",
+      "lemma": "сніговик",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_b9badbdb69ff457dd0bd8914",
+      "translation": "Schneemann",
+      "evidence": [
+        {
+          "story": "A2#34",
+          "sentence": "Діти після школи виходять у двір і ліплять сніговиків."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_309f3e9263d3c6076b26eee8",
+      "lemma": "сніданок",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_56bde6e9bfc6806cf0db3e08",
+      "translation": "Frühstück",
+      "evidence": [
+        {
+          "story": "A1#4",
+          "sentence": "Після сніданку я йду до школи."
+        },
+        {
+          "story": "A1#5",
+          "sentence": "Після сніданку я перевіряю сумку і беру ключі."
+        },
+        {
+          "story": "A1#6",
+          "sentence": "Уранці Мурчик дивиться на двір і чекає сніданок."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_7a0abd9bf64eba2e4a730732",
+      "lemma": "снідати",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_bce6d2b59a459944b8507eac",
+      "translation": "frühstücken",
+      "evidence": [
+        {
+          "story": "A1#3",
+          "sentence": "Уранці ми снідаємо там разом і говоримо про день."
+        },
+        {
+          "story": "A1#7",
+          "sentence": "Уранці я сплю довше, а потім повільно снідаю."
+        },
+        {
+          "story": "A1#24",
+          "sentence": "О восьмій я снідаю, а потім шукаю ключі від офісу."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_2c44856578b5b3a4079b5636",
+      "lemma": "солодкий",
+      "partOfSpeech": "adj",
+      "senseId": "linguisto_sense_0918463cc58b9210826e09c0",
+      "translation": "süß",
+      "evidence": [
+        {
+          "story": "A2#6",
+          "sentence": "Вони солодкі й зовсім недорогі."
+        },
+        {
+          "story": "A2#9",
+          "sentence": "Вона тепла і трохи солодка."
+        },
+        {
+          "story": "A2#103",
+          "sentence": "Мене питали, чому вона солодка і чому зверху біла глазур."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_91a0a353c22f51fd9d340518",
+      "lemma": "сонце",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_2cc97b2ff064423337721d8a",
+      "translation": "Sonne",
+      "evidence": [
+        {
+          "story": "A1#20",
+          "sentence": "На небі немає хмар, і сонце світить над будинками."
+        },
+        {
+          "story": "A1#20",
+          "sentence": "На воді світить сонце."
+        },
+        {
+          "story": "A2#8",
+          "sentence": "У дворі немає сонця, і мокрі дерева стоять зовсім нерухомо."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_826387801371db22f0784143",
+      "lemma": "сорочка",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_003cd919418ed57e91694ec4",
+      "translation": "Hemd",
+      "evidence": [
+        {
+          "story": "A1#20",
+          "sentence": "На дівчинці біла сорочка, а на жінці теплий светр."
+        },
+        {
+          "story": "A1#22",
+          "sentence": "Тут є сині штани, біла сорочка і сірий светр."
+        },
+        {
+          "story": "A1#22",
+          "sentence": "На сорочку я одягаю теплий светр, а потім куртку."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_539c79efa2ff9aaf1b59769e",
+      "lemma": "спальня",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_c9e4fc110e1b87f13842ca87",
+      "translation": "Schlafzimmer",
+      "evidence": [
+        {
+          "story": "A1#1",
+          "sentence": "На другому поверсі є наші спальні."
+        },
+        {
+          "story": "A1#3",
+          "sentence": "У будинку є чотири кімнати: кухня, спальня, вітальня і ванна кімната."
+        },
+        {
+          "story": "A1#3",
+          "sentence": "У моїй спальні є ліжко, шафа і лампа біля ліжка."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_076a8a67d90665762fd693d5",
+      "lemma": "спорт",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_23acca40f099d2e9d9be0613",
+      "translation": "Sport",
+      "evidence": [
+        {
+          "story": "A2#7",
+          "sentence": "Мене звати Соня, і плавання — мій улюблений спорт."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_3bec9c84dbd8bb0164571b55",
+      "lemma": "столиця",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_f99a709a9d0e8199c4c8cf02",
+      "translation": "Hauptstadt",
+      "evidence": [
+        {
+          "story": "A2#90",
+          "sentence": "Львів часто називають кавовою столицею України."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_85bca4e551dd9d4a9bb1743d",
+      "lemma": "сторінка",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_094a10e0afdcccdf0c7172b1",
+      "translation": "Seite",
+      "evidence": [
+        {
+          "story": "A2#68",
+          "sentence": "Дехто радив її сторінку друзям."
+        },
+        {
+          "story": "A2#84",
+          "sentence": "Я дійшла до сорок другої сторінки."
+        },
+        {
+          "story": "A2#94",
+          "sentence": "Для нас це сторінки в підручнику."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_b2e3a2c842532d5b283833f2",
+      "lemma": "стояти",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_e46fcd3eff4f174ea5cc66ed",
+      "translation": "stehen",
+      "evidence": [
+        {
+          "story": "A1#1",
+          "sentence": "Там стоїть диван, стіл і велика шафа."
+        },
+        {
+          "story": "A1#3",
+          "sentence": "Біля дверей стоїть полиця для ключів і взуття."
+        },
+        {
+          "story": "A1#3",
+          "sentence": "У вітальні стоїть диван, низький столик і годинник на стіні."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_d6c20383453fbe3c44bf675d",
+      "lemma": "страва",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_3086044f75bbf982c0f08dca",
+      "translation": "Gericht",
+      "evidence": [
+        {
+          "story": "A2#9",
+          "sentence": "Я не їм багато різних страв, бо вранці часу мало."
+        },
+        {
+          "story": "A2#18",
+          "sentence": "Мама готує страви, тато ставить свічку на стіл, а я допомагаю складати серветки."
+        },
+        {
+          "story": "A2#18",
+          "sentence": "Бабуся рахує: пісних страв має бути дванадцять, тобто без м'яса."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_d583c9f975355890fb4a9923",
+      "lemma": "стіл",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_7409bf2a27ab23b058748dd7",
+      "translation": "Tisch",
+      "evidence": [
+        {
+          "story": "A1#1",
+          "sentence": "Там стоїть диван, стіл і велика шафа."
+        },
+        {
+          "story": "A1#1",
+          "sentence": "Моя кімната невелика, але в ній є ліжко, стіл і книжки."
+        },
+        {
+          "story": "A1#3",
+          "sentence": "На кухні стоїть стіл і чотири стільці."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_6724a99da158ce0e873c35d2",
+      "lemma": "стілець",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_a0eee2c425a02d2cb3b7baf5",
+      "translation": "Stuhl",
+      "evidence": [
+        {
+          "story": "A1#3",
+          "sentence": "На кухні стоїть стіл і чотири стільці."
+        },
+        {
+          "story": "A1#13",
+          "sentence": "Я даю їй квіти, мама ставить сумку на стілець, і ми сідаємо за стіл."
+        },
+        {
+          "story": "A1#15",
+          "sentence": "Біля вікна стоїть письмовий стіл, а поруч є стілець."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_ec6637e8edec76cffaa4fe6c",
+      "lemma": "стіна",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_44811f601c18bdcb9e6aedda",
+      "translation": "Wand",
+      "evidence": [
+        {
+          "story": "A1#3",
+          "sentence": "У вітальні стоїть диван, низький столик і годинник на стіні."
+        },
+        {
+          "story": "A2#3",
+          "sentence": "Торік ми з татом пофарбували тут стіни, і я сам вибрав колір."
+        },
+        {
+          "story": "A2#90",
+          "sentence": "На стінах висіли старі фото і чорна дерев'яна вивіска."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_43891e701e1e7086c6f0767d",
+      "lemma": "субота",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_6074113016fc7f744863ba36",
+      "translation": "Samstag",
+      "evidence": [
+        {
+          "story": "A1#11",
+          "sentence": "У суботу ми йдемо в автосалон."
+        },
+        {
+          "story": "A1#17",
+          "sentence": "У суботу ми зустрічаємося біля входу в парк."
+        },
+        {
+          "story": "A1#17",
+          "sentence": "Ми домовляємося знову грати в суботу."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_c5dec2003660af1629357381",
+      "lemma": "сумка",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_44eb093e756434d42a5be340",
+      "translation": "Tasche",
+      "evidence": [
+        {
+          "story": "A1#5",
+          "sentence": "Після сніданку я перевіряю сумку і беру ключі."
+        },
+        {
+          "story": "A1#5",
+          "sentence": "Перед сном я кладу книжки в сумку і ставлю будильник."
+        },
+        {
+          "story": "A1#10",
+          "sentence": "Я кладу лист у сумку і беру адресу."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_449b4859dc711add61e18110",
+      "lemma": "суп",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_d3b6298e22482418440acea9",
+      "translation": "Suppe",
+      "evidence": [
+        {
+          "story": "A1#1",
+          "sentence": "На кухні мама часто готує суп, а у вітальні ми дивимося телевізор."
+        },
+        {
+          "story": "A2#28",
+          "sentence": "Дорогою він думає про салат і теплий суп, який сьогодні зварить мама."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_6c049b2bd4c699aaefb6827c",
+      "lemma": "сусід",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_1450e6d3de8ad2da27267f1d",
+      "translation": "Nachbar",
+      "evidence": [
+        {
+          "story": "A2#16",
+          "sentence": "У дворі сміялися сусіди, а діти раділи кольоровим вогням."
+        },
+        {
+          "story": "A2#24",
+          "sentence": "Ми їмо разом і довго говоримо про школу і сусідів."
+        },
+        {
+          "story": "A2#26",
+          "sentence": "Уранці я бачу, як сусіди йдуть на роботу, а діти несуть рюкзаки до школи."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_e7e77776150b1f29051e9f8c",
+      "lemma": "сусідка",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_4fadc70ebf2260aa352f8736",
+      "translation": "Nachbarin",
+      "evidence": [
+        {
+          "story": "A2#42",
+          "sentence": "Я вітаюся із сусідкою, якщо бачу її біля входу."
+        },
+        {
+          "story": "A2#52",
+          "sentence": "У дворі сусідка привіталася з нами."
+        },
+        {
+          "story": "A2#55",
+          "sentence": "Наша сусідка тітка Лариса попросила мене допомогти в саду."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_c83e80aa3604a5d218d0ed44",
+      "lemma": "сьогодні",
+      "partOfSpeech": "adv",
+      "senseId": "linguisto_sense_837cceef72a9ad66c29acdae",
+      "translation": "heute",
+      "evidence": [
+        {
+          "story": "A1#10",
+          "sentence": "Сьогодні я йду на пошту, бо маю лист для тітки."
+        },
+        {
+          "story": "A1#12",
+          "sentence": "Сьогодні в наш клас приходить новий хлопець."
+        },
+        {
+          "story": "A1#13",
+          "sentence": "Сьогодні я їду з мамою на машині до бабусі."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_72ade2ef0f899b520ec5e259",
+      "lemma": "сік",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_f8eb3188aafa3b27e5b65804",
+      "translation": "Saft",
+      "evidence": [
+        {
+          "story": "A2#32",
+          "sentence": "Юлі більше хочеться яблучного соку і маленького печива."
+        },
+        {
+          "story": "A2#36",
+          "sentence": "Мама просила купити сік і шоколад."
+        },
+        {
+          "story": "A2#36",
+          "sentence": "Пляшка яблучного соку коштує двадцять гривень."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_8c857bee54519a0041e81b02",
+      "lemma": "сіль",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_fa9dd187c2892615d67ef84c",
+      "translation": "Salz",
+      "evidence": [
+        {
+          "story": "A2#25",
+          "sentence": "Бабуся пояснює, що в Україні гостей часто зустрічають хлібом і сіллю."
+        },
+        {
+          "story": "A2#25",
+          "sentence": "Софійка допомагає бабусі подати гостям хліб і сіль."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_a25f0a60521fce145d11e98a",
+      "lemma": "січень",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_0b8376b8bf3f8c7659823ff8",
+      "translation": "Januar",
+      "evidence": [
+        {
+          "story": "A2#16",
+          "sentence": "Тридцять першого грудня ми готували святковий стіл, а першого січня прокидалися пізніше."
+        },
+        {
+          "story": "A2#17",
+          "sentence": "Сьогодні двадцять друге січня, День Соборності."
+        },
+        {
+          "story": "A2#18",
+          "sentence": "Бабуся пам'ятає, що раніше багато родин робили це сьомого січня."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_e2fe84fe5ad62db3b81cf748",
+      "lemma": "також",
+      "partOfSpeech": "adv",
+      "senseId": "linguisto_sense_e7646c5c87364f56c4ca23b0",
+      "translation": "auch",
+      "evidence": [
+        {
+          "story": "A1#13",
+          "sentence": "Я також беру маленький пиріг у коробці."
+        },
+        {
+          "story": "A1#15",
+          "sentence": "На вихідних я також прибираю тут після роботи."
+        },
+        {
+          "story": "A2#4",
+          "sentence": "Сьогодні в нас також є урок малювання."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_4645b7d4ece96925084df903",
+      "lemma": "там",
+      "partOfSpeech": "adv",
+      "senseId": "linguisto_sense_047d579e88c365a194ad1fdd",
+      "translation": "dort",
+      "evidence": [
+        {
+          "story": "A1#1",
+          "sentence": "Там стоїть диван, стіл і велика шафа."
+        },
+        {
+          "story": "A1#1",
+          "sentence": "У дворі тато ставить лавку, і влітку ми сидимо там разом."
+        },
+        {
+          "story": "A1#3",
+          "sentence": "Уранці ми снідаємо там разом і говоримо про день."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_99dd787b8535a1b1ab3cd0f7",
+      "lemma": "танцювати",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_6f5b72778f840b2792bd2325",
+      "translation": "tanzen",
+      "evidence": [
+        {
+          "story": "A2#62",
+          "sentence": "На святах діти танцюють гопак, а в музеях слухають розповіді про Хортицю."
+        },
+        {
+          "story": "A2#97",
+          "sentence": "На сцені стояли люди у вишиванках, а перед сценою танцювали всі підряд."
+        },
+        {
+          "story": "A2#99",
+          "sentence": "Варять борщ у великих каструлях і танцюють просто на траві до темряви."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_66bb514718771aee9eb834ef",
+      "lemma": "тато",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_6e40bcc95723db20c6645f5b",
+      "translation": "Vater",
+      "evidence": [
+        {
+          "story": "A1#1",
+          "sentence": "У будинку живуть мама, тато, мій брат і я."
+        },
+        {
+          "story": "A1#1",
+          "sentence": "У дворі тато ставить лавку, і влітку ми сидимо там разом."
+        },
+        {
+          "story": "A1#9",
+          "sentence": "Мій тато веселий, він працює в офісі і любить музику."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_6c18956a74873e7d56c5fe94",
+      "lemma": "тварина",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_4e97845ee68ace3d6c679294",
+      "translation": "Tier",
+      "evidence": [
+        {
+          "story": "A1#6",
+          "sentence": "Щодня я годую тварин."
+        },
+        {
+          "story": "A2#39",
+          "sentence": "Я не боюся тварин, але завжди слухаю дідуся."
+        },
+        {
+          "story": "A2#39",
+          "sentence": "Уранці всіх тварин треба годувати."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_255a0a600384b9ac37c3ac6d",
+      "lemma": "театр",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_0a3876a17bdd2fb54702a479",
+      "translation": "Theater",
+      "evidence": [
+        {
+          "story": "A2#77",
+          "sentence": "Ринок був схожий на театр, де вистава йде без перерви."
+        },
+        {
+          "story": "A2#100",
+          "sentence": "Увечері біля оперного театру збираються люди в гарному одязі."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_783ec0fc97f34b5db948eb7a",
+      "lemma": "текст",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_f176271adc9cb399cae0372f",
+      "translation": "Text",
+      "evidence": [
+        {
+          "story": "A1#5",
+          "sentence": "На уроках я слухаю вчителя, читаю текст і пишу в зошиті."
+        },
+        {
+          "story": "A1#14",
+          "sentence": "Там тихо, тому я читаю текст і роблю домашнє завдання."
+        },
+        {
+          "story": "A1#16",
+          "sentence": "Учителька стоїть біля дошки і читає короткий текст."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_93db4e81f77172dd44eabcba",
+      "lemma": "телевізор",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_8fd4aa2be8ec2f5f3d651c96",
+      "translation": "Fernseher",
+      "evidence": [
+        {
+          "story": "A1#1",
+          "sentence": "На кухні мама часто готує суп, а у вітальні ми дивимося телевізор."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_0df0775f60e9304cfdc8624a",
+      "lemma": "телефон",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_f3abb3e03845c2da3635cc56",
+      "translation": "Telefon",
+      "evidence": [
+        {
+          "story": "A1#3",
+          "sentence": "На столі лежать книжка і телефон."
+        },
+        {
+          "story": "A1#11",
+          "sentence": "Тато дивиться машини в телефоні, а мама думає про колір і місце для сумок."
+        },
+        {
+          "story": "A1#14",
+          "sentence": "Увечері я готую сумку, перевіряю олівці і заряджаю телефон."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_81dcdc8ba15868e510005a57",
+      "lemma": "тепер",
+      "partOfSpeech": "adv",
+      "senseId": "linguisto_sense_d33b8018ab1e9f17b6a66505",
+      "translation": "jetzt",
+      "evidence": [
+        {
+          "story": "A1#11",
+          "sentence": "Тепер ми можемо зручно їздити до бабусі."
+        },
+        {
+          "story": "A1#16",
+          "sentence": "Тепер я читаю текст уголос."
+        },
+        {
+          "story": "A2#9",
+          "sentence": "Тепер я готова до нового дня."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_e9c0a091a751eb2c80fde88f",
+      "lemma": "теплий",
+      "partOfSpeech": "adj",
+      "senseId": "linguisto_sense_ed0f29d72ad5d96b7a4b43a6",
+      "translation": "warm",
+      "evidence": [
+        {
+          "story": "A1#3",
+          "sentence": "На дивані лежить теплий плед."
+        },
+        {
+          "story": "A1#5",
+          "sentence": "На кухні я їм кашу і п'ю теплий чай."
+        },
+        {
+          "story": "A1#9",
+          "sentence": "Тому вдома мені легко і тепло."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_8b182505d0140e384b7cb838",
+      "lemma": "ти",
+      "partOfSpeech": "pron",
+      "senseId": "linguisto_sense_9161b3fbdc2f029c1a325bcf",
+      "translation": "du",
+      "evidence": [
+        {
+          "story": "A1#16",
+          "sentence": "Потім питаю Олю:\n— Ти маєш ручку?"
+        },
+        {
+          "story": "A2#12",
+          "sentence": "Лікар: Це схоже на звичайну застуду, але тобі треба добре відпочити."
+        },
+        {
+          "story": "A2#20",
+          "sentence": "Усередині написано: «Мамо, ти найкраща»."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_7aa08b4d42627734df082845",
+      "lemma": "тиждень",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_cd0139af52adeca2893b731c",
+      "translation": "Woche",
+      "evidence": [
+        {
+          "story": "A2#7",
+          "sentence": "Два рази на тиждень — і цього мені досить."
+        },
+        {
+          "story": "A2#7",
+          "sentence": "Наступного тижня я знову піду до басейну після уроків."
+        },
+        {
+          "story": "A2#14",
+          "sentence": "Мене звати Катя, і мій тиждень має простий порядок."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_e6b99227171ee19e6cd24749",
+      "lemma": "тихий",
+      "partOfSpeech": "adj",
+      "senseId": "linguisto_sense_1ea79520d0e35c3d65a88ce6",
+      "translation": "leise",
+      "evidence": [
+        {
+          "story": "A1#6",
+          "sentence": "Він сірий, тихий і любить сидіти біля вікна."
+        },
+        {
+          "story": "A1#10",
+          "sentence": "У залі тихо, і переді мною стоїть тільки один чоловік."
+        },
+        {
+          "story": "A1#13",
+          "sentence": "У машині грає тиха музика, тому дорога здається приємною."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_13b91edd90824cd6e2da084d",
+      "lemma": "тому",
+      "partOfSpeech": "adv",
+      "senseId": "linguisto_sense_1cf09522d21c6b0fbef7fba7",
+      "translation": "deshalb",
+      "evidence": [
+        {
+          "story": "A1#5",
+          "sentence": "Я все готую ввечері, тому ранок проходить легко."
+        },
+        {
+          "story": "A1#7",
+          "sentence": "У серпні ми їдемо до Одеси, тому я дуже чекаю цю поїздку."
+        },
+        {
+          "story": "A1#8",
+          "sentence": "Він невеликий, тому я легко беру його з собою."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_c7bdedd5aefd899ab124ba80",
+      "lemma": "торт",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_52bb432d21530c0a6197acb9",
+      "translation": "Torte",
+      "evidence": [
+        {
+          "story": "A2#43",
+          "sentence": "На кухні вже пахне тортом."
+        },
+        {
+          "story": "A2#43",
+          "sentence": "Потім мама виносить торт зі свічками."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_fc8121a42164f47d5febbda7",
+      "lemma": "трава",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_e7c49f20c33b26a35d12aaef",
+      "translation": "Gras",
+      "evidence": [
+        {
+          "story": "A1#20",
+          "sentence": "У парку діти грають у м'яч на великій зеленій траві."
+        },
+        {
+          "story": "A2#45",
+          "sentence": "Інші просто приходять подихати свіжим повітрям або посидіти на теплій траві."
+        },
+        {
+          "story": "A2#58",
+          "sentence": "Навколо росли ягоди і високі трави."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_5364ff1fdd4baeeed560f8f7",
+      "lemma": "травень",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_acc56c623959eb6ea8f80933",
+      "translation": "Mai",
+      "evidence": [
+        {
+          "story": "A2#30",
+          "sentence": "День матері приходить у другу неділю травня."
+        },
+        {
+          "story": "A2#31",
+          "sentence": "У третій четвер травня в школі святкують День вишиванки."
+        },
+        {
+          "story": "A2#66",
+          "sentence": "Наприкінці травня у школі завжди пахне квітами."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_25222c72750f80ae1d111161",
+      "lemma": "трамвай",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_d9d05c045a173fd9607d46f3",
+      "translation": "Straßenbahn",
+      "evidence": [
+        {
+          "story": "A2#73",
+          "sentence": "Варшава зустріла широкими вулицями, трамваями і старими будинками в центрі."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_bff67c2641cedf120cef45eb",
+      "lemma": "три",
+      "partOfSpeech": "num",
+      "senseId": "linguisto_sense_200a01ffb7fa5255a14d2503",
+      "translation": "drei",
+      "evidence": [
+        {
+          "story": "A1#19",
+          "sentence": "Я беру три яблука."
+        },
+        {
+          "story": "A2#10",
+          "sentence": "Мене звати Колін, і Рудик живе в нас уже три роки."
+        },
+        {
+          "story": "A2#12",
+          "sentence": "Лікар: Через три дні тобі має стати значно краще."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_66c59c8c66aae6a6a4f096e0",
+      "lemma": "тримати",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_3caaa07eb90d42e56aca430c",
+      "translation": "halten",
+      "evidence": [
+        {
+          "story": "A1#13",
+          "sentence": "Мама сидить за кермом, а я сиджу поруч і тримаю квіти."
+        },
+        {
+          "story": "A1#15",
+          "sentence": "Під ліжком я тримаю взуття для прогулянок."
+        },
+        {
+          "story": "A1#17",
+          "sentence": "Андрій перевіряє колеса, а я тримаю велосипед."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_16c7e450218312a8ffecbd19",
+      "lemma": "туди",
+      "partOfSpeech": "adv",
+      "senseId": "linguisto_sense_bf989cfc5883293b4db96f70",
+      "translation": "dorthin",
+      "evidence": [
+        {
+          "story": "A2#47",
+          "sentence": "Іти туди лише кілька хвилин."
+        },
+        {
+          "story": "A2#72",
+          "sentence": "Діти приходять туди не по математику, а щоб співати і читати українською."
+        },
+        {
+          "story": "A2#86",
+          "sentence": "Уночі туди краще не заглядати."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_68ac8106ccf95cd2794cc6fa",
+      "lemma": "тут",
+      "partOfSpeech": "adv",
+      "senseId": "linguisto_sense_150e2cc25fdebd03c316d1f6",
+      "translation": "hier",
+      "evidence": [
+        {
+          "story": "A1#15",
+          "sentence": "Уранці тут світло."
+        },
+        {
+          "story": "A1#15",
+          "sentence": "На вихідних я також прибираю тут після роботи."
+        },
+        {
+          "story": "A1#16",
+          "sentence": "У нашому класі великі вікна, тому тут світло."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_9e07e886c0f2239d4ecefd00",
+      "lemma": "тітка",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_2ae524e303d471b97eb6bf03",
+      "translation": "Tante",
+      "evidence": [
+        {
+          "story": "A1#10",
+          "sentence": "Сьогодні я йду на пошту, бо маю лист для тітки."
+        },
+        {
+          "story": "A1#10",
+          "sentence": "Увечері я кажу мамі, що лист уже їде до тітки."
+        },
+        {
+          "story": "A1#15",
+          "sentence": "На моєму столі я пишу лист для тітки."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_513adc3249c4a2547d7207fb",
+      "lemma": "уважний",
+      "partOfSpeech": "adj",
+      "senseId": "linguisto_sense_ade182084454e12cbb8252a8",
+      "translation": "aufmerksam",
+      "evidence": [
+        {
+          "story": "A1#16",
+          "sentence": "Я уважно слухаю і пишу нові слова в зошиті."
+        },
+        {
+          "story": "A2#15",
+          "sentence": "Діти слухають уважно і майже не рухаються."
+        },
+        {
+          "story": "A2#24",
+          "sentence": "Вона довіряє мені тільки просту роботу, зате вчить бути уважною."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_d8947fc13b18de3a62ffb541",
+      "lemma": "увечері",
+      "partOfSpeech": "adv",
+      "senseId": "linguisto_sense_04c487ac1fc3624407570652",
+      "translation": "abends",
+      "evidence": [
+        {
+          "story": "A1#1",
+          "sentence": "Уранці всі поспішають, але ввечері ми знову разом."
+        },
+        {
+          "story": "A1#3",
+          "sentence": "Увечері я читаю у вітальні, а мама п'є чай на кухні."
+        },
+        {
+          "story": "A1#4",
+          "sentence": "Увечері я гуляю біля дому."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_394b8b2c9b921114dc7ae265",
+      "lemma": "український",
+      "partOfSpeech": "adj",
+      "senseId": "linguisto_sense_f9b27095be1fe50526ce32e5",
+      "translation": "ukrainisch",
+      "evidence": [
+        {
+          "story": "A1#12",
+          "sentence": "Мені легко говорити з ним українською."
+        },
+        {
+          "story": "A1#14",
+          "sentence": "У середу в мене українська мова і математика, а в четвер історія."
+        },
+        {
+          "story": "A2#46",
+          "sentence": "Ми можемо дивитися короткий концерт онлайн або слухати українські пісні вдома."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_5236a94302196ebff90a0475",
+      "lemma": "урок",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_9e3c893c5f41393fb185354c",
+      "translation": "Lektion",
+      "evidence": [
+        {
+          "story": "A1#4",
+          "sentence": "Після уроків я обідаю і роблю вправи."
+        },
+        {
+          "story": "A1#5",
+          "sentence": "На уроках я слухаю вчителя, читаю текст і пишу в зошиті."
+        },
+        {
+          "story": "A1#12",
+          "sentence": "Після уроків ми разом ідемо додому."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_8bf953135c2cc1954f11de46",
+      "lemma": "усміхатися",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_4ab1409485781bb8b1a186b0",
+      "translation": "lächeln",
+      "evidence": [
+        {
+          "story": "A1#9",
+          "sentence": "Ліза показує малюнок, тато слухає, а мама усміхається."
+        },
+        {
+          "story": "A1#11",
+          "sentence": "Тато веде машину обережно, мама усміхається, а я дивлюся у вікно."
+        },
+        {
+          "story": "A1#12",
+          "sentence": "Данило усміхається і відповідає: Привіт, дуже приємно."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_8c13950fd4af3385a47c2bb0",
+      "lemma": "учениця",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_4a63ec4e773c7e8efc92acc5",
+      "translation": "Schülerin",
+      "evidence": [
+        {
+          "story": "A2#27",
+          "sentence": "Потім старша учениця піднімає маленький дзвоник над головою."
+        },
+        {
+          "story": "A2#41",
+          "sentence": "Один учень раптом питає, чи це схоже на правила класу."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_4c7c7d0f7cf01f50be5bab85",
+      "lemma": "учень",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_dee5c7a7d8aca4a1d3fc2c17",
+      "translation": "Schüler",
+      "evidence": [
+        {
+          "story": "A2#27",
+          "sentence": "Учні приходять у чистому одязі, тримають квіти для вчителів і шукають свої класи."
+        },
+        {
+          "story": "A2#27",
+          "sentence": "Біля них стоять старші учні і допомагають знайти клас."
+        },
+        {
+          "story": "A2#27",
+          "sentence": "Потім старша учениця піднімає маленький дзвоник над головою."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_cd9ce206e5573668d17f7a58",
+      "lemma": "учитель",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_392ea8803c0620b279dcf81c",
+      "translation": "Lehrkraft",
+      "evidence": [
+        {
+          "story": "A1#4",
+          "sentence": "У школі я читаю, пишу і слухаю вчителя."
+        },
+        {
+          "story": "A1#5",
+          "sentence": "На уроках я слухаю вчителя, читаю текст і пишу в зошиті."
+        },
+        {
+          "story": "A1#12",
+          "sentence": "Учитель просить нас показати Данилу розклад."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_9cfbb6d5f10d2ea26c80dd78",
+      "lemma": "фото",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_6e3e5ae630885083a02049f7",
+      "translation": "Fotografie",
+      "evidence": [
+        {
+          "story": "A2#16",
+          "sentence": "Бабуся телефонує, а потім ми робимо сімейне фото біля маленької ялинки."
+        },
+        {
+          "story": "A2#21",
+          "sentence": "Ми робимо фото біля дошки і довго вибираємо, хто де стане."
+        },
+        {
+          "story": "A2#27",
+          "sentence": "Батьки роблять фото і тихо бажають дітям успіху."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_13e8884e62bdf62220c50621",
+      "lemma": "фотографувати",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_238a4aa07374d50bd0be0f16",
+      "translation": "fotografieren",
+      "evidence": [
+        {
+          "story": "A2#54",
+          "sentence": "Одна жінка фотографувала синій балкон над кафе."
+        },
+        {
+          "story": "A2#58",
+          "sentence": "Тато показував нам дерева, а мама фотографувала краєвиди."
+        },
+        {
+          "story": "A2#65",
+          "sentence": "Я зупинявся частіше, ніж фотографував."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_5bd6b9e809f246dcd86f943e",
+      "lemma": "футбол",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_763575a07db8fa23a6bf44fb",
+      "translation": "Fußball",
+      "evidence": [
+        {
+          "story": "A1#5",
+          "sentence": "Ми часто говоримо про футбол або домашнє завдання."
+        },
+        {
+          "story": "A1#12",
+          "sentence": "Данило любить футбол і шахи, а я люблю футбол і книжки."
+        },
+        {
+          "story": "A2#5",
+          "sentence": "Потім ми разом ідемо на уроки і говоримо про футбол або домашнє завдання."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_90991d9db1e86955051695c4",
+      "lemma": "футболка",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_0a8b21a6cb35373bc0ff0ed7",
+      "translation": "T-Shirt",
+      "evidence": [
+        {
+          "story": "A2#14",
+          "sentence": "Я вже знаю, що треба покласти в рюкзак: футболку, воду і рушник."
+        },
+        {
+          "story": "A2#74",
+          "sentence": "Узор може бути на жакеті, на сукні або на рукаві футболки."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_05a8bb389701eb9141c37817",
+      "lemma": "фільм",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_12d8c38eda29aced651b4b52",
+      "translation": "Film",
+      "evidence": [
+        {
+          "story": "A2#88",
+          "sentence": "Англійська — для фільмів, пісень і подорожей."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_4bc4ed2d85ade9432fd49411",
+      "lemma": "хвилина",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_9e60f9ab50e1ee4131f7afe2",
+      "translation": "Minute",
+      "evidence": [
+        {
+          "story": "A1#10",
+          "sentence": "Біля пошти стоїть лавка, тому я сідаю на хвилину."
+        },
+        {
+          "story": "A1#13",
+          "sentence": "Через двадцять хвилин ми приїжджаємо."
+        },
+        {
+          "story": "A2#2",
+          "sentence": "У такі хвилини ніхто не дивиться на годинник."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_6e371aa0616396b986a8f2ab",
+      "lemma": "хлопець",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_6583aab68c1aa4e07a4b581e",
+      "translation": "Junge",
+      "evidence": [
+        {
+          "story": "A1#12",
+          "sentence": "Сьогодні в наш клас приходить новий хлопець."
+        },
+        {
+          "story": "A1#20",
+          "sentence": "Спочатку хлопець грає з друзями, потім сідає біля річки."
+        },
+        {
+          "story": "A2#15",
+          "sentence": "Один хлопчик каже, що вдома обов'язково розповість про урок бабусі."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_bb5857346814119d3e2d3d8d",
+      "lemma": "хліб",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_c5b1affe35db8619ad531c63",
+      "translation": "Brot",
+      "evidence": [
+        {
+          "story": "A1#4",
+          "sentence": "На кухні я їм хліб із сиром і п'ю воду."
+        },
+        {
+          "story": "A1#18",
+          "sentence": "Я кладу на стіл хліб, сир і помідор."
+        },
+        {
+          "story": "A1#18",
+          "sentence": "Я їм хліб і сир та п'ю чай."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_4cb6dbcf4e883d03076abf71",
+      "lemma": "холодильник",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_265364caa615cf87c5b284ad",
+      "translation": "Kühlschrank",
+      "evidence": [
+        {
+          "story": "A2#6",
+          "sentence": "Молоко у холодильнику біля входу, а свіжий хліб щойно привезли."
+        },
+        {
+          "story": "A2#30",
+          "sentence": "Потім мама обійняла мене і повісила листівку на холодильник біля сімейного фото."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_2b02c8cd4651fd4f6f60dcfd",
+      "lemma": "холодний",
+      "partOfSpeech": "adj",
+      "senseId": "linguisto_sense_a9dcbce244bae86e5baafd64",
+      "translation": "kalt",
+      "evidence": [
+        {
+          "story": "A1#21",
+          "sentence": "Восени листя жовте і червоне, а на вулиці холодно."
+        },
+        {
+          "story": "A1#22",
+          "sentence": "Сьогодні холодно."
+        },
+        {
+          "story": "A2#8",
+          "sentence": "Сьогодні ранок хмарний і холодний."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_5204f5f6ab7df3c557edf9fd",
+      "lemma": "хто",
+      "partOfSpeech": "pron",
+      "senseId": "linguisto_sense_4ac63c62ef70f10a55ff8b95",
+      "translation": "wer",
+      "evidence": [
+        {
+          "story": "A2#21",
+          "sentence": "Ми робимо фото біля дошки і довго вибираємо, хто де стане."
+        },
+        {
+          "story": "A2#57",
+          "sentence": "Для багатьох людей це знак того, хто вони і звідки."
+        },
+        {
+          "story": "A2#62",
+          "sentence": "Той, хто хотів бути вільним, мусив уміти жити поруч з іншими людьми."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_61ea4078f4ad79d90b22f7e5",
+      "lemma": "церква",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_27ae7d3a127bb2125c961a5e",
+      "translation": "Kirche",
+      "evidence": [
+        {
+          "story": "A2#23",
+          "sentence": "Ми йдемо до церкви повільно, бо ранок прохолодний."
+        },
+        {
+          "story": "A2#56",
+          "sentence": "Щоб знайти точний день, люди дивляться церковний календар."
+        },
+        {
+          "story": "A2#56",
+          "sentence": "Одні йдуть до церкви вночі, коли ще темно і тихо."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_d1debd6c89ff25bd11d96d0e",
+      "lemma": "цибуля",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_74e055e2d6e5db4ee7c42f77",
+      "translation": "Zwiebel",
+      "evidence": [
+        {
+          "story": "A2#24",
+          "sentence": "Коли обід готовий, бабуся подає вареники зі смаженою цибулею."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_dde8afde01cde29f6ee7b33f",
+      "lemma": "цукерка",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_ac48a87d4f39255cbe154d33",
+      "translation": "Bonbon",
+      "evidence": [
+        {
+          "story": "A2#18",
+          "sentence": "Вони співають короткі колядки, а ми даємо їм цукерки і трохи грошей."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_a1c12793cb4255d5e5c813ec",
+      "lemma": "цікавий",
+      "partOfSpeech": "adj",
+      "senseId": "linguisto_sense_ca04c41b98e239754621f66a",
+      "translation": "interessant",
+      "evidence": [
+        {
+          "story": "A1#9",
+          "sentence": "Він часто розповідає цікаві історії."
+        },
+        {
+          "story": "A2#22",
+          "sentence": "Мені цікаво, як прості овочі стають такою смачною стравою."
+        },
+        {
+          "story": "A2#55",
+          "sentence": "Я купив собі цікаву книжку і морозиво біля магазину."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_5840eb3706a881bbf88c946c",
+      "lemma": "чай",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_ad8a9d1431a9534a899695cb",
+      "translation": "Tee",
+      "evidence": [
+        {
+          "story": "A1#3",
+          "sentence": "Увечері я читаю у вітальні, а мама п'є чай на кухні."
+        },
+        {
+          "story": "A1#5",
+          "sentence": "На кухні я їм кашу і п'ю теплий чай."
+        },
+        {
+          "story": "A1#7",
+          "sentence": "Мама готує млинці, а я п'ю чай і дивлюся у вікно."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_33c9824450a8c8ee22fec892",
+      "lemma": "час",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_55ca522380e748426ec86ef6",
+      "translation": "Zeit",
+      "evidence": [
+        {
+          "story": "A1#7",
+          "sentence": "На канікулах день довгий, і я маю більше часу для гри, читання та прогулянок."
+        },
+        {
+          "story": "A1#18",
+          "sentence": "Час іти."
+        },
+        {
+          "story": "A2#8",
+          "sentence": "До школи я йду швидко і весь час тримаю руки в кишенях."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_26ebeba368afb97821994945",
+      "lemma": "часто",
+      "partOfSpeech": "adv",
+      "senseId": "linguisto_sense_948284e0b871ddeea285cb30",
+      "translation": "oft",
+      "evidence": [
+        {
+          "story": "A1#1",
+          "sentence": "На кухні мама часто готує суп, а у вітальні ми дивимося телевізор."
+        },
+        {
+          "story": "A1#2",
+          "sentence": "Я часто сиджу біля полиці після школи."
+        },
+        {
+          "story": "A1#5",
+          "sentence": "Ми часто говоримо про футбол або домашнє завдання."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_ecbc6b07bb8d31e08140fd05",
+      "lemma": "чашка",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_3de0c5264b11c12f87587665",
+      "translation": "Tasse",
+      "evidence": [
+        {
+          "story": "A1#18",
+          "sentence": "Вона ставить на стіл дві тарілки і чашки."
+        },
+        {
+          "story": "A1#18",
+          "sentence": "Потім я мию чашки і ставлю їх на полицю."
+        },
+        {
+          "story": "A1#23",
+          "sentence": "Переді мною синя чашка, і біля неї синій олівець."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_56acb7e514b423190bbc88e0",
+      "lemma": "чекати",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_4417b9d6276dda82ce8b8c1b",
+      "translation": "warten",
+      "evidence": [
+        {
+          "story": "A1#6",
+          "sentence": "Уранці Мурчик дивиться на двір і чекає сніданок."
+        },
+        {
+          "story": "A1#7",
+          "sentence": "У серпні ми їдемо до Одеси, тому я дуже чекаю цю поїздку."
+        },
+        {
+          "story": "A2#5",
+          "sentence": "Зранку він чекає мене біля свого двору, навіть коли йде дощ."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_ebaebb2d68237275d6353b89",
+      "lemma": "червень",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_40c8950ee77e39aaf8ca4e08",
+      "translation": "Juni",
+      "evidence": [
+        {
+          "story": "A2#41",
+          "sentence": "Сьогодні двадцять восьме червня, День Конституції."
+        },
+        {
+          "story": "A2#96",
+          "sentence": "Її ухвалили двадцять восьмого червня 1996 року."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_96124c61a5276280605da876",
+      "lemma": "червоний",
+      "partOfSpeech": "adj",
+      "senseId": "linguisto_sense_7beb77ac2754414bca464bc0",
+      "translation": "rot",
+      "evidence": [
+        {
+          "story": "A1#19",
+          "sentence": "Ви хочете червоні яблука чи зелені?"
+        },
+        {
+          "story": "A1#23",
+          "sentence": "На столі біла лампа, а поруч червоний зошит."
+        },
+        {
+          "story": "A2#6",
+          "sentence": "Продавчиня: Ось ці червоні, з нового врожаю."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_bbf138f51f1755dd6b8885a2",
+      "lemma": "четвер",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_5e1ef25522ac2dd3fb5d6e70",
+      "translation": "Donnerstag",
+      "evidence": [
+        {
+          "story": "A1#14",
+          "sentence": "У середу в мене українська мова і математика, а в четвер історія."
+        },
+        {
+          "story": "A2#7",
+          "sentence": "У вівторок і четвер я після школи йду не додому, а в басейн."
+        },
+        {
+          "story": "A2#31",
+          "sentence": "У третій четвер травня в школі святкують День вишиванки."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_3b5a1ee061bdf22fe767f8a4",
+      "lemma": "чистий",
+      "partOfSpeech": "adj",
+      "senseId": "linguisto_sense_53d1557d30ca4c7651c23c83",
+      "translation": "sauber",
+      "evidence": [
+        {
+          "story": "A1#11",
+          "sentence": "Там стоїть біла машина, вона чиста, велика і дуже гарна."
+        },
+        {
+          "story": "A2#14",
+          "sentence": "Потім кімната стає світлою і чистою."
+        },
+        {
+          "story": "A2#20",
+          "sentence": "Тато тихо допомагає мені знайти вазу і чистий конверт."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_e348455e95d1a7fe1b5a5ffd",
+      "lemma": "чистити",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_63aa993d70f6a5c48fd317a6",
+      "translation": "putzen",
+      "evidence": [
+        {
+          "story": "A1#5",
+          "sentence": "Потім я йду у ванну кімнату, мию обличчя і чищу зуби."
+        },
+        {
+          "story": "A2#16",
+          "sentence": "Ми однаково накриваємо стіл, чистимо мандарини і говоримо теплі слова."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_7d56aeb08b1f804d3335deb0",
+      "lemma": "читати",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_8862def36cc02662effdb7a8",
+      "translation": "lesen",
+      "evidence": [
+        {
+          "story": "A1#2",
+          "sentence": "Щовечора я читаю коротку книжку з малюнками."
+        },
+        {
+          "story": "A1#2",
+          "sentence": "Коли мама читає зі мною, я повторюю нові слова."
+        },
+        {
+          "story": "A1#3",
+          "sentence": "Увечері я читаю у вітальні, а мама п'є чай на кухні."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_f4ead5d27fc61962aed28b26",
+      "lemma": "човен",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_3165a6e62683fb3c9266c455",
+      "translation": "Boot",
+      "evidence": [
+        {
+          "story": "A2#45",
+          "sentence": "Поруч можна побачити рибальські човни і чайок."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_27862725bc9bfee75e069ba9",
+      "lemma": "чорний",
+      "partOfSpeech": "adj",
+      "senseId": "linguisto_sense_a472aeca7a7bbb8af776f1eb",
+      "translation": "schwarz",
+      "evidence": [
+        {
+          "story": "A1#8",
+          "sentence": "У нього круглі вуха, чорні очі і дуже м'які лапи."
+        },
+        {
+          "story": "A1#17",
+          "sentence": "У нього є старий велосипед і великий чорний рюкзак."
+        },
+        {
+          "story": "A2#22",
+          "sentence": "Ми їмо його зі сметаною і свіжим чорним хлібом."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_28f01bd5a23286a8a2c41028",
+      "lemma": "чотири",
+      "partOfSpeech": "num",
+      "senseId": "linguisto_sense_0562c5d9de17c011cb4fb0e6",
+      "translation": "vier",
+      "evidence": [
+        {
+          "story": "A1#3",
+          "sentence": "У будинку є чотири кімнати: кухня, спальня, вітальня і ванна кімната."
+        },
+        {
+          "story": "A2#1",
+          "sentence": "У школі в мене чотири уроки, перерва і обід."
+        },
+        {
+          "story": "A2#70",
+          "sentence": "Автобус до Черкаської області їде майже чотири години."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_15bdefd25bef8f65cb215ab8",
+      "lemma": "чути",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_a862200d7e46d7d4949f5ee0",
+      "translation": "hören",
+      "evidence": [
+        {
+          "story": "A2#8",
+          "sentence": "Я чую, як за вікном тихо шумить холодний вітер."
+        },
+        {
+          "story": "A2#10",
+          "sentence": "Я гладжу його по спині і чую, як він муркоче."
+        },
+        {
+          "story": "A2#15",
+          "sentence": "У класі стає так тихо, що чути годинник."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_56506fe053906e096b75ef58",
+      "lemma": "шапка",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_d7941eead30534dd9c84cf68",
+      "translation": "Mütze",
+      "evidence": [
+        {
+          "story": "A2#8",
+          "sentence": "Мама каже з кухні: «Дмитре, шапку не забудь.» Дощу поки немає, але погода все одно неприємна."
+        },
+        {
+          "story": "A2#32",
+          "sentence": "Вони кладуть рюкзаки під стіл і знімають шапки."
+        },
+        {
+          "story": "A2#34",
+          "sentence": "Дорослі вдягають теплі куртки, шапки і товсті рукавиці."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_6f829a5d66e47d5ab130d617",
+      "lemma": "шарф",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_442ad6c12f8d33532e1af8f7",
+      "translation": "Schal",
+      "evidence": [
+        {
+          "story": "A2#8",
+          "sentence": "На вулиці дме вітер, тому я надягаю теплу куртку і шарф."
+        },
+        {
+          "story": "A2#8",
+          "sentence": "Вдома я знімаю куртку, вішаю шарф біля дверей і п'ю гарячий чай."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_13f40376ff3a4d8df83252a7",
+      "lemma": "шафа",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_6de2c9016d4668d368053d26",
+      "translation": "Schrank",
+      "evidence": [
+        {
+          "story": "A1#1",
+          "sentence": "Там стоїть диван, стіл і велика шафа."
+        },
+        {
+          "story": "A1#3",
+          "sentence": "У моїй спальні є ліжко, шафа і лампа біля ліжка."
+        },
+        {
+          "story": "A1#22",
+          "sentence": "Мій одяг лежить у великій шафі біля ліжка."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_f50d0c807258fb79a6742b96",
+      "lemma": "шахи",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_36bfd45fbfbd715147595110",
+      "translation": "Schach",
+      "evidence": [
+        {
+          "story": "A1#12",
+          "sentence": "Данило любить футбол і шахи, а я люблю футбол і книжки."
+        },
+        {
+          "story": "A1#17",
+          "sentence": "Спочатку гуляємо, а потім граємо в шахи."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_0ea18df7fe3b17e93255562b",
+      "lemma": "школа",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_2da22634d1ffac4cba218b7a",
+      "translation": "Schule",
+      "evidence": [
+        {
+          "story": "A1#1",
+          "sentence": "Мама працює в школі, тато в магазині, а брат ходить у дитячий садок."
+        },
+        {
+          "story": "A1#2",
+          "sentence": "Я часто сиджу біля полиці після школи."
+        },
+        {
+          "story": "A1#4",
+          "sentence": "Після сніданку я йду до школи."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_2e87a0e1aebc3b75bce564f0",
+      "lemma": "шоколад",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_0743ea83b49690a28760d699",
+      "translation": "Schokolade",
+      "evidence": [
+        {
+          "story": "A2#9",
+          "sentence": "У чашці воно пахне шоколадом, і ранок стає приємнішим."
+        },
+        {
+          "story": "A2#36",
+          "sentence": "Мама просила купити сік і шоколад."
+        },
+        {
+          "story": "A2#36",
+          "sentence": "Невелика шоколадка коштує п'ятнадцять гривень."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_b91db3e71235a925465a0afc",
+      "lemma": "шукати",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_d706eb82e1828c92d2af87a1",
+      "translation": "suchen",
+      "evidence": [
+        {
+          "story": "A2#27",
+          "sentence": "Учні приходять у чистому одязі, тримають квіти для вчителів і шукають свої класи."
+        },
+        {
+          "story": "A2#44",
+          "sentence": "Я застеляю ліжко, брат шукає шкарпетки, а тато вже йде на кухню."
+        },
+        {
+          "story": "A2#89",
+          "sentence": "Одні волонтери сідають заповнювати заяви і шукати потрібні довідки."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_efa540d8af2e860961070ae0",
+      "lemma": "щасливий",
+      "partOfSpeech": "adj",
+      "senseId": "linguisto_sense_afdcc16a063cb100f0147300",
+      "translation": "glücklich",
+      "evidence": [
+        {
+          "story": "A2#16",
+          "sentence": "Я щасливий, що ми разом."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_4e574cafc0b4d6bf53e19546",
+      "lemma": "щосуботи",
+      "partOfSpeech": "adv",
+      "senseId": "linguisto_sense_d453b64bff67db6c617f68b2",
+      "translation": "samstags",
+      "evidence": [
+        {
+          "story": "A2#22",
+          "sentence": "Щосуботи моя бабуся готує великий борщ."
+        },
+        {
+          "story": "A2#89",
+          "sentence": "Двоє щосуботи супроводжують чоловіка на реабілітацію і чекають його в коридорі."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_4f72d13cb021339f198b6169",
+      "lemma": "я",
+      "partOfSpeech": "pron",
+      "senseId": "linguisto_sense_4f88e99a28713fb7e01e019f",
+      "translation": "ich",
+      "evidence": [
+        {
+          "story": "A1#1",
+          "sentence": "У будинку живуть мама, тато, мій брат і я."
+        },
+        {
+          "story": "A1#1",
+          "sentence": "Брат грається з м'ячем, а я дивлюся на дерева."
+        },
+        {
+          "story": "A1#2",
+          "sentence": "Мене звати Софійка, і я дуже люблю книги та іграшки."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_4c2fd1c794a138c53e8467ff",
+      "lemma": "яблуко",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_b0e71ac56804f2da4c4bab9d",
+      "translation": "Apfel",
+      "evidence": [
+        {
+          "story": "A1#5",
+          "sentence": "На перерві я їм яблуко і говорю з другом."
+        },
+        {
+          "story": "A1#19",
+          "sentence": "Ще мені потрібні яблука для родини."
+        },
+        {
+          "story": "A2#1",
+          "sentence": "На перерві ми з подругою їмо яблука."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_c03ad8a8242c348c4aa566f3",
+      "lemma": "яблуня",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_96c73a4fdd6e9b4caf89c36b",
+      "translation": "Apfelbaum",
+      "evidence": [
+        {
+          "story": "A2#2",
+          "sentence": "Влітку там цвітуть старі яблуні, і вікна нашої кухні дивляться прямо на них."
+        },
+        {
+          "story": "A2#40",
+          "sentence": "У бабусі також є великий сад з яблунями і квітами."
+        },
+        {
+          "story": "A2#40",
+          "sentence": "Яблуня над нами вже зовсім стара і скрипить від вітру."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_72a735a16b1cf19862aa2f9d",
+      "lemma": "ягода",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_ec4269e21095ef2bb8df4d14",
+      "translation": "Beere",
+      "evidence": [
+        {
+          "story": "A2#58",
+          "sentence": "Навколо росли ягоди і високі трави."
+        },
+        {
+          "story": "A2#63",
+          "sentence": "А сьогодні вчителька принесла в клас гілку з червоними ягодами."
+        },
+        {
+          "story": "A2#63",
+          "sentence": "Ще вчителька дала нам спробувати ягоду."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_7dc1c55be85273baf704ad20",
+      "lemma": "яйце",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_3c3bdbd177776e7fd3f79f37",
+      "translation": "Ei",
+      "evidence": [
+        {
+          "story": "A2#35",
+          "sentence": "Перед Великоднем я приходжу до бабусі і бачу на столі яйця та фарби."
+        },
+        {
+          "story": "A2#56",
+          "sentence": "Так родина знає, коли пекти паску, фарбувати яйця і готувати кошик."
+        },
+        {
+          "story": "A2#56",
+          "sentence": "У ньому лежить паска, яйця, сир, ковбаса і маленька свічка."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_749662aadef12362463a14a5",
+      "lemma": "ялинка",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_4463cb1ddfa5ea6c833014af",
+      "translation": "Tannenbaum",
+      "evidence": [
+        {
+          "story": "A2#16",
+          "sentence": "Бабуся телефонує, а потім ми робимо сімейне фото біля маленької ялинки."
+        },
+        {
+          "story": "A2#67",
+          "sentence": "Потім пишемо на папірцях маленькі бажання і кладемо їх біля ялинки."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_ba4b822bf85a43ac49ef1a6a",
+      "lemma": "і",
+      "partOfSpeech": "conj",
+      "senseId": "linguisto_sense_ab796ba41d6b7aff55b1f9ca",
+      "translation": "und",
+      "evidence": [
+        {
+          "story": "A1#1",
+          "sentence": "У будинку живуть мама, тато, мій брат і я."
+        },
+        {
+          "story": "A1#1",
+          "sentence": "На першому поверсі є кухня і вітальня."
+        },
+        {
+          "story": "A1#1",
+          "sentence": "Моя кімната невелика, але в ній є ліжко, стіл і книжки."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_3d440477fa537fbe00cc0d02",
+      "lemma": "іграшка",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_92c25c4f1a931c70f7700076",
+      "translation": "Spielzeug",
+      "evidence": [
+        {
+          "story": "A1#2",
+          "sentence": "Мене звати Софійка, і я дуже люблю книги та іграшки."
+        },
+        {
+          "story": "A1#7",
+          "sentence": "Я мию тарілки після обіду і складаю іграшки в коробку."
+        },
+        {
+          "story": "A1#8",
+          "sentence": "У мене є улюблена м'яка іграшка."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_40b151a4cc01d263d48d71a3",
+      "lemma": "ім'я",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_c59722c611117bb5daadfd99",
+      "translation": "Name",
+      "evidence": [
+        {
+          "story": "A1#2",
+          "sentence": "Іноді я записую ім'я героя на папері і малюю поруч маленький будинок."
+        },
+        {
+          "story": "A2#64",
+          "sentence": "На першому занятті кожен писав своє ім'я на папірці."
+        },
+        {
+          "story": "A2#68",
+          "sentence": "Тепер вона підписує коробки своїм ім'ям."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_ca6e94fbbd24f4c9c3b86e53",
+      "lemma": "історія",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_b2af2eea4db41bc3795b7497",
+      "translation": "Geschichte",
+      "evidence": [
+        {
+          "story": "A1#2",
+          "sentence": "Потім я граюся і вигадую маленьку історію."
+        },
+        {
+          "story": "A1#9",
+          "sentence": "Він часто розповідає цікаві історії."
+        },
+        {
+          "story": "A1#14",
+          "sentence": "У середу в мене українська мова і математика, а в четвер історія."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_a6bf546eedb6f8000b28101b",
+      "lemma": "їжа",
+      "partOfSpeech": "noun",
+      "senseId": "linguisto_sense_cf59d0df3341a24cff171aa3",
+      "translation": "Essen",
+      "evidence": [
+        {
+          "story": "A1#6",
+          "sentence": "Коту я даю їжу в миску, а собакам даю воду і сухий корм."
+        },
+        {
+          "story": "A2#9",
+          "sentence": "Я краще слухаю вчительку і не думаю про їжу до перерви."
+        },
+        {
+          "story": "A2#10",
+          "sentence": "Уранці Рудик сидить біля миски і чекає на їжу."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_0bea94eeda7a90c410a5509f",
+      "lemma": "їсти",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_1aa93b4cee7a9415baf8771c",
+      "translation": "essen",
+      "evidence": [
+        {
+          "story": "A1#4",
+          "sentence": "На кухні я їм хліб із сиром і п'ю воду."
+        },
+        {
+          "story": "A1#5",
+          "sentence": "На кухні я їм кашу і п'ю теплий чай."
+        },
+        {
+          "story": "A1#5",
+          "sentence": "На перерві я їм яблуко і говорю з другом."
+        }
+      ]
+    },
+    {
+      "lexemeId": "lex_7c1cd17e94a90c7a42014584",
+      "lemma": "їхати",
+      "partOfSpeech": "verb",
+      "senseId": "linguisto_sense_6372e40dbe03305cf34e84ab",
+      "translation": "fahren",
+      "evidence": [
+        {
+          "story": "A1#7",
+          "sentence": "У серпні ми їдемо до Одеси, тому я дуже чекаю цю поїздку."
+        },
+        {
+          "story": "A1#10",
+          "sentence": "Увечері я кажу мамі, що лист уже їде до тітки."
+        },
+        {
+          "story": "A1#11",
+          "sentence": "Ми купуємо цю машину і їдемо додому повільно."
+        }
+      ]
+    }
+  ],
+  "deferredTranslations": 4276
+}

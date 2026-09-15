@@ -1,0 +1,409 @@
+{
+  "version": "2026-09-15-a1-20-24",
+  "sourceName": "Read Ukrainian reviewed supplement",
+  "entries": [
+    {
+      "lemma": "грати",
+      "partOfSpeech": "verb",
+      "translation": "to play",
+      "forms": [
+        {
+          "form": "грають",
+          "tags": [
+            "present",
+            "plural",
+            "third-person",
+            "imperfective"
+          ]
+        }
+      ]
+    },
+    {
+      "lemma": "дерево",
+      "partOfSpeech": "noun",
+      "translation": "tree",
+      "forms": [
+        {
+          "form": "дереві",
+          "tags": [
+            "locative",
+            "singular",
+            "neuter"
+          ]
+        }
+      ]
+    },
+    {
+      "lemma": "десятий",
+      "partOfSpeech": "numeral",
+      "translation": "tenth",
+      "forms": [
+        {
+          "form": "десятій",
+          "tags": [
+            "locative",
+            "singular",
+            "feminine"
+          ]
+        }
+      ]
+    },
+    {
+      "lemma": "дівчинка",
+      "partOfSpeech": "noun",
+      "translation": "girl",
+      "forms": [
+        {
+          "form": "дівчинці",
+          "tags": [
+            "locative",
+            "singular",
+            "feminine"
+          ]
+        }
+      ]
+    },
+    {
+      "lemma": "жінка",
+      "partOfSpeech": "noun",
+      "translation": "woman",
+      "forms": [
+        {
+          "form": "жінці",
+          "tags": [
+            "locative",
+            "singular",
+            "feminine"
+          ]
+        }
+      ]
+    },
+    {
+      "lemma": "запізнюватися",
+      "partOfSpeech": "verb",
+      "translation": "to be late",
+      "forms": [
+        {
+          "form": "запізнююся",
+          "tags": [
+            "present",
+            "singular",
+            "first-person",
+            "imperfective"
+          ]
+        }
+      ]
+    },
+    {
+      "lemma": "зелений",
+      "partOfSpeech": "adjective",
+      "translation": "green",
+      "forms": [
+        {
+          "form": "зелене",
+          "tags": [
+            "nominative",
+            "singular",
+            "neuter"
+          ]
+        },
+        {
+          "form": "зеленій",
+          "tags": [
+            "locative",
+            "singular",
+            "feminine"
+          ]
+        }
+      ]
+    },
+    {
+      "lemma": "м'який",
+      "partOfSpeech": "adjective",
+      "translation": "soft",
+      "forms": [
+        {
+          "form": "м'якими",
+          "tags": [
+            "instrumental",
+            "plural"
+          ]
+        }
+      ]
+    },
+    {
+      "lemma": "мій",
+      "partOfSpeech": "pronoun",
+      "translation": "my; mine",
+      "forms": [
+        {
+          "form": "моє",
+          "tags": [
+            "nominative",
+            "singular",
+            "neuter"
+          ]
+        }
+      ]
+    },
+    {
+      "lemma": "небо",
+      "partOfSpeech": "noun",
+      "translation": "sky",
+      "forms": [
+        {
+          "form": "небі",
+          "tags": [
+            "locative",
+            "singular",
+            "neuter"
+          ]
+        }
+      ]
+    },
+    {
+      "lemma": "одягати",
+      "partOfSpeech": "verb",
+      "translation": "to put on (clothes)",
+      "forms": [
+        {
+          "form": "одягаю",
+          "tags": [
+            "present",
+            "singular",
+            "first-person",
+            "imperfective"
+          ]
+        }
+      ]
+    },
+    {
+      "lemma": "онук",
+      "partOfSpeech": "noun",
+      "translation": "grandson",
+      "forms": [
+        {
+          "form": "онук",
+          "tags": [
+            "nominative",
+            "singular",
+            "masculine"
+          ]
+        }
+      ]
+    },
+    {
+      "lemma": "офіс",
+      "partOfSpeech": "noun",
+      "translation": "office",
+      "forms": [
+        {
+          "form": "офісу",
+          "tags": [
+            "genitive",
+            "singular",
+            "masculine"
+          ]
+        }
+      ]
+    },
+    {
+      "lemma": "перший",
+      "partOfSpeech": "numeral",
+      "translation": "first",
+      "forms": [
+        {
+          "form": "першій",
+          "tags": [
+            "locative",
+            "singular",
+            "feminine"
+          ]
+        }
+      ]
+    },
+    {
+      "lemma": "поправляти",
+      "partOfSpeech": "verb",
+      "translation": "to adjust; to straighten",
+      "forms": [
+        {
+          "form": "поправляю",
+          "tags": [
+            "present",
+            "singular",
+            "first-person",
+            "imperfective"
+          ]
+        }
+      ]
+    },
+    {
+      "lemma": "пора",
+      "partOfSpeech": "noun",
+      "translation": "time; season",
+      "forms": [
+        {
+          "form": "пора",
+          "tags": [
+            "nominative",
+            "singular",
+            "feminine"
+          ]
+        }
+      ]
+    },
+    {
+      "lemma": "працювати",
+      "partOfSpeech": "verb",
+      "translation": "to work",
+      "forms": [
+        {
+          "form": "працюю",
+          "tags": [
+            "present",
+            "singular",
+            "first-person",
+            "imperfective"
+          ]
+        }
+      ]
+    },
+    {
+      "lemma": "рукав",
+      "partOfSpeech": "noun",
+      "translation": "sleeve",
+      "forms": [
+        {
+          "form": "рукавами",
+          "tags": [
+            "instrumental",
+            "plural",
+            "masculine"
+          ]
+        }
+      ]
+    },
+    {
+      "lemma": "рюкзак",
+      "partOfSpeech": "noun",
+      "translation": "backpack",
+      "forms": [
+        {
+          "form": "рюкзаках",
+          "tags": [
+            "locative",
+            "plural",
+            "masculine"
+          ]
+        }
+      ]
+    },
+    {
+      "lemma": "светр",
+      "partOfSpeech": "noun",
+      "translation": "sweater; jumper",
+      "forms": [
+        {
+          "form": "светр",
+          "tags": [
+            "nominative",
+            "singular",
+            "masculine"
+          ]
+        },
+        {
+          "form": "светр",
+          "tags": [
+            "accusative",
+            "singular",
+            "masculine"
+          ]
+        }
+      ]
+    },
+    {
+      "lemma": "хмара",
+      "partOfSpeech": "noun",
+      "translation": "cloud",
+      "forms": [
+        {
+          "form": "хмар",
+          "tags": [
+            "genitive",
+            "plural",
+            "feminine"
+          ]
+        }
+      ]
+    },
+    {
+      "lemma": "червоний",
+      "partOfSpeech": "adjective",
+      "translation": "red",
+      "forms": [
+        {
+          "form": "червоне",
+          "tags": [
+            "nominative",
+            "singular",
+            "neuter"
+          ]
+        }
+      ]
+    },
+    {
+      "lemma": "шапка",
+      "partOfSpeech": "noun",
+      "translation": "hat; cap",
+      "forms": [
+        {
+          "form": "шапка",
+          "tags": [
+            "nominative",
+            "singular",
+            "feminine"
+          ]
+        },
+        {
+          "form": "шапках",
+          "tags": [
+            "locative",
+            "plural",
+            "feminine"
+          ]
+        }
+      ]
+    },
+    {
+      "lemma": "штани",
+      "partOfSpeech": "noun",
+      "translation": "trousers; pants",
+      "forms": [
+        {
+          "form": "штани",
+          "tags": [
+            "nominative",
+            "plural"
+          ]
+        }
+      ]
+    },
+    {
+      "lemma": "шукати",
+      "partOfSpeech": "verb",
+      "translation": "to look for; to search",
+      "forms": [
+        {
+          "form": "шукаю",
+          "tags": [
+            "present",
+            "singular",
+            "first-person",
+            "imperfective"
+          ]
+        }
+      ]
+    }
+  ]
+}
