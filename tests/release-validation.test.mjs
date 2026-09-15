@@ -18,7 +18,7 @@ test("release preflight only accepts the reviewed migration order, including saf
   assert.throws(()=>pendingMigrations(manifest,before.slice(1)));
   assert.throws(()=>pendingMigrations(manifest,[...before,'9999_surprise.sql']));
   assert.throws(()=>pendingMigrations(manifest,[...before,manifest.contentMigration]));
-  validateMigrationFiles(manifest,new URL("../migrations/",import.meta.url));
+  validateMigrationFiles(manifest,new URL("../migrations/",import.meta.url), { allowLater: true });
 });
 test("preflight catches changed stories, changed answers and new rows at reserved orders",()=>{
   const {sqlite}=seedDatabase({before:'0023'});
@@ -42,7 +42,7 @@ test("database guard rejects content changed after preflight without overwriting
   } finally {sqlite.close();}
 });
 test("fresh database matches the release and preflight can recognize an already-applied batch",()=>{
-  const {sqlite}=seedDatabase();
+  const {sqlite}=seedDatabase({before:'0025'});
   try {
     const state=snapshot(sqlite);validateLiveBaseline(manifest,state.rows,state.questions,true);
     assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM texts WHERE level IN ('A1','A2') AND is_enabled=1").get().n,122);
@@ -52,9 +52,9 @@ test("fresh database matches the release and preflight can recognize an already-
 
 test("rollback restores earlier passages, hides additions and preserves drafts and revisions",()=>{
   const path=join(mkdtempSync(join(tmpdir(),'a1-rollback-')),'rollback.sql');
-  const run=spawnSync(process.execPath,['scripts/build-release-rollback.mjs','--output',path],{encoding:'utf8'});
+  const run=spawnSync(process.execPath,['scripts/build-release-rollback.mjs','--output',path],{encoding:'utf8',env:{...process.env,RELEASE_VERSION:'0.83'}});
   assert.equal(run.status,0,run.stderr);
-  const {sqlite}=seedDatabase();
+  const {sqlite}=seedDatabase({before:'0025'});
   try {
     sqlite.exec("UPDATE texts SET draft_json='{\"title\":\"Keep\"}' WHERE level='A1' AND display_order=15");
     const ids=sqlite.prepare("SELECT id FROM texts ORDER BY id").all();

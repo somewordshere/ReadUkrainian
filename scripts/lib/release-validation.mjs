@@ -5,8 +5,9 @@ import { comparableQuestions } from "./live-content-check.mjs";
 
 export const sqlHash = (text) => createHash("sha256").update(text.replaceAll("\r\n", "\n")).digest("hex");
 
-export function validateMigrationFiles(manifest, directory) {
-  const files = readdirSync(directory).filter((f) => f.endsWith(".sql")).sort();
+export function validateMigrationFiles(manifest, directory, { allowLater = false } = {}) {
+  const last = manifest.migrations.at(-1).name;
+  const files = readdirSync(directory).filter((f) => f.endsWith(".sql") && (!allowLater || f <= last)).sort();
   assert.deepEqual(files, manifest.migrations.map((m) => m.name), "Migration list differs from the reviewed release manifest");
   for (const file of manifest.migrations) assert.equal(sqlHash(readFileSync(new URL(file.name, directory), "utf8")), file.sha256, `Migration changed: ${file.name}`);
 }

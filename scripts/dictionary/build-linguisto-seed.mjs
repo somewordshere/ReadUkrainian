@@ -11,7 +11,6 @@ import {
 } from "../../functions/_shared/ukrainian-word.js";
 
 const PROJECT_ROOT = resolve(import.meta.dirname, "../..");
-const DEFAULT_OUTPUT = resolve(PROJECT_ROOT, "migrations/0016_dictionary_linguisto_uk_de_seed.sql");
 const DEFAULT_LEXEME_SEEDS = Object.freeze([
   resolve(PROJECT_ROOT, "migrations/0015_dictionary_uk_de_seed.sql"),
   resolve(PROJECT_ROOT, "migrations/0012_dictionary_uk_en_seed.sql"),
@@ -58,7 +57,7 @@ Options:
   --revision DATE        Linguisto release date in YYYY-MM-DD format (required).
   --lexeme-seed PATH     Installed dictionary seed to match; repeatable.
                          Defaults to German Kaikki, English Kaikki, then curated.
-  --output PATH          Generated SQL file (default: migration 0016).
+  --output PATH          Generated SQL file (required; must not exist).
   --help                 Show this message.
 
 Only exact, single-word Ukrainian equivalents with a matching part of speech and
@@ -71,7 +70,7 @@ function parseArgs(argv) {
     source: "",
     revision: "",
     lexemeSeeds: [],
-    output: DEFAULT_OUTPUT,
+    output: "",
   };
 
   for (let index = 0; index < argv.length; index += 1) {
@@ -111,6 +110,7 @@ function parseArgs(argv) {
     throw new Error("--revision must use YYYY-MM-DD.");
   }
   if (!options.lexemeSeeds.length) options.lexemeSeeds = [...DEFAULT_LEXEME_SEEDS];
+  if (!options.output) throw new Error("--output NEW_FILE is required; historical migrations are immutable.");
   return options;
 }
 
@@ -343,7 +343,7 @@ async function buildLinguistoSeed(options) {
     });
 
   sql.push("", "PRAGMA optimize;", "");
-  await writeFile(options.output, sql.join("\n"), "utf8");
+  await writeFile(options.output, sql.join("\n"), { encoding: "utf8", flag: "wx" });
 
   return {
     sourceArticles: extracted.articles,

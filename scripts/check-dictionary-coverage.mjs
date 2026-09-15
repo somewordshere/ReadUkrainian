@@ -12,6 +12,8 @@ try {
   console.log(JSON.stringify({ stories: stories.length, ...coverage }, null, 2));
   assert.deepEqual(coverage.missing, [], "Published vocabulary needs reviewed English dictionary coverage");
   assert.equal(coverage.coveragePercent, 100);
+  const german = await analyzeDictionaryCoverage(db, stories.flatMap((story) => story.paragraphs), { targetLanguage: "de" });
+  console.log(JSON.stringify({ stories: stories.length, ...german, missing: process.argv.includes("--missing") ? german.missing : undefined }, null, 2));
   for (const [word, badLemma] of [["мама", "озимина"], ["червоний", "рясний"], ["парк", "лісопарк"]]) {
     const result = await lookupDictionaryWord(db, { text: word, targetLanguage: "en" });
     assert.ok(result.entries.length && !result.entries.some((entry) => entry.lemma === badLemma), `Incorrect lookup: ${word}`);
