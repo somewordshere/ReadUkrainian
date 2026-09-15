@@ -9,9 +9,17 @@ import {seedDatabase} from '../scripts/lib/seed-database.mjs';
 import {loadReleaseManifest} from '../scripts/lib/release-manifest.mjs';
 import {pendingMigrations,validateLiveBaseline,validateMigrationFiles} from '../scripts/lib/release-validation.mjs';
 import {extractUkrainianWords} from '../functions/_shared/ukrainian-word.js';
+import {lookupDictionaryWord} from '../functions/_shared/dictionary.js';
 const read=p=>JSON.parse(fs.readFileSync(new URL(p,import.meta.url),'utf8'));
 const seed=read('../data/content-seed.json'),qs=read('../data/questions-seed.json'),old=read('./fixtures/content-083.json');
 const words=s=>s.split(/\s+/).filter(w=>/[\p{L}\p{N}]/u.test(w));
+test('every release dictionary probe is reachable through the public lookup contract',async()=>{
+ const {sqlite,db}=seedDatabase();
+ try{for(const p of loadReleaseManifest('0.84').dictionaryProbes){
+  const r=await lookupDictionaryWord(db,{text:p.text,targetLanguage:p.language});
+  assert.ok(r.entries.some(e=>e.lemma===p.lemma&&e.translations.some(t=>t.text===p.translation)),`${p.language}:${p.text}`);
+ }}finally{sqlite.close();}
+});
 test('0.84 A1 mechanics, recycling, complete questions and unchanged prior stories',()=>{
  const once=new Map();for(const s of old.filter(s=>s.level==='A1'))for(const w of new Set(extractUkrainianWords(s.paragraphs.join(' '))))once.set(w,(once.get(w)||0)+1);
  for(const [order,min,paras,title] of [[20,80,2,'Погода сьогодні'],[21,95,3,'Пори року'],[22,90,3,'Мій одяг'],[23,80,2,'Кольори навколо мене'],[24,80,2,'Котра година?']]){
