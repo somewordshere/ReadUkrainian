@@ -2,8 +2,10 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { onRequestPost } from "../functions/api/speech.js";
+import { resolveSpeechVoice } from "../functions/_shared/speech-voices.js";
 
 const LIVE_TEST_ENABLED = process.env.LIVE_TTS_AI_TEST === "1";
+const voice = resolveSpeechVoice(process.env.LIVE_SPEECH_VOICE || "lada");
 
 function liveTestDb() {
   const storyRow = {
@@ -27,7 +29,7 @@ function liveTestDb() {
         },
         async first() {
           if (sql.includes("FROM speech_settings")) {
-            return { voiceId: "mai", enabled: 1, version: 1 };
+            return { voiceId: voice.id, enabled: 1, version: 1 };
           }
           if (sql.includes("speech_usage_daily")) {
             return { characters_used: 6 };
@@ -40,7 +42,7 @@ function liveTestDb() {
 }
 
 test(
-  "live TTS.ai catalog and MAI synthesis contract",
+  "live TTS.ai catalog and configured voice synthesis contract",
   { skip: !LIVE_TEST_ENABLED, timeout: 30_000 },
   async () => {
     const catalogResponse = await fetch("https://api.tts.ai/v1/voices/");
@@ -48,7 +50,7 @@ test(
     const catalog = await catalogResponse.json();
     assert.ok(
       catalog.voices.some(
-        (voice) => voice.id === "mai_uk" && voice.model === "vits" && voice.language === "uk"
+        (item) => item.id === voice.providerVoice && item.model === voice.providerModel && item.language === "uk"
       )
     );
 
@@ -85,11 +87,17 @@ test(
 
     await Promise.all(pendingWrites);
     assert.equal(response.status, 200);
-    assert.equal(response.headers.get("x-speech-voice"), "mai");
-    assert.equal(response.headers.get("content-type"), "audio/wav");
+    assert.equal(response.headers.get("x-speech-voice"), voice.id);
+    // The provider may return WAV for a requested MP3; the endpoint validates
+    // the actual bytes and labels them accordingly.
+    assert.ok(["audio/mpeg", "audio/wav"].includes(response.headers.get("content-type")));
     const bytes = new Uint8Array(await response.arrayBuffer());
     assert.ok(bytes.byteLength > 1_000);
-    assert.equal(new TextDecoder("ascii").decode(bytes.slice(0, 4)), "RIFF");
-    assert.equal(new TextDecoder("ascii").decode(bytes.slice(8, 12)), "WAVE");
+    if (response.headers.get("content-type") === "audio/wav") {
+      assert.equal(new TextDecoder("ascii").decode(bytes.slice(0, 4)), "RIFF");
+      assert.equal(new TextDecoder("ascii").decode(bytes.slice(8, 12)), "WAVE");
+    } else {
+      assert.ok(new TextDecoder("ascii").decode(bytes.slice(0,3)) === "ID3" || (bytes[0] === 255 && (bytes[1] & 224) === 224));
+    }
   }
 );

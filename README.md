@@ -48,5 +48,8 @@ Ukrainian morphology and the primary translations come from Wiktionary data dist
 The Linguisto build deliberately accepts only exact, single-word Ukrainian equivalents whose part of speech matches one unambiguous installed lexeme. This avoids automatically publishing phrases and uncertain reverse-dictionary matches. Rebuild the generated D1 seed from an official XDXF download with:
 
 ```sh
-npm run dictionary:build:linguisto -- --source PATH_TO_XDXF --revision 2018-04-12
+npm run dictionary:build:linguisto -- --source PATH_TO_XDXF --revision 2018-04-12 --output NEW_REVIEW_FILE.sql
 ```
+
+See [the raw dictionary rebuild workflow](docs/dictionary-rebuild.md) for supported
+sources, reproducibility checks, and the reviewed German subset in release 0.84.

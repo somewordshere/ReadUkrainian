@@ -1,7 +1,8 @@
+import { loadReleaseManifest } from "./lib/release-manifest.mjs";
 import { readFileSync } from "node:fs";
 import assert from "node:assert/strict";
 import { validateMigrationFiles } from "./lib/release-validation.mjs";
-const manifest = JSON.parse(readFileSync(new URL("../data/releases/0.83.json",import.meta.url),"utf8"));
+const manifest = loadReleaseManifest(process.env.RELEASE_VERSION);
 validateMigrationFiles(manifest,new URL("../migrations/",import.meta.url));
 const pkg = JSON.parse(readFileSync(new URL("../package.json",import.meta.url),"utf8"));
 const lock = JSON.parse(readFileSync(new URL("../package-lock.json",import.meta.url),"utf8"));

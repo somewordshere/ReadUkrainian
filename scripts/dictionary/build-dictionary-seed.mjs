@@ -19,7 +19,6 @@ const DEFAULT_CONTENT = resolve(PROJECT_ROOT, "data/content-seed.json");
 const SOURCE_LANGUAGE = "uk";
 const SOURCE_CONFIGS = Object.freeze({
   en: Object.freeze({
-    output: resolve(PROJECT_ROOT, "migrations/0012_dictionary_uk_en_seed.sql"),
     sourceId: "kaikki-wiktionary",
     sourceName: "English Wiktionary via Kaikki.org",
     sourceUrl: "https://kaikki.org/dictionary/Ukrainian/",
@@ -27,7 +26,6 @@ const SOURCE_CONFIGS = Object.freeze({
     licenseUrl: "https://en.wiktionary.org/wiki/Wiktionary:Copyrights",
   }),
   de: Object.freeze({
-    output: resolve(PROJECT_ROOT, "migrations/0015_dictionary_uk_de_seed.sql"),
     sourceId: "kaikki-dewiktionary",
     sourceName: "German Wiktionary via Kaikki.org",
     sourceUrl: "https://kaikki.org/dewiktionary/Ukrainisch/",
@@ -60,7 +58,7 @@ Options:
   --content PATH         Story seed JSON used by story scope (default: data/content-seed.json).
   --forms-source PATH    Optional Kaikki JSONL source with richer Ukrainian inflections.
   --since PATH           Already-applied seed whose statements to omit. Repeatable.
-  --output PATH          Generated SQL file (default depends on target language).
+  --output PATH          Generated SQL file (required; must not exist).
   --help                 Show this message.
 `;
 }
@@ -131,7 +129,7 @@ function parseArgs(argv) {
   if (!SOURCE_CONFIGS[options.targetLanguage]) {
     throw new Error("--target must be en or de.");
   }
-  if (!options.output) options.output = SOURCE_CONFIGS[options.targetLanguage].output;
+  if (!options.output) throw new Error("--output NEW_FILE is required; historical migrations are immutable.");
 
   return options;
 }
@@ -320,7 +318,9 @@ function getEntrySenses(entry) {
       && !sense?.tags?.some((tag) => tag === "form-of" || tag === "alt-of")
     ))
     .map((sense) => ({
-      sourceId: typeof sense.id === "string" ? sense.id : "",
+      // Raw extracts have no postprocessor IDs. Namespace a deterministic
+      // semantic identity; existing postprocessed IDs remain unchanged.
+      sourceId: typeof sense.id === "string" ? sense.id : `raw:${hashId("entry", JSON.stringify([entry.lang, entry.lang_code, entry.word, entry.pos, entry.etymology_number ?? null, sense.glosses, compactTags(sense.tags)]))}`,
       translation: typeof sense.glosses?.[0] === "string" ? sense.glosses[0].trim() : "",
       tags: compactTags(sense.tags),
     }))
@@ -485,7 +485,7 @@ async function buildDictionary(options) {
     : sql;
 
   emitted.push("", "PRAGMA optimize;", "");
-  await writeFile(options.output, emitted.join("\n"), "utf8");
+  await writeFile(options.output, emitted.join("\n"), { encoding: "utf8", flag: "wx" });
 
   const missingWords = wantedWords
     ? [...wantedWords].filter((word) => !coveredWords.has(word)).sort()

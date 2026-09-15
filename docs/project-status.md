@@ -1,5 +1,11 @@
 # Read Ukrainian — project status
 
+## 0.84 — prepared for publication (2026-09-15)
+
+Five A1 stories (20–24), 25 questions, 27 English vocabulary forms and 311 reviewed German translations are prepared. The 127-story corpus has complete English coverage (4,158 forms); German coverage is 1,573/4,158 (37.8%). Raw English/German extraction and repeated builds passed; full raw outputs remain unpublished review artifacts. Private A2 progression and A1 teacher/learner review materials are prepared. External human review is pending. Lada provider synthesis passed; production activation awaits the release. B1 is deferred.
+
+The following 0.83 checkpoint remains historical.
+
 Last reconciled: **2026-09-08**. This is a dated checkpoint, not a live dashboard.
 
 ## Version 0.83 — published and verified
