@@ -4,11 +4,12 @@ Changes are checked automatically. Production publication is a manual **Release
 production** action on `main`. A failed check stops the release. No push should
 deploy production through another integration.
 
-Current release: **0.84**. Helpers select `data/releases/MAJOR.MINOR.json` from
+Current release: **0.85**. Helpers select `data/releases/MAJOR.MINOR.json` from
 `package.json`; historical rollback generation can explicitly set
 `RELEASE_VERSION=0.83`. Current publication also records the pronunciation setting
 before writes and verifies reviewed English/German dictionary probes. See
-[the 0.84 release report](release-0.84.md).
+[the 0.85 release report](release-0.85.md). The [0.84 report](release-0.84.md)
+remains a historical record.
 
 ## One-time account setup
 
