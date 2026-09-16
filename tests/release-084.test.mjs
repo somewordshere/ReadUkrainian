@@ -11,7 +11,10 @@ import {pendingMigrations,validateLiveBaseline,validateMigrationFiles} from '../
 import {extractUkrainianWords} from '../functions/_shared/ukrainian-word.js';
 import {lookupDictionaryWord} from '../functions/_shared/dictionary.js';
 const read=p=>JSON.parse(fs.readFileSync(new URL(p,import.meta.url),'utf8'));
-const seed=read('../data/content-seed.json'),qs=read('../data/questions-seed.json'),old=read('./fixtures/content-083.json');
+const old=read('./fixtures/content-083.json');
+const historical=loadReleaseManifest('0.84');
+const seed=[...old,...historical.stories.map(({level,order,after})=>({level,sortOrder:order,title:after.title,paragraphs:after.paragraphs,showWordCount:after.showWordCount,active:after.active}))];
+const qs=historical.stories.flatMap(s=>s.after.questions.map((q,i)=>({...q,level:s.level,storyOrder:s.order,displayOrder:i+1})));
 const words=s=>s.split(/\s+/).filter(w=>/[\p{L}\p{N}]/u.test(w));
 test('every release dictionary probe is reachable through the public lookup contract',async()=>{
  const {sqlite,db}=seedDatabase();
@@ -52,7 +55,7 @@ test('0.84 preserves prior records, preferences, drafts and revision history',()
 });
 test('0.84 rejects occupied slots, validates migration order and supports retries',()=>{
  const manifest=loadReleaseManifest('0.84'),all=manifest.migrations.map(m=>m.name),base=all.filter(n=>!manifest.releaseMigrations.includes(n));
- validateMigrationFiles(manifest,new URL('../migrations/',import.meta.url));
+ validateMigrationFiles(manifest,new URL('../migrations/',import.meta.url),{allowLater:true});
  for(let n=0;n<=3;n++)assert.deepEqual(pendingMigrations(manifest,[...base,...manifest.releaseMigrations.slice(0,n)]),manifest.releaseMigrations.slice(n));
  assert.throws(()=>pendingMigrations(manifest,[...base,manifest.contentMigration]));
  assert.equal(loadReleaseManifest('0.83').version,'0.83');assert.throws(()=>loadReleaseManifest('../0.83'));
