@@ -1,8 +1,29 @@
 # Read Ukrainian — project status
 
-## 0.84 — prepared for publication (2026-09-15)
+## 0.84 — published and verified (2026-09-16)
 
-Five A1 stories (20–24), 25 questions, 27 English vocabulary forms and 311 reviewed German translations are prepared. The 127-story corpus has complete English coverage (4,158 forms); German coverage is 1,573/4,158 (37.8%). Raw English/German extraction and repeated builds passed; full raw outputs remain unpublished review artifacts. Private A2 progression and A1 teacher/learner review materials are prepared. External human review is pending. Lada provider synthesis passed; production activation awaits the release. B1 is deferred.
+Production now serves **24 A1 + 103 A2 stories: 127 stories and 635 questions**.
+The [manual release](https://github.com/somewordshere/ReadUkrainian/actions/runs/35013603070)
+passed, matching all live content and 56 dictionary probes. Full checks passed
+156 tests, with zero failures and one optional provider test skipped; that test
+passed separately against Lada.
+
+English coverage is **4,158/4,158 (100%)**. The 311 reviewed German additions raise
+coverage from **29.4% to 37.8% (1,573/4,158)**, leaving 2,585 forms uncovered.
+Coverage is not translation accuracy. Raw English/German rebuilds were repeated
+byte for byte; full upstream outputs remain unpublished review candidates.
+
+**Lada pronunciation is enabled**, with actual production audio, cache reuse and
+browser playback verified. The existing 4,500-character daily limit and AI-voice
+disclosure remain. Desktop and mobile viewport reading, dictionaries, quizzes,
+bookmarks and saved progress passed. See [release evidence](release-0.84.md).
+
+Private curriculum materials include the 103-story A2 progression map, A1 15–19
+learner pack, separate teacher key and feedback template, and the A1 20–24 audit.
+External teacher/learner review remains pending; no outreach occurred. B1 is deferred.
+
+Private backup commit `84cc67f` is pushed. Repository privacy and all 27 files were
+verified against a fresh checkout on September 16.
 
 The following 0.83 checkpoint remains historical.
 
