@@ -1,6 +1,6 @@
 # Release 0.85 — A1 passage revision
 
-Prepared 2026-09-16 in response to feedback that A1 20–24 felt too short.
+Published 2026-09-16 in response to feedback that A1 20–24 felt too short.
 
 The five passages now use the upper end of their **unchanged** topic limits:
 
@@ -45,6 +45,40 @@ not an exhaustive translation-accuracy assessment.
 
 ## Publication and recovery
 
-Production workflow and browser evidence will be recorded after publication.
-The existing manual workflow captures the previous passages, question records,
-pronunciation setting and recovery information before applying these migrations.
+The [manual production workflow](https://github.com/somewordshere/ReadUkrainian/actions/runs/35104828324)
+passed after explicit approval to publish 0.85. It deployed merge commit
+`386ef1f281ebc5ef03ee168c49f8e015bdfdf629`, Worker version
+`e73dd8fb-43ab-4bbf-82d1-f1fb9f444033`, and applied migrations 0028 and 0029.
+All **127 live stories and 635 complete questions** matched the repository;
+**74 dictionary probes** passed, including the three repaired associations.
+The workflow repeated the full checks successfully before deployment.
+
+The workflow captured previous passages, questions, speech settings and recovery
+information before changing production. The recovery artifact was downloaded to
+the ignored local folder `.local-release/github-recovery-085`; the production log
+is `.local-release/release-085-production.log`.
+
+## Browser and audio evidence
+
+- Desktop (1365×900) and mobile viewport (390×844): the revised clock passage
+  displays 90 words, with no horizontal overflow. The page shows version 0.85.
+- The pre-existing bookmark and completed 5/5 quiz survived publication and
+  reload on both viewports. The test did not clear or restart saved progress.
+- Both English and German lookups for the newly mapped form «своїй» resolved to
+  «свій» with the existing translations and source attribution.
+- Browser pronunciation for «своїй» reached “Відтворення завершено.”.
+  Separate live API checks returned valid 26,156-byte Lada WAV audio twice
+  (both cache hits); a multiword request was rejected with HTTP 422.
+  Results are in `.local-release/live-speech-085.json`. The live uncached provider
+  validation from 0.84 remains recorded separately; this API repeat proves cached
+  audio delivery. The configured voice, 4,500-character limit and disclosure are unchanged.
+- The dictionary selection was restored to English and the temporary viewport
+  override was removed after checks.
+
+## Private backup and outstanding review
+
+Private curriculum commit `d209a516fb596fce2347d9661d180bf91d3c65db` is pushed.
+Repository privacy and all **28 files** were verified byte for byte against a fresh
+checkout after the publication notes were updated. External teacher/learner
+responses remain pending; automated, editorial and browser checks are not human
+review or proof of every learner's vocabulary knowledge.

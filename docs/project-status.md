@@ -1,5 +1,26 @@
 # Read Ukrainian — project status
 
+## 0.85 — published and verified (2026-09-16)
+
+A1 stories 20–24 are revised to **90, 105, 100, 90 and 90 words** using the
+unchanged A1 prompt and topic limits. All 25 questions retain their wording and
+answers. IDs, bookmarks, progress, drafts, revisions and preferences are preserved.
+
+The [manual release](https://github.com/somewordshere/ReadUkrainian/actions/runs/35104828324)
+passed: **127 stories, 635 questions and 74 dictionary probes** match production.
+Full checks passed 160 tests, zero failures, with one optional provider test skipped.
+Desktop/mobile reading, retained bookmark and 5/5 quiz after reload, both dictionary
+languages and Lada playback passed. The voice and 4,500-character limit remain unchanged.
+
+English coverage is **4,159/4,159 (100%)**; German is **1,579/4,159 (38.0%)**,
+with 2,580 uncovered forms. Coverage does not establish translation accuracy.
+See [the release evidence](release-0.85.md) for separate automated, editorial,
+browser and audio results and recovery information.
+
+Private backup `d209a51` is pushed; privacy and all **28 curriculum files** were
+verified against a fresh checkout. External teacher/learner feedback remains
+pending. B1 is deferred. The following checkpoints are historical.
+
 ## 0.84 — published and verified (2026-09-16)
 
 Production now serves **24 A1 + 103 A2 stories: 127 stories and 635 questions**.
