@@ -1,0 +1,335 @@
+{
+  "source": "Editorially reviewed inflections of installed lexemes; existing senses, translations and attribution unchanged.",
+  "entries": [
+    {
+      "form": "велосипеді",
+      "lemma": "велосипед",
+      "lexemeId": "curated_lex_6d2ff4d01bcdc4ca4627fc7d",
+      "tags": [
+        "locative",
+        "masculine",
+        "singular"
+      ],
+      "language": "en",
+      "translation": "bicycle",
+      "evidence": [
+        {
+          "story": 20,
+          "sentence": "Поруч хлопець повільно їде на велосипеді з великим рюкзаком."
+        }
+      ]
+    },
+    {
+      "form": "дзеркалі",
+      "lemma": "дзеркало",
+      "lexemeId": "lex_d54b0cbaf8ae16d800f914f1",
+      "tags": [
+        "locative",
+        "neuter",
+        "singular"
+      ],
+      "language": "en",
+      "translation": "mirror, looking glass",
+      "evidence": [
+        {
+          "story": 22,
+          "sentence": "У дзеркалі я бачу сорочку і сірий светр."
+        }
+      ]
+    },
+    {
+      "form": "дзеркалі",
+      "lemma": "дзеркало",
+      "lexemeId": "lex_5f59d4bf3842d5feecc1cb41",
+      "tags": [
+        "locative",
+        "neuter",
+        "singular"
+      ],
+      "language": "de",
+      "translation": "Platte, die Licht reflektiert; Spiegel",
+      "evidence": [
+        {
+          "story": 22,
+          "sentence": "У дзеркалі я бачу сорочку і сірий светр."
+        }
+      ]
+    },
+    {
+      "form": "дівчинкою",
+      "lemma": "дівчинка",
+      "lexemeId": "curated_lex_d4f65a29fcb6360a91606085",
+      "tags": [
+        "feminine",
+        "instrumental",
+        "singular"
+      ],
+      "language": "en",
+      "translation": "girl",
+      "evidence": [
+        {
+          "story": 20,
+          "sentence": "Жінка з дівчинкою сидить на лавці біля старого дерева."
+        },
+        {
+          "story": 20,
+          "sentence": "Жінка з дівчинкою тепер дивиться на воду біля лавки."
+        }
+      ]
+    },
+    {
+      "form": "зошита",
+      "lemma": "зошит",
+      "lexemeId": "lex_107a5e1ce9384ce30224a29b",
+      "tags": [
+        "genitive",
+        "masculine",
+        "singular"
+      ],
+      "language": "en",
+      "translation": "exercise book, notebook",
+      "evidence": [
+        {
+          "story": 23,
+          "sentence": "На столі стоїть біла лампа біля червоного зошита."
+        }
+      ]
+    },
+    {
+      "form": "книжкою",
+      "lemma": "книжка",
+      "lexemeId": "curated_lex_5e93ccde7d88fcc62d944ee2",
+      "tags": [
+        "feminine",
+        "instrumental",
+        "singular"
+      ],
+      "language": "en",
+      "translation": "book",
+      "evidence": [
+        {
+          "story": 21,
+          "sentence": "Бабуся сидить удома з книжкою біля вікна."
+        },
+        {
+          "story": 22,
+          "sentence": "Увечері я сиджу вдома на дивані з книжкою."
+        }
+      ]
+    },
+    {
+      "form": "куртка",
+      "lemma": "куртка",
+      "lexemeId": "lex_5396fa1454363efb5b71b996",
+      "tags": [
+        "feminine",
+        "nominative",
+        "singular"
+      ],
+      "language": "en",
+      "translation": "jacket",
+      "evidence": [
+        {
+          "story": 22,
+          "sentence": "Куртка в шафі."
+        }
+      ]
+    },
+    {
+      "form": "моєї",
+      "lemma": "мій",
+      "lexemeId": "curated_lex_6bc8fd2b2e561411a441e1de",
+      "tags": [
+        "feminine",
+        "genitive",
+        "singular"
+      ],
+      "language": "en",
+      "translation": "my; mine",
+      "evidence": [
+        {
+          "story": 23,
+          "sentence": "Я щодня працюю вдома біля великого вікна моєї кімнати."
+        }
+      ]
+    },
+    {
+      "form": "онуком",
+      "lemma": "онук",
+      "lexemeId": "curated_lex_dc365d60b000957530ebb68c",
+      "tags": [
+        "instrumental",
+        "masculine",
+        "singular"
+      ],
+      "language": "en",
+      "translation": "grandson",
+      "evidence": [
+        {
+          "story": 21,
+          "sentence": "Улітку бабуся часто сидить на цій лавці з онуком."
+        }
+      ]
+    },
+    {
+      "form": "рукави",
+      "lemma": "рукав",
+      "lexemeId": "curated_lex_c60e03cb26d60d69e34a9b7e",
+      "tags": [
+        "nominative",
+        "plural"
+      ],
+      "language": "en",
+      "translation": "sleeve",
+      "evidence": [
+        {
+          "story": 22,
+          "sentence": "Мій светр має великі м'які рукави."
+        }
+      ]
+    },
+    {
+      "form": "рукави",
+      "lemma": "рукав",
+      "lexemeId": "lex_a0694f137dc309e25321044d",
+      "tags": [
+        "nominative",
+        "plural"
+      ],
+      "language": "de",
+      "translation": "Teil eines Kleidungsstücks, der den Arm bedeckt; Ärmel",
+      "evidence": [
+        {
+          "story": 22,
+          "sentence": "Мій светр має великі м'які рукави."
+        }
+      ]
+    },
+    {
+      "form": "рюкзаком",
+      "lemma": "рюкзак",
+      "lexemeId": "curated_lex_bc143617219a19f30dfb7702",
+      "tags": [
+        "instrumental",
+        "masculine",
+        "singular"
+      ],
+      "language": "en",
+      "translation": "backpack",
+      "evidence": [
+        {
+          "story": 20,
+          "sentence": "Поруч хлопець повільно їде на велосипеді з великим рюкзаком."
+        }
+      ]
+    },
+    {
+      "form": "рюкзаком",
+      "lemma": "рюкзак",
+      "lexemeId": "lex_2aa105c720a4d8543fb5d77c",
+      "tags": [
+        "instrumental",
+        "masculine",
+        "singular"
+      ],
+      "language": "de",
+      "translation": "Rucksack",
+      "evidence": [
+        {
+          "story": 20,
+          "sentence": "Поруч хлопець повільно їде на велосипеді з великим рюкзаком."
+        }
+      ]
+    },
+    {
+      "form": "своїй",
+      "lemma": "свій",
+      "lexemeId": "lex_3b4fe7087d32fbeeb47e4ba5",
+      "tags": [
+        "feminine",
+        "locative",
+        "singular"
+      ],
+      "language": "en",
+      "translation": "one's, my, his, her, its, our, your, their (always refers to the subject of the sentence)",
+      "evidence": [
+        {
+          "story": 24,
+          "sentence": "Після сніданку я шукаю ключі від офісу у своїй сумці."
+        }
+      ]
+    },
+    {
+      "form": "своїй",
+      "lemma": "свій",
+      "lexemeId": "lex_b2acbc75c737752731ef4fbd",
+      "tags": [
+        "feminine",
+        "locative",
+        "singular"
+      ],
+      "language": "de",
+      "translation": "reflexives Possessivpronem; mein, dein, sein, ihr, unser, euer",
+      "evidence": [
+        {
+          "story": 24,
+          "sentence": "Після сніданку я шукаю ключі від офісу у своїй сумці."
+        }
+      ]
+    },
+    {
+      "form": "сьому",
+      "lemma": "сьомий",
+      "lexemeId": "lex_43a8d1b7350036539172b507",
+      "tags": [
+        "accusative",
+        "feminine",
+        "singular"
+      ],
+      "language": "en",
+      "translation": "seventh",
+      "evidence": [
+        {
+          "story": 24,
+          "sentence": "Потім ставлю будильник біля ліжка на сьому годину."
+        }
+      ]
+    },
+    {
+      "form": "червоного",
+      "lemma": "червоний",
+      "lexemeId": "curated_lex_ce74f6c7e4e579bde4776518",
+      "tags": [
+        "genitive",
+        "masculine",
+        "singular"
+      ],
+      "language": "en",
+      "translation": "red",
+      "evidence": [
+        {
+          "story": 23,
+          "sentence": "На столі стоїть біла лампа біля червоного зошита."
+        }
+      ]
+    },
+    {
+      "form": "червоного",
+      "lemma": "червоний",
+      "lexemeId": "lex_96124c61a5276280605da876",
+      "tags": [
+        "genitive",
+        "masculine",
+        "singular"
+      ],
+      "language": "de",
+      "translation": "rot",
+      "evidence": [
+        {
+          "story": 23,
+          "sentence": "На столі стоїть біла лампа біля червоного зошита."
+        }
+      ]
+    }
+  ]
+}
