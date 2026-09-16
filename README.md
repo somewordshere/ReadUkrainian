@@ -43,7 +43,7 @@ Drafts remain private until a publisher explicitly releases them, keeping work i
 
 ## Dictionary data
 
-Ukrainian morphology and the primary translations come from Wiktionary data distributed by Kaikki.org. An optional German supplement has been prepared from the Creative Commons Attribution-licensed [Linguisto German–Ukrainian dictionary](https://sourceforge.net/projects/linguisto/), release 2018-04-12. It has not been published; see [optional seeds](data/optional-seeds/README.md).
+Ukrainian morphology and the primary translations come from Wiktionary data distributed by Kaikki.org. Release 0.84 publishes 311 reviewed translations from the Creative Commons Attribution-licensed [Linguisto German–Ukrainian dictionary](https://sourceforge.net/projects/linguisto/), release 2018-04-12. The full supplement remains unpublished; see [optional seeds](data/optional-seeds/README.md) and [release evidence](docs/release-0.84.md).
 
 The Linguisto build deliberately accepts only exact, single-word Ukrainian equivalents whose part of speech matches one unambiguous installed lexeme. This avoids automatically publishing phrases and uncertain reverse-dictionary matches. Rebuild the generated D1 seed from an official XDXF download with:
 
