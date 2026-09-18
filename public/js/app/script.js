@@ -112,7 +112,7 @@ function createStoryCard(story) {
   title.textContent = `${story.displayNumber}. ${story.title}`;
   topic.className = "text-topic";
   topic.textContent = storyTopic.label;
-  link.append(label, title, topic);
+  link.append(title, label, " ", topic);
 
   const progress = getProgressForStory(story);
   if (progress?.completed) {
