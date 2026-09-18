@@ -826,7 +826,8 @@ export function initSelectionSpeech(
       dismissOffer({ stop: true, suppress: true });
     }
   });
-  window.addEventListener("scroll", positionPopover, { passive: true });
+  // Capture scrolls from the reader's horizontal scroller as well as the page.
+  window.addEventListener("scroll", positionPopover, { passive: true, capture: true });
   window.addEventListener("resize", positionPopover);
   window.visualViewport?.addEventListener("resize", positionPopover);
   window.visualViewport?.addEventListener("scroll", positionPopover);

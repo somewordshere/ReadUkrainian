@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Історії українською</title>
     <link rel="stylesheet" href="./css/styles.css" />
+    <link rel="stylesheet" href="./css/public.css" />
 
     <!-- script.js imports these, so without the hints the browser only learns
          they exist after script.js has downloaded, and each further level of
@@ -13,17 +14,18 @@
     <link rel="modulepreload" href="./js/app/library-utils.mjs" />
     <link rel="modulepreload" href="./js/app/legacy-content.js" />
   </head>
-  <body>
+  <body class="public-page library-page">
+    <a class="skip-link" href="#mainContent">Перейти до бібліотеки</a>
     <div class="page-shell">
       <header class="hero">
-        <p class="eyebrow">Платформа для тих, хто вивчає українську мову</p>
+        <p class="eyebrow">Читайте. Розумійте. Практикуйте.</p>
         <h1>Історії українською</h1>
         <p class="hero-copy">
           Читайте українською на різні теми.
         </p>
       </header>
 
-      <main>
+      <main id="mainContent" tabindex="-1">
         <section class="continue-card" id="continueCard" aria-labelledby="continueTitle" hidden>
           <div>
             <p class="continue-kicker" id="continueKicker">Продовжити навчання</p>
@@ -36,8 +38,7 @@
         <section class="library-tools" id="libraryTools" aria-labelledby="libraryToolsTitle" hidden>
           <div class="library-tools-heading">
             <div>
-              <p class="continue-kicker">Бібліотека</p>
-              <h2 id="libraryToolsTitle">Знайдіть наступний текст</h2>
+              <h2 id="libraryToolsTitle">Бібліотека текстів</h2>
             </div>
             <button class="clear-filters-button" id="clearFiltersButton" type="button">Очистити фільтри</button>
           </div>
