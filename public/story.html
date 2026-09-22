@@ -37,16 +37,16 @@
           </div>
           <div class="reader-toolbar">
             <div class="story-heading-actions">
-              <label class="translation-language-control" for="translationLanguageSelect">
-                <span>Переклад</span>
-                <select id="translationLanguageSelect" name="translationLanguage">
-                  <option value="en">English</option>
-                  <option value="de">Deutsch</option>
-                </select>
-              </label>
-              <button class="stress-toggle" id="stressToggle" type="button" aria-pressed="true">
-                <span class="stress-toggle-mark" aria-hidden="true">а́</span>
+              <div class="language-switch" role="group" aria-labelledby="languageSwitchLabel">
+                <span class="reader-control-label" id="languageSwitchLabel">Переклад</span>
+                <div class="segmented" id="translationLanguageSwitch">
+                  <button class="segment" type="button" data-language="en" aria-label="English" aria-pressed="true">EN</button>
+                  <button class="segment" type="button" data-language="de" aria-label="Deutsch" aria-pressed="false">DE</button>
+                </div>
+              </div>
+              <button class="stress-toggle" id="stressToggle" type="button" role="switch" aria-checked="true">
                 <span>Наголоси</span>
+                <span class="switch" aria-hidden="true"></span>
               </button>
             </div>
           </div>

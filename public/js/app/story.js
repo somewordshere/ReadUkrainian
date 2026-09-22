@@ -21,7 +21,7 @@ const bookmarkButton = document.getElementById("bookmarkButton");
 const completionActions = document.getElementById("completionActions");
 const reviewMistakesButton = document.getElementById("reviewMistakesButton");
 const nextStoryLink = document.getElementById("nextStoryLink");
-const translationLanguageSelect = document.getElementById("translationLanguageSelect");
+const translationLanguageButtons = document.querySelectorAll("#translationLanguageSwitch [data-language]");
 const stressToggle = document.getElementById("stressToggle");
 const TRANSLATION_LANGUAGE_STORAGE_KEY = "readukrainian.translation-language";
 const selectionSpeech = initSelectionSpeech({
@@ -49,7 +49,9 @@ function getSavedTranslationLanguage() {
 
 function setTranslationLanguage(language) {
   const nextLanguage = language === "de" ? "de" : "en";
-  translationLanguageSelect.value = nextLanguage;
+  translationLanguageButtons.forEach((button) => {
+    button.setAttribute("aria-pressed", String(button.dataset.language === nextLanguage));
+  });
   selectionSpeech.setTargetLanguage(nextLanguage);
   try {
     window.localStorage.setItem(TRANSLATION_LANGUAGE_STORAGE_KEY, nextLanguage);
@@ -58,8 +60,8 @@ function setTranslationLanguage(language) {
   }
 }
 
-translationLanguageSelect.addEventListener("change", () => {
-  setTranslationLanguage(translationLanguageSelect.value);
+translationLanguageButtons.forEach((button) => {
+  button.addEventListener("click", () => setTranslationLanguage(button.dataset.language));
 });
 setTranslationLanguage(getSavedTranslationLanguage());
 
@@ -84,7 +86,7 @@ function getSavedStressPreference() {
 // Stress marks are display-only: each word keeps its plain spelling in
 // data-word, which is what the dictionary and speech requests use.
 async function renderStressMarks() {
-  const showStress = stressToggle.getAttribute("aria-pressed") === "true";
+  const showStress = stressToggle.getAttribute("aria-checked") === "true";
   const stressMap = showStress ? await loadStressMap() : null;
   storyText.querySelectorAll(".story-word").forEach((word) => {
     word.textContent = stressMap ? applyStress(word.dataset.word, stressMap) : word.dataset.word;
@@ -92,7 +94,7 @@ async function renderStressMarks() {
 }
 
 function setStressMarks(showStress) {
-  stressToggle.setAttribute("aria-pressed", String(showStress));
+  stressToggle.setAttribute("aria-checked", String(showStress));
   try {
     window.localStorage.setItem(STRESS_STORAGE_KEY, showStress ? "on" : "off");
   } catch {
@@ -101,13 +103,13 @@ function setStressMarks(showStress) {
   void renderStressMarks();
 }
 
-stressToggle.setAttribute("aria-pressed", String(getSavedStressPreference()));
+stressToggle.setAttribute("aria-checked", String(getSavedStressPreference()));
 if (getSavedStressPreference()) {
   // Start now so the map usually arrives with the story instead of after it.
   void loadStressMap();
 }
 stressToggle.addEventListener("click", () => {
-  setStressMarks(stressToggle.getAttribute("aria-pressed") !== "true");
+  setStressMarks(stressToggle.getAttribute("aria-checked") !== "true");
 });
 
 function createParagraph(paragraph) {
