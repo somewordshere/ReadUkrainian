@@ -45,7 +45,10 @@ try {
     try {
       const response = await fetch(`${origin}/api/content`, { signal: AbortSignal.timeout(2000) });
       if (response.ok) { await response.body?.cancel(); ready = true; break; }
-      await response.body?.cancel();
+      // Anything but a connection error means the preview is up and production refused it.
+      const body = (await response.text()).replace(/\s+/g, " ").slice(0, 400);
+      const headers = ["server", "cf-ray", "cf-mitigated", "content-type"].map((name) => `${name}=${response.headers.get(name)}`).join(" ");
+      throw new Error(`Production answered the verification preview with HTTP ${response.status} (${headers}): ${body}\n${previewLog()}`);
     } catch { /* Connection and preview initialization can take a few seconds. */ }
     await setTimeout(1000);
   }
