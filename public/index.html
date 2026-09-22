@@ -46,24 +46,18 @@
           </div>
           <div class="library-controls">
             <label class="library-field library-search-field">
-              <span>Пошук</span>
-              <input id="storySearch" type="search" placeholder="Назва, тема або рівень" autocomplete="off" />
+              <span class="visually-hidden">Пошук</span>
+              <input id="storySearch" type="search" placeholder="Пошук: назва, тема або рівень" autocomplete="off" />
             </label>
-            <label class="library-field">
-              <span>Тема</span>
-              <select id="topicFilter">
-                <option value="all">Усі теми</option>
-              </select>
-            </label>
-            <label class="library-field">
-              <span>Статус</span>
-              <select id="statusFilter">
-                <option value="all">Усі тексти</option>
-                <option value="incomplete">Ще не завершені</option>
-                <option value="completed">Завершені</option>
-                <option value="bookmarked">У закладках</option>
-              </select>
-            </label>
+            <div class="segmented status-filter" id="statusFilter" role="group" aria-label="Статус">
+              <button class="segment" type="button" data-status="all" aria-pressed="true">Усі</button>
+              <button class="segment" type="button" data-status="incomplete" aria-pressed="false">Незавершені</button>
+              <button class="segment" type="button" data-status="completed" aria-pressed="false">Завершені</button>
+              <button class="segment" type="button" data-status="bookmarked" aria-pressed="false">Закладки</button>
+            </div>
+            <div class="topic-chips" id="topicFilter" role="group" aria-label="Тема">
+              <button class="chip" type="button" data-topic="all" aria-pressed="true">Усі теми</button>
+            </div>
           </div>
           <p class="library-summary" id="librarySummary" aria-live="polite"></p>
         </section>

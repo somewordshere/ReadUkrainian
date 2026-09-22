@@ -59,10 +59,22 @@ function setLibraryState(message = "", action = null, actionLabel = "") {
 
 function populateTopicFilter() {
   STORY_TOPICS.forEach((topic) => {
-    const option = document.createElement("option");
-    option.value = topic.id;
-    option.textContent = topic.label;
-    topicFilter.appendChild(option);
+    const chip = document.createElement("button");
+    chip.className = "chip";
+    chip.type = "button";
+    chip.dataset.topic = topic.id;
+    chip.setAttribute("aria-pressed", "false");
+    chip.textContent = topic.label;
+    topicFilter.appendChild(chip);
+  });
+}
+
+function renderFilterControls() {
+  topicFilter.querySelectorAll("[data-topic]").forEach((chip) => {
+    chip.setAttribute("aria-pressed", String(chip.dataset.topic === filters.topic));
+  });
+  statusFilter.querySelectorAll("[data-status]").forEach((segment) => {
+    segment.setAttribute("aria-pressed", String(segment.dataset.status === filters.status));
   });
 }
 
@@ -242,8 +254,6 @@ function clearFilters() {
   filters.topic = "all";
   filters.status = "all";
   storySearch.value = "";
-  topicFilter.value = "all";
-  statusFilter.value = "all";
   expandedLevels.clear();
   expandedLevels.add(getLastVisitedStory()?.level || "A1");
   renderLibrary();
@@ -279,7 +289,8 @@ function renderLibrary() {
   renderedLevels.forEach((levelCard) => levelsContainer.appendChild(levelCard));
   levelsContainer.setAttribute("aria-busy", "false");
   librarySummary.textContent = `Показано: ${visibleStoryCount} із ${totalStoryCount} текстів.`;
-  clearFiltersButton.disabled = !filtersAreActive();
+  clearFiltersButton.hidden = !filtersAreActive();
+  renderFilterControls();
 
   if (totalStoryCount === 0) {
     setLibraryState("Поки що немає доступних текстів.");
@@ -322,12 +333,17 @@ async function initLevels() {
 
 retryLibraryButton.addEventListener("click", () => libraryStateAction?.());
 clearFiltersButton.addEventListener("click", clearFilters);
-topicFilter.addEventListener("change", () => {
-  filters.topic = topicFilter.value;
+topicFilter.addEventListener("click", (event) => {
+  const chip = event.target.closest("[data-topic]");
+  if (!chip) return;
+  // Tapping the selected topic again goes back to all topics.
+  filters.topic = chip.dataset.topic === filters.topic ? "all" : chip.dataset.topic;
   renderLibrary();
 });
-statusFilter.addEventListener("change", () => {
-  filters.status = statusFilter.value;
+statusFilter.addEventListener("click", (event) => {
+  const segment = event.target.closest("[data-status]");
+  if (!segment) return;
+  filters.status = segment.dataset.status;
   renderLibrary();
 });
 storySearch.addEventListener("input", () => {
