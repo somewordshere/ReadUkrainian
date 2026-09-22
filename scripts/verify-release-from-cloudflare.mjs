@@ -11,9 +11,19 @@ if (process.argv.slice(2).join(" ") !== "--remote-preview") throw new Error("Use
 const root = fileURLToPath(new URL("../", import.meta.url));
 const origin = "http://127.0.0.1:8791";
 const env = { ...process.env, CI: "true", WRANGLER_SEND_METRICS: "false" };
-const preview = spawn(process.execPath, ["node_modules/wrangler/bin/wrangler.js", "dev", "--remote", "--config", "scripts/release-probe/wrangler.jsonc", "--ip", "127.0.0.1", "--port", "8791", "--inspector-port", "0", "--log-level", "warn"], {
-  cwd: root, env, stdio: ["ignore", "ignore", "inherit"], windowsHide: true, detached: process.platform !== "win32",
+const preview = spawn(process.execPath, ["node_modules/wrangler/bin/wrangler.js", "dev", "--remote", "--config", "scripts/release-probe/wrangler.jsonc", "--ip", "127.0.0.1", "--port", "8791", "--inspector-port", "0", "--log-level", "info"], {
+  cwd: root, env, stdio: ["ignore", "pipe", "pipe"], windowsHide: true, detached: process.platform !== "win32",
 });
+// Keep Wrangler's recent output so a preview that never starts explains why.
+const previewOutput = [];
+for (const stream of [preview.stdout, preview.stderr]) {
+  stream.setEncoding("utf8");
+  stream.on("data", (chunk) => {
+    previewOutput.push(chunk);
+    if (previewOutput.length > 200) previewOutput.shift();
+  });
+}
+const previewLog = () => previewOutput.join("").trim() || "(Wrangler printed nothing)";
 const closed = once(preview, "close");
 let stopped = false;
 async function stop() {
@@ -28,8 +38,10 @@ async function stop() {
 for (const signal of ["SIGINT", "SIGTERM"]) process.once(signal, async () => { await stop(); process.exit(1); });
 try {
   let ready = false;
-  for (let attempt = 0; attempt < 30; attempt++) {
-    if (preview.exitCode !== null) throw new Error("Authenticated verification preview stopped before it was ready.");
+  // A remote preview uploads the probe to Cloudflare first; allow two minutes.
+  const deadline = Date.now() + 120000;
+  while (Date.now() < deadline) {
+    if (preview.exitCode !== null) throw new Error(`Authenticated verification preview stopped before it was ready.\n${previewLog()}`);
     try {
       const response = await fetch(`${origin}/api/content`, { signal: AbortSignal.timeout(2000) });
       if (response.ok) { await response.body?.cancel(); ready = true; break; }
@@ -37,7 +49,7 @@ try {
     } catch { /* Connection and preview initialization can take a few seconds. */ }
     await setTimeout(1000);
   }
-  if (!ready) throw new Error("Authenticated verification preview did not become ready within the bounded startup attempts.");
+  if (!ready) throw new Error(`Authenticated verification preview did not become ready within two minutes.\n${previewLog()}`);
   for (const args of [
     ["scripts/check-live-content.mjs", "--origin", origin, "--deep", "--expect-version", release.version, "--attempts", "4"],
     ["scripts/check-live-dictionary.mjs", "--origin", origin],
