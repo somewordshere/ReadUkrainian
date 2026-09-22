@@ -6,6 +6,7 @@ import {
   findNextIncompleteStory,
   flattenActiveStories,
   getStoryScore,
+  getStoryStatus,
   getStoryTopic,
   storyMatchesFilters,
 } from "../public/js/app/library-utils.mjs";
@@ -43,6 +44,27 @@ test("scores completed texts out of 100 using their question count", () => {
   assert.equal(getStoryScore({ completed: true, answers: [0, 1, 2, 3, 4, 5], correctCount: 6 }), 100);
   assert.equal(getStoryScore({ completed: true, answers: [0, 1, 2, 3, 4], correctCount: 0 }), 0);
   assert.equal(getStoryScore({ completed: false, answers: [0, null], correctCount: 1 }), null);
+});
+
+test("classifies library cards as new, reading or done", () => {
+  assert.deepEqual(getStoryStatus(null), { state: "new", answered: 0, total: 0, score: null, fraction: 0 });
+  // A bookmark alone is not progress.
+  assert.equal(
+    getStoryStatus({ answers: [null, null, null, null, null], completed: false, correctCount: 0, bookmarked: true }).state,
+    "new"
+  );
+  assert.deepEqual(
+    getStoryStatus({ answers: [], completed: false, correctCount: 0, opened: true }),
+    { state: "reading", answered: 0, total: 0, score: null, fraction: 0 }
+  );
+  assert.deepEqual(
+    getStoryStatus({ answers: [0, 1, null, null, null], completed: false, correctCount: 1 }),
+    { state: "reading", answered: 2, total: 5, score: null, fraction: 0.4 }
+  );
+  assert.deepEqual(
+    getStoryStatus({ answers: [0, 1, 2, 0, 1], completed: true, correctCount: 4, opened: true }),
+    { state: "done", answered: 5, total: 5, score: 80, fraction: 1 }
+  );
 });
 
 test("flattens only active stories and adds display metadata", () => {

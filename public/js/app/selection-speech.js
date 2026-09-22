@@ -1,6 +1,8 @@
+import { stripStressMarks } from "./story-words.mjs";
+
 const COPY = {
-  hint: "Виділіть одне українське слово, щоб прослухати або перекласти.",
-  translationHint: "Виділіть одне українське слово, щоб перекласти його.",
+  hint: "Торкніться слова, щоб прослухати або перекласти його.",
+  translationHint: "Торкніться слова, щоб перекласти його.",
   unsupported: "Цей браузер не підтримує відтворення згенерованого аудіо.",
   listen: "Прослухати",
   stop: "Зупинити",
@@ -202,6 +204,11 @@ export function initSelectionSpeech(
   let translationController = null;
   let translationToken = 0;
   let targetLanguage = "en";
+  // "tap" offers come from tapping a [data-word] element and survive the collapsed
+  // selection a tap leaves behind; "selection" offers follow the text selection.
+  let offerSource = "selection";
+  let tappedWord = null;
+  let dismissedTapWord = null;
 
   function setStatus(message = "") {
     if (statusFrame) {
@@ -430,8 +437,16 @@ export function initSelectionSpeech(
     }
   }
 
+  function setTappedWord(element) {
+    tappedWord?.classList.remove("is-tapped");
+    tappedWord = element;
+    tappedWord?.classList.add("is-tapped");
+  }
+
   function dismissOffer({ stop = false, suppress = false } = {}) {
     interactingWithPopover = false;
+    offerSource = "selection";
+    setTappedWord(null);
     if (stop || playbackState !== "playing") {
       stopPlayback();
     }
@@ -736,6 +751,7 @@ export function initSelectionSpeech(
       || translationState === "loading";
     if (!selection || selection.isCollapsed || selection.rangeCount === 0) {
       suppressedRange = null;
+      if (offerSource === "tap") return;
       if (!active && !interactingWithPopover && !popover.contains(document.activeElement)) {
         dismissOffer({ stop: true });
       }
@@ -743,7 +759,7 @@ export function initSelectionSpeech(
     }
 
     const range = selection.getRangeAt(0);
-    const text = normalizeSpeechText(selection.toString());
+    const text = stripStressMarks(normalizeSpeechText(selection.toString()));
     if (!text || !rangeIsInside(root, range)) {
       if (!active && !interactingWithPopover && !popover.contains(document.activeElement)) {
         dismissOffer({ stop: true });
@@ -767,7 +783,34 @@ export function initSelectionSpeech(
           ? COPY.oneWord
           : "";
     selectedRange = range.cloneRange();
+    offerSource = "selection";
+    setTappedWord(null);
     showOffer();
+  }
+
+  // A tap offers the word under the finger and looks it up straight away, since
+  // translation is what a reader almost always wants from a tap.
+  function offerTappedWord(element) {
+    const text = stripStressMarks(normalizeSpeechText(element.dataset.word || element.textContent));
+    if (!text) return;
+
+    const range = document.createRange();
+    range.selectNodeContents(element);
+    if (text !== selectedText) {
+      visibleError = "";
+      clearTranslation();
+      stopPlayback();
+    }
+    suppressedRange = null;
+    offerSource = "tap";
+    setTappedWord(element);
+    selectedText = text;
+    selectionIssue = text.length > MAX_SPEECH_CHARACTERS ? COPY.tooLong : "";
+    selectedRange = range;
+    showOffer();
+    if (translationSupported && !selectionIssue) {
+      void requestTranslation();
+    }
   }
 
   function scheduleSelectionCapture() {
@@ -817,9 +860,27 @@ export function initSelectionSpeech(
   root.addEventListener("pointerup", scheduleSelectionCapture);
   root.addEventListener("keyup", scheduleSelectionCapture);
   document.addEventListener("pointerdown", (event) => {
+    // Remember a tap on the word that is already open, so that tap closes it
+    // instead of reopening it.
+    dismissedTapWord =
+      offerSource === "tap" && tappedWord?.contains(event.target) ? tappedWord : null;
     if (!popover.hidden && !popover.contains(event.target)) {
       dismissOffer({ stop: true });
     }
+  });
+  root.addEventListener("click", (event) => {
+    if (!enabled) return;
+    // A drag that selected text is handled by the selection path.
+    const selection = window.getSelection();
+    if (selection && !selection.isCollapsed) return;
+
+    const wordElement = event.target?.closest?.("[data-word]");
+    if (!wordElement || !root.contains(wordElement)) return;
+    if (wordElement === dismissedTapWord) {
+      dismissedTapWord = null;
+      return;
+    }
+    offerTappedWord(wordElement);
   });
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && !popover.hidden) {

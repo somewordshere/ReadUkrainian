@@ -1,5 +1,27 @@
 /* Public learning experience only. The publishing workspace keeps styles.css. */
+
+/* Literata (SIL OFL, fonts/literata/OFL.txt), self-hosted. The Cyrillic subset
+   carries U+0301 so stress marks render in the same face as the letters. */
+@font-face {
+  font-family: "Literata";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 900;
+  src: url("../fonts/literata/literata-cyrillic-wght-normal.woff2") format("woff2");
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+
+@font-face {
+  font-family: "Literata";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 900;
+  src: url("../fonts/literata/literata-latin-wght-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 .public-page {
+  --font-reading: "Literata", Georgia, "Times New Roman", serif;
   --bg: #f5f7f6;
   --paper: #ffffff;
   --ink: #202d28;
@@ -24,6 +46,12 @@
   font-weight: 650;
   overflow-wrap: anywhere;
 }
+
+/* Ukrainian prose and titles use the reading face; controls stay in the system UI font. */
+.public-page :is(h1, .continue-card h2, .story-note, .text-title, .selection-translation-word) {
+  font-family: var(--font-reading);
+}
+.public-page :is(h1, .continue-card h2, .text-title) { font-weight: 600; }
 
 .public-page :is(a, button, input, select, [tabindex]):focus-visible {
   outline: 3px solid var(--accent);
@@ -127,27 +155,38 @@
 .public-page .level-count { padding: 0; background: none; font-weight: 400; }
 .public-page .level-toggle-button { font-size: 0.875rem; }
 .public-page .texts-grid { padding: 16px 0 0; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.public-page .text-card { min-width: 0; }
 
 .public-page .text-button {
-  min-height: 128px;
+  position: relative;
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  column-gap: 12px;
+  align-content: start;
+  min-height: 112px;
   height: 100%;
-  padding: 20px 62px 20px 20px;
+  padding: 18px 16px 22px 18px;
+  overflow: hidden;
+  border: 1px solid var(--line);
   border-radius: 12px;
   background: var(--paper);
-  transition: border-color 0.15s ease, background-color 0.15s ease;
+  transition: border-color 0.15s ease;
 }
 
-.public-page .text-button:hover { transform: none; border-color: #829a8d; background: #fbfdfc; box-shadow: none; }
+.public-page .text-button:hover { transform: none; border-color: #829a8d; box-shadow: none; }
 .public-page .text-button:focus-visible { transform: none; box-shadow: none; }
-.public-page .text-title { margin-bottom: 14px; font-size: 1rem; font-weight: 600; line-height: 1.45; overflow-wrap: anywhere; }
-.public-page .text-label { display: inline; margin: 0 8px 0 0; font-size: 0.8125rem; letter-spacing: 0; font-weight: 600; }
-.public-page .text-topic { display: inline; margin: 0; padding: 0; border-radius: 0; background: none; color: var(--muted); font-size: 0.8125rem; font-weight: 400; }
-.public-page .text-button.is-completed { border-color: #acc6b7; background: #f0f7f3; }
-.public-page .text-score { display: block; margin-top: 10px; color: #21543f; font-size: 1.25rem; font-weight: 700; }
-.public-page .completed-badge { display: block; margin-top: 10px; padding: 2px 8px; background: #dfede5; color: #21543f; font-size: 0.75rem; font-weight: 500; }
-.public-page .text-bookmark-button { top: 10px; right: 10px; border-color: transparent; background: transparent; }
-.public-page :is(.text-bookmark-button, .bookmark-button):hover { transform: none; background: var(--accent-soft); }
-.public-page :is(.text-bookmark-button, .bookmark-button).is-active { border-color: #acc6b7; background: var(--accent-soft); }
+.public-page .text-number { grid-row: span 2; color: #9aaba1; font-size: 1.375rem; font-weight: 650; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.public-page .text-button.is-done .text-number { color: var(--accent); }
+.public-page .text-title { display: -webkit-box; min-height: 2.8em; margin: 0 34px 0 0; overflow: hidden; font-size: 1rem; font-weight: 600; line-height: 1.4; overflow-wrap: anywhere; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.public-page .text-meta { display: flex; justify-content: space-between; gap: 8px; margin-top: 4px; color: var(--muted); font-size: 0.8125rem; line-height: 1.4; }
+.public-page .text-topic { display: block; min-width: 0; margin: 0; padding: 0; overflow: hidden; border-radius: 0; background: none; color: inherit; font-size: inherit; font-weight: 400; text-overflow: ellipsis; white-space: nowrap; }
+.public-page .text-status { flex: none; color: #21543f; font-weight: 600; font-variant-numeric: tabular-nums; }
+.public-page .text-progress { position: absolute; right: 0; bottom: 0; left: 0; height: 4px; background: #e6ece8; }
+.public-page .text-progress::after { content: ""; display: block; width: calc(var(--progress, 0) * 100%); height: 100%; background: var(--accent); }
+.public-page .text-bookmark-button { top: 10px; right: 10px; width: 36px; height: 36px; border-color: transparent; background: transparent; color: #8a978f; font-size: 1.125rem; }
+.public-page .text-bookmark-button.is-active { color: var(--accent); }
+.public-page :is(.text-bookmark-button, .bookmark-button):hover { transform: none; background: var(--accent-soft); color: var(--accent); }
+.public-page .bookmark-button.is-active { border-color: #acc6b7; background: var(--accent-soft); }
 
 .public-page.reader-page .page-shell { max-width: 1120px; padding-top: 24px; }
 /* Product rule: questions always occupy the right column, at every breakpoint.
@@ -168,15 +207,25 @@
 .public-page .story-level { margin-bottom: 10px; font-size: 0.875rem; }
 .public-page .story-title { margin-bottom: 24px; font-size: clamp(1.75rem, 3.3vw, 2.25rem); line-height: 1.25; }
 .public-page .reader-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 16px; padding: 12px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-.public-page .story-heading-actions { align-items: center; justify-content: flex-start; gap: 8px; order: initial; }
+.public-page .story-heading-actions { align-items: center; justify-content: flex-start; flex-wrap: wrap; gap: 8px; max-width: 100%; min-width: 0; order: initial; }
 .public-page .translation-language-control { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 0.8125rem; }
 .public-page .translation-language-control select { min-height: 44px; padding-left: 10px; border: 1px solid var(--control-line); border-radius: 10px; background: var(--paper); font-size: 1rem; font-weight: 500; }
 .public-page .bookmark-button { width: 44px; height: 44px; border-radius: 10px; background: var(--paper); }
+.public-page .stress-toggle { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; border: 1px solid var(--control-line); border-radius: 10px; background: var(--paper); color: var(--muted); font: inherit; font-size: 0.875rem; font-weight: 500; cursor: pointer; }
+.public-page .stress-toggle-mark { font-family: var(--font-reading); font-size: 1.125rem; line-height: 1; }
+.public-page .stress-toggle[aria-pressed="true"] { border-color: #acc6b7; background: var(--accent-soft); color: var(--accent); }
+.public-page .stress-toggle:hover { border-color: var(--accent); }
 .public-page .quiz-jump-link { display: inline-flex; align-items: center; min-height: 44px; color: var(--accent); font-size: 0.875rem; font-weight: 500; text-underline-offset: 4px; }
 .public-page .story-speech-hint { margin: 12px 0 24px; padding: 0; border: 0; border-radius: 0; background: none; color: var(--muted); font-size: 0.8125rem; font-weight: 400; line-height: 1.6; }
 .public-page .story-content { margin-top: 24px; gap: 24px; }
 .public-page .story-text { gap: 20px; max-width: 65ch; }
 .public-page .story-note { color: var(--ink); font-size: 1.25rem; line-height: 1.75; overflow-wrap: anywhere; }
+.public-page .story-word { border-radius: 4px; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background-color 0.12s ease; }
+@media (hover: hover) {
+  .public-page .story-word:hover { background: var(--accent-soft); box-shadow: 0 0 0 2px var(--accent-soft); }
+}
+.public-page .story-word.is-tapped,
+.public-page .story-word.is-tapped:hover { background: #d4e8dc; box-shadow: 0 0 0 2px #d4e8dc; }
 .public-page .word-count-note { margin: 0; color: var(--muted); font-size: 0.8125rem; font-weight: 400; }
 .public-page .selection-speech-popover { border-radius: 12px; box-shadow: 0 6px 24px #202d2826; }
 .public-page .selection-translation-word { font-weight: 600; }
@@ -222,7 +271,8 @@
   .public-page .level-header { gap: 12px; padding: 0 0 12px; }
   .public-page .level-header-actions { justify-content: space-between; }
   .public-page .texts-grid { grid-template-columns: minmax(0, 1fr); padding: 12px 0 0; }
-  .public-page .text-button { min-height: 112px; padding: 18px 62px 18px 18px; }
+  .public-page .text-button { min-height: 0; }
+  .public-page .text-title { min-height: 0; }
   .public-page :is(.story-card, .questions-card) { padding: 20px; }
   .public-page .story-layout { gap: 16px; }
   .public-page .reader-layout-hint {

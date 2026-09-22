@@ -10,6 +10,7 @@ const EXPORTED_NAMES = [
   "clearStoryProgress",
   "isStoryBookmarked",
   "setStoryBookmarked",
+  "markStoryOpened",
   "getLastVisitedStory",
   "setLastVisitedStory",
 ];
@@ -183,6 +184,31 @@ test("toggling a bookmark preserves existing answers", () => {
 
   harness.api.setStoryBookmarked(STORY.level, STORY.storyId, STORY.title, false);
   assert.equal(harness.api.isStoryBookmarked(STORY.level, STORY.storyId, STORY.title), false);
+});
+
+test("opening a story marks it once and keeps existing progress", () => {
+  const harness = loadProgress();
+
+  harness.api.markStoryOpened(STORY.level, STORY.storyId, STORY.title);
+  assert.deepEqual(plain(harness.api.getStoryProgress(STORY.level, STORY.storyId, STORY.title)), {
+    answers: [],
+    completed: false,
+    correctCount: 0,
+    opened: true,
+  });
+
+  harness.api.setStoryProgress(STORY.level, STORY.storyId, STORY.title, { ...SAMPLE, bookmarked: true });
+  harness.api.markStoryOpened(STORY.level, STORY.storyId, STORY.title);
+  assert.deepEqual(plain(harness.api.getStoryProgress(STORY.level, STORY.storyId, STORY.title)), {
+    ...SAMPLE,
+    bookmarked: true,
+    opened: true,
+  });
+
+  // Reopening an already-opened story does not write again.
+  const writes = harness.counters["local.set"];
+  harness.api.markStoryOpened(STORY.level, STORY.storyId, STORY.title);
+  assert.equal(harness.counters["local.set"], writes);
 });
 
 test("a storage event from another tab refreshes the cached progress", () => {

@@ -404,6 +404,32 @@ function setStoryBookmarked(level, storyId, title, bookmarked) {
   saveProgress(progress);
 }
 
+// Opening a text counts as starting it, so the library can show "reading"
+// before the first question is answered.
+function markStoryOpened(level, storyId, title) {
+  const progress = loadProgress();
+  const storyKey = migrateStoryProgressToId(progress, level, storyId, title);
+  const existingStoryProgress = progress[level]?.[storyKey];
+
+  if (existingStoryProgress?.opened) {
+    return;
+  }
+
+  if (!progress[level]) {
+    progress[level] = {};
+  }
+
+  progress[level][storyKey] = {
+    answers: [],
+    completed: false,
+    correctCount: 0,
+    ...existingStoryProgress,
+    opened: true
+  };
+
+  saveProgress(progress);
+}
+
 function parseLastVisitedStory(raw) {
   try {
     const story = raw ? JSON.parse(raw) : null;

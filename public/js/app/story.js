@@ -2,6 +2,7 @@ import { fetchContentIndex, fetchStory } from "./content-api.js";
 import { loadLegacyQuestions } from "./legacy-content.js";
 import { findNextIncompleteStory, getStoryHref } from "./library-utils.mjs";
 import { initSelectionSpeech } from "./selection-speech.js";
+import { applyStress, tokenizeParagraph } from "./story-words.mjs";
 
 const params = new URLSearchParams(window.location.search);
 const level = params.get("level") || "A1";
@@ -21,6 +22,7 @@ const completionActions = document.getElementById("completionActions");
 const reviewMistakesButton = document.getElementById("reviewMistakesButton");
 const nextStoryLink = document.getElementById("nextStoryLink");
 const translationLanguageSelect = document.getElementById("translationLanguageSelect");
+const stressToggle = document.getElementById("stressToggle");
 document.getElementById("quizJumpLink").addEventListener("click", () => {
   const heading = document.getElementById("questionsTitle");
   heading.focus({ preventScroll: true });
@@ -65,6 +67,70 @@ translationLanguageSelect.addEventListener("change", () => {
   setTranslationLanguage(translationLanguageSelect.value);
 });
 setTranslationLanguage(getSavedTranslationLanguage());
+
+const STRESS_STORAGE_KEY = "readukrainian.stress-marks";
+let stressMapPromise = null;
+
+function loadStressMap() {
+  stressMapPromise ??= fetch("./js/data/stress-map.json")
+    .then((response) => (response.ok ? response.json() : {}))
+    .catch(() => ({}));
+  return stressMapPromise;
+}
+
+function getSavedStressPreference() {
+  try {
+    return window.localStorage.getItem(STRESS_STORAGE_KEY) !== "off";
+  } catch {
+    return true;
+  }
+}
+
+// Stress marks are display-only: each word keeps its plain spelling in
+// data-word, which is what the dictionary and speech requests use.
+async function renderStressMarks() {
+  const showStress = stressToggle.getAttribute("aria-pressed") === "true";
+  const stressMap = showStress ? await loadStressMap() : null;
+  storyText.querySelectorAll(".story-word").forEach((word) => {
+    word.textContent = stressMap ? applyStress(word.dataset.word, stressMap) : word.dataset.word;
+  });
+}
+
+function setStressMarks(showStress) {
+  stressToggle.setAttribute("aria-pressed", String(showStress));
+  try {
+    window.localStorage.setItem(STRESS_STORAGE_KEY, showStress ? "on" : "off");
+  } catch {
+    // The toggle still works for this visit when storage is unavailable.
+  }
+  void renderStressMarks();
+}
+
+stressToggle.setAttribute("aria-pressed", String(getSavedStressPreference()));
+if (getSavedStressPreference()) {
+  // Start now so the map usually arrives with the story instead of after it.
+  void loadStressMap();
+}
+stressToggle.addEventListener("click", () => {
+  setStressMarks(stressToggle.getAttribute("aria-pressed") !== "true");
+});
+
+function createParagraph(paragraph) {
+  const element = document.createElement("p");
+  element.className = "story-note";
+  tokenizeParagraph(paragraph).forEach((piece) => {
+    if (!piece.word) {
+      element.append(piece.text);
+      return;
+    }
+    const word = document.createElement("span");
+    word.className = "story-word";
+    word.dataset.word = piece.text;
+    word.textContent = piece.text;
+    element.appendChild(word);
+  });
+  return element;
+}
 
 const questionInputs = [];
 let storyAvailable = false;
@@ -227,6 +293,7 @@ function syncProgress(latestResult = "") {
     completed: completedCount === currentQuestionCount,
     correctCount,
     bookmarked,
+    opened: true,
   });
 
   updateQuestionStatus(completedCount, correctCount, latestResult);
@@ -468,16 +535,14 @@ restartButton.addEventListener("click", () => {
   });
   unlockAllQuestions();
 
-  if (bookmarked) {
-    setStoryProgress(level, currentStory.storyId, currentStory.title, {
-      answers: Array.from({ length: currentQuestionCount }, () => null),
-      completed: false,
-      correctCount: 0,
-      bookmarked: true,
-    });
-  } else {
-    clearStoryProgress(level, currentStory.storyId, currentStory.title);
-  }
+  // The learner is still on the text, so a restart keeps it marked as opened.
+  setStoryProgress(level, currentStory.storyId, currentStory.title, {
+    answers: Array.from({ length: currentQuestionCount }, () => null),
+    completed: false,
+    correctCount: 0,
+    bookmarked,
+    opened: true,
+  });
 
   updateQuestionStatus(0, 0);
   updateCompletionActions(0, 0);
@@ -547,13 +612,12 @@ async function initStory() {
       sortOrder: story.sortOrder || legacyOrder,
       title: story.title,
     });
+    markStoryOpened(level, story.storyId, story.title);
 
     (story.paragraphs || []).forEach((paragraph) => {
-      const element = document.createElement("p");
-      element.className = "story-note";
-      element.textContent = paragraph;
-      storyText.appendChild(element);
+      storyText.appendChild(createParagraph(paragraph));
     });
+    void renderStressMarks();
 
     if (story.showWordCount) {
       const wordCount = (story.paragraphs || [])

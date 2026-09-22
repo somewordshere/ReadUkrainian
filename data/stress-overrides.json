@@ -1,0 +1,6 @@
+{
+  "_note": "Hand-checked stress for frequent story words that Wiktionary leaves ambiguous. Applied last by scripts/build-stress-map.mjs. Only add a word when one reading is right in every story that uses it.",
+  "сім'я": "сім'я́",
+  "цього": "цього́",
+  "перед": "пе́ред"
+}
