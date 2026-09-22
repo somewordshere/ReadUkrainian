@@ -80,7 +80,7 @@
   box-shadow: none;
 }
 
-.public-page :is(.eyebrow, .continue-kicker, .story-level, .translation-language-control) {
+.public-page :is(.eyebrow, .continue-kicker, .story-level) {
   font-weight: 600;
   letter-spacing: normal;
   text-transform: none;
@@ -186,7 +186,7 @@
 .public-page .text-bookmark-button { top: 10px; right: 10px; width: 36px; height: 36px; border-color: transparent; background: transparent; color: #8a978f; font-size: 1.125rem; }
 .public-page .text-bookmark-button.is-active { color: var(--accent); }
 .public-page :is(.text-bookmark-button, .bookmark-button):hover { transform: none; background: var(--accent-soft); color: var(--accent); }
-.public-page .bookmark-button.is-active { border-color: #acc6b7; background: var(--accent-soft); }
+.public-page .bookmark-button.is-active { background: var(--accent-soft); color: var(--accent); }
 
 .public-page.reader-page .page-shell { max-width: 1120px; padding-top: 24px; }
 /* Product rule: questions always occupy the right column, at every breakpoint.
@@ -211,30 +211,24 @@
 .public-page .reader-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 16px; padding: 12px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .public-page .story-heading-actions { align-items: center; justify-content: flex-start; flex-wrap: wrap; gap: 8px; max-width: 100%; min-width: 0; order: initial; }
 .public-page .story-heading-actions > * { flex: none; }
-.public-page .translation-language-control { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 0.8125rem; }
-.public-page .translation-language-control > span { color: var(--muted); font-size: 0.875rem; font-weight: 500; }
-/* Drawn to match the stress toggle and star beside it rather than the native control. */
-.public-page .translation-language-control select {
-  -webkit-appearance: none;
-  appearance: none;
-  min-height: 44px;
-  padding: 0 34px 0 12px;
-  border: 1px solid var(--control-line);
-  border-radius: 10px;
-  background: var(--paper) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%2358675f' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 12px center / 12px 8px;
-  color: var(--ink);
-  font: inherit;
-  font-size: 0.875rem;
-  font-weight: 500;
-  line-height: 1.2;
-  cursor: pointer;
+/* Reader controls: a language segmented control and a stress switch, both on a
+   soft tinted surface so they read as one set of settings, not form fields. */
+.public-page .language-switch { display: flex; align-items: center; gap: 10px; }
+.public-page .reader-control-label { color: var(--muted); font-size: 0.8125rem; font-weight: 500; }
+.public-page .segmented { display: inline-flex; gap: 2px; padding: 3px; border-radius: 10px; background: #edf1ee; }
+.public-page .segment { min-width: 44px; min-height: 36px; padding: 0 12px; border: 0; border-radius: 8px; background: transparent; color: var(--muted); font: inherit; font-size: 0.8125rem; font-weight: 600; letter-spacing: 0.04em; cursor: pointer; transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease; }
+.public-page .segment:hover { color: var(--ink); }
+.public-page .segment[aria-pressed="true"] { background: var(--paper); color: var(--accent); box-shadow: 0 1px 2px #202d2821, 0 0 0 1px #202d280d; }
+.public-page .stress-toggle { display: inline-flex; align-items: center; gap: 10px; min-height: 42px; padding: 0 10px 0 14px; border: 0; border-radius: 10px; background: #edf1ee; color: var(--ink); font: inherit; font-size: 0.875rem; font-weight: 500; cursor: pointer; }
+.public-page .stress-toggle:hover { background: #e4eae6; }
+.public-page .switch { position: relative; flex: none; width: 32px; height: 18px; border-radius: 9px; background: #b9c5bd; transition: background-color 0.18s ease; }
+.public-page .switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: var(--paper); box-shadow: 0 1px 2px #202d2840; transition: transform 0.18s ease; }
+.public-page .stress-toggle[aria-checked="true"] .switch { background: var(--accent); }
+.public-page .stress-toggle[aria-checked="true"] .switch::after { transform: translateX(14px); }
+@media (prefers-reduced-motion: reduce) {
+  .public-page :is(.segment, .switch, .switch::after) { transition: none; }
 }
-.public-page .translation-language-control select:hover { border-color: var(--accent); }
-.public-page .bookmark-button { width: 44px; height: 44px; border-radius: 10px; background: var(--paper); }
-.public-page .stress-toggle { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; border: 1px solid var(--control-line); border-radius: 10px; background: var(--paper); color: var(--muted); font: inherit; font-size: 0.875rem; font-weight: 500; cursor: pointer; }
-.public-page .stress-toggle-mark { font-family: var(--font-reading); font-size: 1.125rem; line-height: 1; }
-.public-page .stress-toggle[aria-pressed="true"] { border-color: #acc6b7; background: var(--accent-soft); color: var(--accent); }
-.public-page .stress-toggle:hover { border-color: var(--accent); }
+.public-page .bookmark-button { width: 42px; height: 42px; border: 0; border-radius: 10px; background: #edf1ee; color: var(--muted); }
 .public-page .story-speech-hint { margin: 12px 0 24px; padding: 0; border: 0; border-radius: 0; background: none; color: var(--muted); font-size: 0.8125rem; font-weight: 400; line-height: 1.6; }
 .public-page .story-content { margin-top: 24px; gap: 24px; }
 .public-page .story-text { gap: 20px; max-width: 65ch; }
@@ -306,7 +300,7 @@
   .public-page .story-heading-actions { flex-wrap: wrap; }
   /* Keeps the language and stress controls on one row in the narrow reader card;
      the label still names the select for assistive technology. */
-  .public-page .translation-language-control > span { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+  .public-page .reader-control-label { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
   .public-page .story-note { font-size: 1.125rem; }
   .public-page .story-speech-hint { margin-bottom: 20px; }
   .public-page .story-title { margin-bottom: 20px; }
