@@ -23,11 +23,6 @@ const reviewMistakesButton = document.getElementById("reviewMistakesButton");
 const nextStoryLink = document.getElementById("nextStoryLink");
 const translationLanguageSelect = document.getElementById("translationLanguageSelect");
 const stressToggle = document.getElementById("stressToggle");
-document.getElementById("quizJumpLink").addEventListener("click", () => {
-  const heading = document.getElementById("questionsTitle");
-  heading.focus({ preventScroll: true });
-  heading.closest(".questions-card").scrollIntoView({ block: "start", inline: "end" });
-});
 const TRANSLATION_LANGUAGE_STORAGE_KEY = "readukrainian.translation-language";
 const selectionSpeech = initSelectionSpeech({
   root: storyText,
