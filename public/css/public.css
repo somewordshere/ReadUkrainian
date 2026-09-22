@@ -143,6 +143,7 @@
 .public-page .text-label { display: inline; margin: 0 8px 0 0; font-size: 0.8125rem; letter-spacing: 0; font-weight: 600; }
 .public-page .text-topic { display: inline; margin: 0; padding: 0; border-radius: 0; background: none; color: var(--muted); font-size: 0.8125rem; font-weight: 400; }
 .public-page .text-button.is-completed { border-color: #acc6b7; background: #f0f7f3; }
+.public-page .text-score { display: block; margin-top: 10px; color: #21543f; font-size: 1.25rem; font-weight: 700; }
 .public-page .completed-badge { display: block; margin-top: 10px; padding: 2px 8px; background: #dfede5; color: #21543f; font-size: 0.75rem; font-weight: 500; }
 .public-page .text-bookmark-button { top: 10px; right: 10px; border-color: transparent; background: transparent; }
 .public-page :is(.text-bookmark-button, .bookmark-button):hover { transform: none; background: var(--accent-soft); }

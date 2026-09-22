@@ -56,6 +56,16 @@ export const STORY_TOPICS = [
   },
 ];
 
+export function getStoryScore(progress) {
+  const questionCount = progress?.answers?.length || 0;
+  if (!progress?.completed || questionCount === 0) {
+    return null;
+  }
+
+  const correctCount = Number(progress.correctCount) || 0;
+  return Math.round((Math.min(Math.max(correctCount, 0), questionCount) / questionCount) * 100);
+}
+
 function normalizeSearchText(value = "") {
   return String(value)
     .toLocaleLowerCase("uk-UA")
