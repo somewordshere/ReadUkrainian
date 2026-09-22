@@ -23,7 +23,7 @@
     <div class="page-shell">
       <main class="story-layout">
         <a class="back-link" href="./index.html">← До бібліотеки</a>
-        <p class="reader-layout-hint">Питання праворуч. Гортайте вбік або натисніть «Перейти до питань».</p>
+        <p class="reader-layout-hint">Питання праворуч — гортайте вбік.</p>
 
         <section class="story-card">
           <div class="story-heading">
@@ -31,6 +31,9 @@
               <p class="story-level" id="storyLevel"></p>
               <h1 class="story-title" id="storyTitle" tabindex="-1"></h1>
             </div>
+            <button class="bookmark-button" id="bookmarkButton" type="button" aria-label="Додати в закладки">
+              <span class="bookmark-icon" aria-hidden="true">☆</span>
+            </button>
           </div>
           <div class="reader-toolbar">
             <div class="story-heading-actions">
@@ -45,11 +48,7 @@
                 <span class="stress-toggle-mark" aria-hidden="true">а́</span>
                 <span>Наголоси</span>
               </button>
-              <button class="bookmark-button" id="bookmarkButton" type="button" aria-label="Додати в закладки">
-                <span class="bookmark-icon" aria-hidden="true">☆</span>
-              </button>
             </div>
-            <a class="quiz-jump-link" id="quizJumpLink" href="#questionsTitle">Перейти до питань</a>
           </div>
           <p class="story-speech-hint" id="storySpeechHint" hidden>
             Торкніться слова, щоб перекласти його.

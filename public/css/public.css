@@ -203,11 +203,14 @@
 .public-page .back-link { min-height: 44px; padding: 8px 0; border: 0; border-radius: 0; background: none; color: var(--accent); box-shadow: none; font-size: 0.9375rem; }
 .public-page .back-link:hover { text-decoration: underline; }
 .public-page :is(.story-card, .questions-card) { min-width: 0; padding: 32px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); box-shadow: none; }
-.public-page .story-heading { display: block; }
+.public-page .story-heading { display: flex; flex-direction: row; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.public-page .story-heading > div { min-width: 0; }
+.public-page .story-heading .bookmark-button { flex: none; }
 .public-page .story-level { margin-bottom: 10px; font-size: 0.875rem; }
 .public-page .story-title { margin-bottom: 24px; font-size: clamp(1.75rem, 3.3vw, 2.25rem); line-height: 1.25; }
 .public-page .reader-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 16px; padding: 12px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .public-page .story-heading-actions { align-items: center; justify-content: flex-start; flex-wrap: wrap; gap: 8px; max-width: 100%; min-width: 0; order: initial; }
+.public-page .story-heading-actions > * { flex: none; }
 .public-page .translation-language-control { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 0.8125rem; }
 .public-page .translation-language-control select { min-height: 44px; padding-left: 10px; border: 1px solid var(--control-line); border-radius: 10px; background: var(--paper); font-size: 1rem; font-weight: 500; }
 .public-page .bookmark-button { width: 44px; height: 44px; border-radius: 10px; background: var(--paper); }
@@ -215,7 +218,6 @@
 .public-page .stress-toggle-mark { font-family: var(--font-reading); font-size: 1.125rem; line-height: 1; }
 .public-page .stress-toggle[aria-pressed="true"] { border-color: #acc6b7; background: var(--accent-soft); color: var(--accent); }
 .public-page .stress-toggle:hover { border-color: var(--accent); }
-.public-page .quiz-jump-link { display: inline-flex; align-items: center; min-height: 44px; color: var(--accent); font-size: 0.875rem; font-weight: 500; text-underline-offset: 4px; }
 .public-page .story-speech-hint { margin: 12px 0 24px; padding: 0; border: 0; border-radius: 0; background: none; color: var(--muted); font-size: 0.8125rem; font-weight: 400; line-height: 1.6; }
 .public-page .story-content { margin-top: 24px; gap: 24px; }
 .public-page .story-text { gap: 20px; max-width: 65ch; }
