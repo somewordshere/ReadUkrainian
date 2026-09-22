@@ -91,3 +91,4 @@ This file is tracked in GitHub and linked from the site version footer.
 0.85 - Revised A1 stories 20–24 with fuller scenes and clearer progression within their original length limits; preserved quizzes and saved progress, and added dictionary support for revised word forms.
 0.86 - Redesigned library cards with a clear status and progress bar, started texts marked as soon as they are opened, tap any word to translate it, stress marks in stories (toggle «Наголоси»), and the Literata reading font.
 0.87 - Tidier reader toolbar: the bookmark star moved to the story card's corner, the language selector matches the other controls and no longer cuts off «English», and the «Перейти до питань» link was removed.
+0.88 - The translation language is now a one-tap EN | DE switch instead of a dropdown, stress marks have an on/off switch, and the reader controls share one look.
