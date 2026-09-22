@@ -3,6 +3,7 @@ import {
   STORY_TOPICS,
   findContinueStory,
   getStoryHref,
+  getStoryScore,
   getStoryTopic,
   storyMatchesFilters,
 } from "./library-utils.mjs";
@@ -116,12 +117,15 @@ function createStoryCard(story) {
 
   const progress = getProgressForStory(story);
   if (progress?.completed) {
-    const completedBadge = document.createElement("span");
-    completedBadge.className = "completed-badge";
-    completedBadge.textContent = "Завершено";
+    const score = getStoryScore(progress);
     link.classList.add("is-completed");
-    link.setAttribute("aria-label", `${story.title}. Тест завершено`);
-    link.appendChild(completedBadge);
+    if (score !== null) {
+      const scoreNumber = document.createElement("span");
+      scoreNumber.className = "text-score";
+      scoreNumber.textContent = String(score);
+      link.setAttribute("aria-label", `${story.title}. Тест завершено. Оцінка: ${score} зі 100`);
+      link.appendChild(scoreNumber);
+    }
   }
 
   bookmarkButton.className = "text-bookmark-button";

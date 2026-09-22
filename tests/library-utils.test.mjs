@@ -5,6 +5,7 @@ import {
   findContinueStory,
   findNextIncompleteStory,
   flattenActiveStories,
+  getStoryScore,
   getStoryTopic,
   storyMatchesFilters,
 } from "../public/js/app/library-utils.mjs";
@@ -34,6 +35,15 @@ const levels = [
     texts: [{ storyId: "5", sortOrder: 1, title: "Inactive level", active: true }],
   },
 ];
+
+test("scores completed texts out of 100 using their question count", () => {
+  assert.equal(getStoryScore({ completed: true, answers: [0, 1, 2, 3, 4], correctCount: 4 }), 80);
+  assert.equal(getStoryScore({ completed: true, answers: [0, 1, 2, 3, 4], correctCount: 3 }), 60);
+  assert.equal(getStoryScore({ completed: true, answers: [0, 1, 2, 3, 4, 5], correctCount: 5 }), 83);
+  assert.equal(getStoryScore({ completed: true, answers: [0, 1, 2, 3, 4, 5], correctCount: 6 }), 100);
+  assert.equal(getStoryScore({ completed: true, answers: [0, 1, 2, 3, 4], correctCount: 0 }), 0);
+  assert.equal(getStoryScore({ completed: false, answers: [0, null], correctCount: 1 }), null);
+});
 
 test("flattens only active stories and adds display metadata", () => {
   const stories = flattenActiveStories(levels);
