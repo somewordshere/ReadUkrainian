@@ -51,9 +51,11 @@ export async function onRequestPost(context) {
   const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
   let page;
   try {
+    // Workers reject redirect: "error" outright, so read redirects manually;
+    // a 3xx is not ok and is refused below rather than followed.
     const response = await fetch(KAIKKI_UKRAINIAN_URL, {
       headers: { accept: "text/html" },
-      redirect: "error",
+      redirect: "manual",
       signal: controller.signal,
     });
     if (!response.ok) throw new Error(`Upstream returned HTTP ${response.status}.`);

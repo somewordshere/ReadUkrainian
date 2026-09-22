@@ -222,13 +222,33 @@ test("editors suggest entries and administrators approve them before learner loo
   assert.equal(lookup.attributions[0].name, "Read Ukrainian reviewed supplement");
 });
 
+test("the refresh action refuses to follow an upstream redirect", async () => {
+  const db = createD1Database();
+  const previousFetch = globalThis.fetch;
+  globalThis.fetch = async () => new Response(null, {
+    status: 301,
+    headers: { location: "https://untrusted.invalid/" },
+  });
+
+  try {
+    const response = await checkUpdate(await adminContext(db, {
+      path: "/api/admin/dictionary/check-update",
+    }));
+    assert.equal(response.status, 502);
+  } finally {
+    globalThis.fetch = previousFetch;
+  }
+});
+
 test("the refresh action records only the available upstream revision", async () => {
   const db = createD1Database();
   const previousFetch = globalThis.fetch;
   let requests = 0;
-  globalThis.fetch = async (url) => {
+  globalThis.fetch = async (url, options = {}) => {
     requests += 1;
     assert.equal(url, "https://kaikki.org/dictionary/Ukrainian/");
+    // Cloudflare Workers throw on redirect: "error"; only "manual" or "follow" work.
+    assert.equal(options.redirect, "manual");
     return new Response(
       "This dictionary is based on structured data extracted today from the enwiktionary dump dated 2026-08-12 using wiktextract.",
       { headers: { "content-type": "text/html; charset=utf-8" } }
