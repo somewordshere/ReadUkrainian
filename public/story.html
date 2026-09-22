@@ -6,6 +6,8 @@
     <title>Історії українською</title>
     <link rel="stylesheet" href="./css/styles.css" />
     <link rel="stylesheet" href="./css/public.css" />
+    <link rel="preload" href="./fonts/literata/literata-cyrillic-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="./fonts/literata/literata-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
 
     <!-- story.js imports these, so without the hints the browser only learns
          they exist after story.js has downloaded, and the story request cannot
@@ -14,6 +16,7 @@
     <link rel="modulepreload" href="./js/app/legacy-content.js" />
     <link rel="modulepreload" href="./js/app/library-utils.mjs" />
     <link rel="modulepreload" href="./js/app/selection-speech.js" />
+    <link rel="modulepreload" href="./js/app/story-words.mjs" />
   </head>
   <body class="public-page reader-page">
     <a class="skip-link" href="#storyTitle">Перейти до тексту</a>
@@ -38,6 +41,10 @@
                   <option value="de">Deutsch</option>
                 </select>
               </label>
+              <button class="stress-toggle" id="stressToggle" type="button" aria-pressed="true">
+                <span class="stress-toggle-mark" aria-hidden="true">а́</span>
+                <span>Наголоси</span>
+              </button>
               <button class="bookmark-button" id="bookmarkButton" type="button" aria-label="Додати в закладки">
                 <span class="bookmark-icon" aria-hidden="true">☆</span>
               </button>
@@ -45,7 +52,7 @@
             <a class="quiz-jump-link" id="quizJumpLink" href="#questionsTitle">Перейти до питань</a>
           </div>
           <p class="story-speech-hint" id="storySpeechHint" hidden>
-            Виділіть одне українське слово, щоб перекласти його.
+            Торкніться слова, щоб перекласти його.
           </p>
           <div class="story-content" id="storyContent" aria-busy="true">
             <div class="story-text" id="storyText">

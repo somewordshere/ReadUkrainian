@@ -247,6 +247,7 @@ function createHarness({
     popover,
     requests,
     revokedUrls,
+    root,
     selection,
     status,
     translateButton,
@@ -704,6 +705,130 @@ test("does not reopen a dismissed offer on an unrelated pointer release", () => 
 
     harness.documentTarget.dispatchEvent(new Event("pointerup"));
     assert.equal(harness.popover.hidden, true);
+  } finally {
+    harness.restore();
+  }
+});
+
+// A story word as story.js renders it: plain spelling in data-word, possibly a
+// stress mark in the visible text.
+function addTappableWord(harness, word, displayed = word) {
+  const element = new FakeElement();
+  const classes = new Set();
+  element.dataset = { word };
+  element.textContent = displayed;
+  element.classList = {
+    add: (name) => classes.add(name),
+    remove: (name) => classes.delete(name),
+    contains: (name) => classes.has(name),
+    toggle: () => {},
+  };
+  element.closest = (selector) => (selector === "[data-word]" ? element : null);
+  harness.root.addChild(element);
+  harness.documentTarget.createRange = () => ({
+    startContainer: null,
+    startOffset: 0,
+    endContainer: null,
+    endOffset: 1,
+    selectNodeContents(node) {
+      this.startContainer = node;
+      this.endContainer = node;
+    },
+    cloneRange() {
+      return this;
+    },
+    getClientRects() {
+      return [{ left: 80, right: 180, top: 120, bottom: 142, width: 100, height: 22 }];
+    },
+    getBoundingClientRect() {
+      return this.getClientRects()[0];
+    },
+  });
+  return element;
+}
+
+function eventOn(type, target) {
+  const event = new Event(type);
+  Object.defineProperty(event, "target", { value: target });
+  return event;
+}
+
+function tap(harness, element) {
+  harness.documentTarget.dispatchEvent(eventOn("pointerdown", element));
+  harness.documentTarget.dispatchEvent(new Event("selectionchange"));
+  harness.root.dispatchEvent(eventOn("click", element));
+  harness.root.dispatchEvent(new Event("pointerup"));
+}
+
+test("tapping a word opens the popover and looks up its plain spelling", async () => {
+  const harness = createHarness();
+  try {
+    harness.controller.setContext({ storyId: 42 });
+    harness.controller.setEnabled(true);
+    harness.selection.isCollapsed = true;
+    const word = addTappableWord(harness, "Мама", "Ма\u0301ма");
+
+    tap(harness, word);
+    await flushAsyncWork();
+
+    assert.equal(harness.popover.hidden, false);
+    assert.equal(word.classList.contains("is-tapped"), true);
+    assert.equal(harness.requests.length, 1);
+    assert.equal(harness.requests[0][0], "/api/dictionary/lookup");
+    assert.equal(JSON.parse(harness.requests[0][1].body).text, "Мама");
+    assert.match(harness.hint.textContent, /Торкніться/);
+  } finally {
+    harness.restore();
+  }
+});
+
+test("the collapsed selection a tap leaves behind does not close the popover", () => {
+  const harness = createHarness();
+  try {
+    harness.controller.setContext({ storyId: 42 });
+    harness.controller.setEnabled(true);
+    harness.selection.isCollapsed = true;
+    const word = addTappableWord(harness, "книга");
+
+    tap(harness, word);
+    harness.documentTarget.dispatchEvent(new Event("selectionchange"));
+
+    assert.equal(harness.popover.hidden, false);
+  } finally {
+    harness.restore();
+  }
+});
+
+test("tapping the open word again closes it, and a further tap reopens it", () => {
+  const harness = createHarness();
+  try {
+    harness.controller.setContext({ storyId: 42 });
+    harness.controller.setEnabled(true);
+    harness.selection.isCollapsed = true;
+    const word = addTappableWord(harness, "книга");
+
+    tap(harness, word);
+    assert.equal(harness.popover.hidden, false);
+
+    tap(harness, word);
+    assert.equal(harness.popover.hidden, true);
+    assert.equal(word.classList.contains("is-tapped"), false);
+
+    tap(harness, word);
+    assert.equal(harness.popover.hidden, false);
+  } finally {
+    harness.restore();
+  }
+});
+
+test("a drag selection strips stress marks before looking the word up", async () => {
+  const harness = createHarness({ selectionText: " ма\u0301ма, " });
+  try {
+    showSelection(harness);
+    harness.translateButton.dispatchEvent(new Event("click"));
+    await flushAsyncWork();
+
+    assert.equal(JSON.parse(harness.requests[0][1].body).text, "мама,");
   } finally {
     harness.restore();
   }

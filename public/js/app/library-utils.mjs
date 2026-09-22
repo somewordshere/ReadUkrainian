@@ -66,6 +66,25 @@ export function getStoryScore(progress) {
   return Math.round((Math.min(Math.max(correctCount, 0), questionCount) / questionCount) * 100);
 }
 
+// One of "new", "reading" or "done", plus what the library card needs to draw it.
+// Opening a text or answering any question moves it out of "new".
+export function getStoryStatus(progress) {
+  const total = progress?.answers?.length || 0;
+  const answered = progress?.answers?.filter(
+    (answer) => answer !== null && answer !== undefined
+  ).length || 0;
+
+  if (progress?.completed && total > 0) {
+    return { state: "done", answered, total, score: getStoryScore(progress), fraction: 1 };
+  }
+
+  if (progress?.opened || answered > 0) {
+    return { state: "reading", answered, total, score: null, fraction: total ? answered / total : 0 };
+  }
+
+  return { state: "new", answered: 0, total, score: null, fraction: 0 };
+}
+
 function normalizeSearchText(value = "") {
   return String(value)
     .toLocaleLowerCase("uk-UA")

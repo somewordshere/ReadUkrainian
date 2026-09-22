@@ -3,7 +3,7 @@ import {
   STORY_TOPICS,
   findContinueStory,
   getStoryHref,
-  getStoryScore,
+  getStoryStatus,
   getStoryTopic,
   storyMatchesFilters,
 } from "./library-utils.mjs";
@@ -98,35 +98,49 @@ function renderContinueCard() {
 function createStoryCard(story) {
   const card = document.createElement("article");
   const link = document.createElement("a");
-  const label = document.createElement("span");
+  const number = document.createElement("span");
   const title = document.createElement("span");
+  const meta = document.createElement("span");
   const topic = document.createElement("span");
+  const statusText = document.createElement("span");
+  const progressTrack = document.createElement("span");
   const bookmarkButton = document.createElement("button");
   const storyTopic = getStoryTopic(story.title);
+  const status = getStoryStatus(getProgressForStory(story));
 
   card.className = "text-card";
-  link.className = "text-button";
+  link.className = `text-button is-${status.state}`;
   link.href = getStoryHref(story);
-  label.className = "text-label";
-  label.textContent = story.levelId;
+  number.className = "text-number";
+  number.textContent = String(story.displayNumber);
   title.className = "text-title";
-  title.textContent = `${story.displayNumber}. ${story.title}`;
+  title.textContent = story.title;
+  meta.className = "text-meta";
   topic.className = "text-topic";
   topic.textContent = storyTopic.label;
-  link.append(title, label, " ", topic);
+  statusText.className = "text-status";
+  progressTrack.className = "text-progress";
+  progressTrack.style.setProperty("--progress", String(status.fraction));
+  progressTrack.setAttribute("aria-hidden", "true");
 
-  const progress = getProgressForStory(story);
-  if (progress?.completed) {
-    const score = getStoryScore(progress);
-    link.classList.add("is-completed");
-    if (score !== null) {
-      const scoreNumber = document.createElement("span");
-      scoreNumber.className = "text-score";
-      scoreNumber.textContent = String(score);
-      link.setAttribute("aria-label", `${story.title}. Тест завершено. Оцінка: ${score} зі 100`);
-      link.appendChild(scoreNumber);
-    }
+  let statusLabel = "Не почато";
+  if (status.state === "done") {
+    statusText.textContent = `✓ ${status.score}%`;
+    statusLabel = `Тест завершено. Оцінка: ${status.score} зі 100`;
+  } else if (status.state === "reading" && status.answered > 0) {
+    statusText.textContent = `${status.answered}/${status.total}`;
+    statusLabel = `Відповіді: ${status.answered} з ${status.total}`;
+  } else if (status.state === "reading") {
+    statusText.textContent = "Читаю";
+    statusLabel = "Розпочато";
   }
+
+  meta.append(topic, statusText);
+  link.append(number, title, meta, progressTrack);
+  link.setAttribute(
+    "aria-label",
+    `${story.displayNumber}. ${story.title}. ${storyTopic.label}. ${statusLabel}`
+  );
 
   bookmarkButton.className = "text-bookmark-button";
   bookmarkButton.type = "button";
