@@ -42,14 +42,17 @@ try {
   const deadline = Date.now() + 120000;
   while (Date.now() < deadline) {
     if (preview.exitCode !== null) throw new Error(`Authenticated verification preview stopped before it was ready.\n${previewLog()}`);
+    let response;
     try {
-      const response = await fetch(`${origin}/api/content`, { signal: AbortSignal.timeout(2000) });
-      if (response.ok) { await response.body?.cancel(); ready = true; break; }
-      // Anything but a connection error means the preview is up and production refused it.
+      response = await fetch(`${origin}/api/content`, { signal: AbortSignal.timeout(2000) });
+    } catch { /* Connection and preview initialization can take a few seconds. */ }
+    if (response?.ok) { await response.body?.cancel(); ready = true; break; }
+    if (response) {
+      // The preview is up and production refused it; retrying will not help.
       const body = (await response.text()).replace(/\s+/g, " ").slice(0, 400);
       const headers = ["server", "cf-ray", "cf-mitigated", "content-type"].map((name) => `${name}=${response.headers.get(name)}`).join(" ");
       throw new Error(`Production answered the verification preview with HTTP ${response.status} (${headers}): ${body}\n${previewLog()}`);
-    } catch { /* Connection and preview initialization can take a few seconds. */ }
+    }
     await setTimeout(1000);
   }
   if (!ready) throw new Error(`Authenticated verification preview did not become ready within two minutes.\n${previewLog()}`);
