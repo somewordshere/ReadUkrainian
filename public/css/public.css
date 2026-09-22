@@ -212,7 +212,24 @@
 .public-page .story-heading-actions { align-items: center; justify-content: flex-start; flex-wrap: wrap; gap: 8px; max-width: 100%; min-width: 0; order: initial; }
 .public-page .story-heading-actions > * { flex: none; }
 .public-page .translation-language-control { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 0.8125rem; }
-.public-page .translation-language-control select { min-height: 44px; padding-left: 10px; border: 1px solid var(--control-line); border-radius: 10px; background: var(--paper); font-size: 1rem; font-weight: 500; }
+.public-page .translation-language-control > span { color: var(--muted); font-size: 0.875rem; font-weight: 500; }
+/* Drawn to match the stress toggle and star beside it rather than the native control. */
+.public-page .translation-language-control select {
+  -webkit-appearance: none;
+  appearance: none;
+  min-height: 44px;
+  padding: 0 34px 0 12px;
+  border: 1px solid var(--control-line);
+  border-radius: 10px;
+  background: var(--paper) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%2358675f' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 12px center / 12px 8px;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.2;
+  cursor: pointer;
+}
+.public-page .translation-language-control select:hover { border-color: var(--accent); }
 .public-page .bookmark-button { width: 44px; height: 44px; border-radius: 10px; background: var(--paper); }
 .public-page .stress-toggle { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; border: 1px solid var(--control-line); border-radius: 10px; background: var(--paper); color: var(--muted); font: inherit; font-size: 0.875rem; font-weight: 500; cursor: pointer; }
 .public-page .stress-toggle-mark { font-family: var(--font-reading); font-size: 1.125rem; line-height: 1; }
@@ -287,6 +304,9 @@
   }
   .public-page .reader-toolbar { gap: 4px; }
   .public-page .story-heading-actions { flex-wrap: wrap; }
+  /* Keeps the language and stress controls on one row in the narrow reader card;
+     the label still names the select for assistive technology. */
+  .public-page .translation-language-control > span { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
   .public-page .story-note { font-size: 1.125rem; }
   .public-page .story-speech-hint { margin-bottom: 20px; }
   .public-page .story-title { margin-bottom: 20px; }
