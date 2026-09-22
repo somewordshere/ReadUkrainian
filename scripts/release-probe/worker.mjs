@@ -16,10 +16,11 @@ export function productionRequest(request) {
 }
 
 export default {
-  async fetch(request) {
+  async fetch(request, env) {
     const upstream = productionRequest(request);
     if (!upstream) return new Response("Only public release verification endpoints are available.", { status: 404 });
-    // Exercise the deployed custom domain, including its public API and assets.
-    return fetch(upstream);
+    // Exercise the deployed production Worker, its public API, D1 and assets,
+    // through the service binding rather than the bot-protected public edge.
+    return env.PRODUCTION.fetch(upstream);
   },
 };

@@ -4,5 +4,9 @@
   "main": "worker.mjs",
   "compatibility_date": "2026-09-08",
   "workers_dev": false,
-  "preview_urls": false
+  "preview_urls": false,
+  // Reach the deployed production Worker directly. Fetching the public domain
+  // from Cloudflare's US locations is met by a bot-protection challenge (HTTP
+  // 403, cf-mitigated: challenge) since 2026-09-18, and bot protection stays on.
+  "services": [{ "binding": "PRODUCTION", "service": "readukrainian" }]
 }

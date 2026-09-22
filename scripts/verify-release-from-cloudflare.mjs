@@ -1,7 +1,9 @@
 import {loadReleaseManifest} from "./lib/release-manifest.mjs";
 const release=loadReleaseManifest();
-// Bot Fight Mode challenges hosted CI. Keep it enabled and check the public
-// domain through Wrangler's authenticated, temporary remote preview instead.
+// Bot Fight Mode challenges hosted CI, and since 2026-09-18 also the preview's
+// own requests to the public domain. Keep it enabled; the authenticated,
+// temporary remote preview reaches the production Worker through a service
+// binding instead (scripts/release-probe/wrangler.jsonc).
 import { spawn, spawnSync } from "node:child_process";
 import { once } from "node:events";
 import { setTimeout } from "node:timers/promises";
@@ -63,7 +65,7 @@ try {
     const result = spawnSync(process.execPath, args, { cwd: root, env, stdio: "inherit", timeout: 300000, windowsHide: true });
     if (result.status !== 0) throw new Error(`${args[0]} failed.`);
   }
-  console.log("Published custom domain verified through an authenticated Cloudflare preview; bot protection remains enabled.");
+  console.log("Deployed production Worker verified through an authenticated Cloudflare preview; bot protection remains enabled.");
 } finally {
   await stop();
 }
