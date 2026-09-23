@@ -35,7 +35,7 @@ function fakeDb(
     quotaAllowed = true,
     quotaThrows = false,
     queries = [],
-    voiceId = "achernar",
+    voiceId = "uk-UA-Chirp3-HD-Achernar",
     speechEnabled = true,
     voiceSettingThrows = false,
   } = {}
@@ -125,7 +125,7 @@ function createContext({
   googleKey = "test-key",
   quotaAllowed = true,
   quotaThrows = false,
-  voiceId = "achernar",
+  voiceId = "uk-UA-Chirp3-HD-Achernar",
   speechEnabled = true,
   voiceSettingThrows = false,
   request,
@@ -201,7 +201,7 @@ test("canonicalizes Ukrainian words exactly like the static generator", () => {
 test("derives deterministic SHA-256 MP3 paths from canonical words", async () => {
   assert.equal(
     await buildSpeechAssetPath("добрий"),
-    `/speech/achernar/${GOOD_WORD_HASH}.mp3`
+    `/speech/uk-UA-Chirp3-HD-Achernar/${GOOD_WORD_HASH}.mp3`
   );
   await assert.rejects(buildSpeechAssetPath("добрий", "lada"), /Unsupported speech voice/);
   await assert.rejects(
@@ -218,14 +218,14 @@ test("serves static audio first without cache, limiter, quota, or provider calls
   assert.equal(response.headers.get("content-type"), "audio/mpeg");
   assert.equal(response.headers.get("x-speech-source"), "static");
   assert.equal(response.headers.get("x-speech-cache"), "HIT");
-  assert.equal(response.headers.get("x-speech-voice"), "achernar");
+  assert.equal(response.headers.get("x-speech-voice"), "uk-UA-Chirp3-HD-Achernar");
   assert.equal(response.headers.get("x-content-type-options"), "nosniff");
   assert.match(response.headers.get("cache-control"), /immutable/);
   assert.deepEqual([...new Uint8Array(await response.arrayBuffer())], [1, 2, 3]);
   assert.equal(harness.assetCalls.length, 1);
   assert.equal(
     new URL(harness.assetCalls[0].url).pathname,
-    `/speech/achernar/${GOOD_WORD_HASH}.mp3`
+    `/speech/uk-UA-Chirp3-HD-Achernar/${GOOD_WORD_HASH}.mp3`
   );
   assert.equal(harness.providerCalls.length, 0);
   assert.equal(harness.rateLimitCalls.length, 0);
@@ -255,7 +255,7 @@ test("serves a provider cache hit before limiter, quota, or provider calls", asy
   assert.equal(response.status, 200);
   assert.equal(response.headers.get("x-speech-source"), "google");
   assert.equal(response.headers.get("x-speech-cache"), "HIT");
-  assert.equal(response.headers.get("x-speech-voice"), "achernar");
+  assert.equal(response.headers.get("x-speech-voice"), "uk-UA-Chirp3-HD-Achernar");
   assert.deepEqual([...new Uint8Array(await response.arrayBuffer())], [...MP3, 4, 5, 6]);
   assert.equal(cacheCalls.length, 1);
   assert.equal(cacheCalls[0][1].method, "GET");
@@ -286,7 +286,7 @@ test("generates Google audio on a static and cache miss", async () => {
   assert.equal(response.status, 200);
   assert.equal(response.headers.get("x-speech-source"), "google");
   assert.equal(response.headers.get("x-speech-cache"), "MISS");
-  assert.equal(response.headers.get("x-speech-voice"), "achernar");
+  assert.equal(response.headers.get("x-speech-voice"), "uk-UA-Chirp3-HD-Achernar");
   assert.deepEqual([...new Uint8Array(await response.arrayBuffer())], [...MP3, 7, 8, 9]);
   assert.equal(harness.providerCalls.length, 1);
   const [providerUrl, providerInit] = harness.providerCalls[0];
@@ -315,8 +315,8 @@ test("falls back to the default voice when the stored voice was retired", async 
   const response = await onRequestPost(harness.context);
 
   assert.equal(response.status, 200);
-  assert.equal(response.headers.get("x-speech-voice"), "achernar");
-  assert.equal(new URL(harness.assetCalls[0].url).pathname, `/speech/achernar/${GOOD_WORD_HASH}.mp3`);
+  assert.equal(response.headers.get("x-speech-voice"), "uk-UA-Chirp3-HD-Achernar");
+  assert.equal(new URL(harness.assetCalls[0].url).pathname, `/speech/uk-UA-Chirp3-HD-Achernar/${GOOD_WORD_HASH}.mp3`);
 });
 
 test("rejects provider audio that is not MP3", async () => {

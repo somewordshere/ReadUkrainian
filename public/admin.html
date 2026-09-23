@@ -55,7 +55,8 @@
             <p class="admin-kicker">Audio</p>
             <h2 id="speechSettingsTitle">Pronunciation</h2>
             <p id="speechSettingsDescription">
-              Turn word pronunciation on or off and choose the server-generated voice learners hear.
+              Turn word pronunciation on or off and choose the voice learners hear. Only enabled voices
+              from the list below can be the site voice.
             </p>
             <label class="admin-checkbox admin-speech-enabled">
               <input
@@ -70,7 +71,7 @@
           </div>
           <div class="admin-speech-settings-controls">
             <label for="speechVoiceSelect">
-              <span>Voice</span>
+              <span>Site voice</span>
               <select
                 id="speechVoiceSelect"
                 name="voiceId"
@@ -86,6 +87,33 @@
             </button>
           </div>
           <p class="admin-status admin-speech-settings-status" id="speechSettingsStatus" aria-live="polite"></p>
+
+          <section class="admin-voice-library" id="speechVoiceLibrary" aria-labelledby="speechVoiceLibraryTitle" hidden>
+            <div class="admin-voice-library-heading">
+              <h3 id="speechVoiceLibraryTitle">Voices</h3>
+              <p>Listen to every Ukrainian voice Google offers and enable the ones worth keeping.</p>
+            </div>
+            <div class="admin-voice-toolbar">
+              <label class="admin-voice-phrase" for="speechPreviewText">
+                <span>Test phrase</span>
+                <input
+                  id="speechPreviewText"
+                  type="text"
+                  maxlength="200"
+                  lang="uk"
+                  value="Привіт! Сьогодні ми читаємо українською."
+                />
+              </label>
+              <div class="admin-voice-filter" role="group" aria-label="Show voices">
+                <button type="button" data-voice-filter="all" aria-pressed="true">All</button>
+                <button type="button" data-voice-filter="enabled" aria-pressed="false">Enabled</button>
+                <button type="button" data-voice-filter="female" aria-pressed="false">Female</button>
+                <button type="button" data-voice-filter="male" aria-pressed="false">Male</button>
+              </div>
+            </div>
+            <p class="admin-status" id="speechVoiceLibraryStatus" aria-live="polite"></p>
+            <ul class="admin-voice-list" id="speechVoiceList"></ul>
+          </section>
         </form>
 
         <section

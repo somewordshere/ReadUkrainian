@@ -53,6 +53,45 @@ export async function getSpeechVoice(db) {
   return resolveSpeechVoice(setting.voiceId) || resolveSpeechVoice(DEFAULT_SPEECH_VOICE_ID);
 }
 
+// The admin's shortlist of voices that may become the site voice.
+export async function listEnabledSpeechVoiceIds(db) {
+  const { results } = await db
+    .prepare("SELECT voice_id AS voiceId FROM speech_voice_options WHERE is_enabled = 1")
+    .all();
+  return new Set(
+    (results || [])
+      .map((row) => resolveSpeechVoice(row.voiceId)?.id)
+      .filter(Boolean)
+  );
+}
+
+export async function saveSpeechVoiceOption(db, { voiceId, enabled }, session) {
+  const voice = resolveSpeechVoice(voiceId);
+
+  if (!voice) {
+    throw new RangeError("Unsupported speech voice.");
+  }
+  if (typeof enabled !== "boolean") {
+    throw new TypeError("Voice enabled state must be a boolean.");
+  }
+
+  const actor = normalizeActor(session);
+
+  await db
+    .prepare(
+      `
+        INSERT INTO speech_voice_options (voice_id, is_enabled, updated_at, updated_by_email)
+        VALUES (?, ?, CURRENT_TIMESTAMP, ?)
+        ON CONFLICT(voice_id) DO UPDATE SET
+          is_enabled = excluded.is_enabled,
+          updated_at = CURRENT_TIMESTAMP,
+          updated_by_email = excluded.updated_by_email
+      `
+    )
+    .bind(voice.id, enabled ? 1 : 0, actor.email)
+    .run();
+}
+
 export async function saveSpeechSetting(db, { voiceId, enabled }, session) {
   const voice = resolveSpeechVoice(voiceId);
 

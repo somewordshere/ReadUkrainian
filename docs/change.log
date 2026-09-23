@@ -94,3 +94,4 @@ This file is tracked in GitHub and linked from the site version footer.
 0.88 - The translation language is now a one-tap EN | DE switch instead of a dropdown, stress marks have an on/off switch, and the reader controls share one look.
 0.89 - New Ї logo and site icons, a calmer blue on warm reading surfaces, the tapped word highlighted in yellow, and library filters as one-tap status and topic buttons.
 0.90 - Word pronunciation uses a natural Google neural voice and answers much faster.
+0.91 - The admin can listen to every Ukrainian Google voice, keep a shortlist and choose the voice learners hear.

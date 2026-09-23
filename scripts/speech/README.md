@@ -1,8 +1,8 @@
 # Static Ukrainian speech assets
 
 This build pipeline turns every unique Ukrainian word in the published stories into
-an MP3 made by Google Cloud Text-to-Speech (Chirp 3 HD voice set in
-`functions/_shared/speech-voices.js`). Tapping «Прослухати» then serves a file that
+an MP3 made by Google Cloud Text-to-Speech in the site voice chosen in the admin
+(Audio → Voices). Tapping «Прослухати» then serves a file that
 is already on Cloudflare instead of waiting for synthesis. The Worker names each
 file after the SHA-256 of the canonical UTF-8 word and serves
 `public/speech/<voice-id>/<sha256>.mp3`.
@@ -35,10 +35,11 @@ plays; only words added after the last generation fail.
    node scripts/speech/generate-speech-assets.mjs --sample замок,мука,наша
    ```
 
-3. Generate and publish into `public/speech/<voice-id>/`:
+3. Generate and publish into `public/speech/<voice-id>/`, passing the site voice
+   chosen in the admin (the default is `uk-UA-Chirp3-HD-Achernar`):
 
    ```powershell
-   npm run speech:build
+   npm run speech:build -- --voice-id uk-UA-Chirp3-HD-Achernar
    ```
 
    The full run (about 4,200 words, 28,000 characters) takes about 20 minutes and

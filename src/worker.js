@@ -27,8 +27,10 @@ import { onRequestPost as unpublishAdminText } from "../functions/api/admin/text
 import { onRequestGet as listAdminTextRevisions } from "../functions/api/admin/texts/revisions.js";
 import { onRequestPost as restoreAdminTextRevision } from "../functions/api/admin/texts/restore.js";
 import {
+  onPreviewPost as previewSpeechVoice,
   onRequestGet as getSpeechSettings,
   onRequestPut as updateSpeechSettings,
+  onVoiceOptionPut as updateSpeechVoiceOption,
 } from "../functions/api/admin/settings/speech.js";
 import { error } from "../functions/_shared/http.js";
 
@@ -43,6 +45,8 @@ const EXACT_API_ROUTES = new Map([
   ["/api/admin/logout", { POST: logout }],
   ["/api/admin/session", { GET: session }],
   ["/api/admin/settings/speech", { GET: getSpeechSettings, PUT: updateSpeechSettings }],
+  ["/api/admin/settings/speech/voices", { PUT: updateSpeechVoiceOption }],
+  ["/api/admin/settings/speech/preview", { POST: previewSpeechVoice }],
   ["/api/admin/dictionary/status", { GET: getDictionaryStatus }],
   ["/api/admin/dictionary/check-update", { POST: checkDictionaryUpdate }],
   ["/api/admin/dictionary/coverage", { POST: checkDictionaryCoverage }],
