@@ -1,7 +1,8 @@
 import { requirePermission } from "../../../_shared/auth.js";
 import { analyzeEnabledDictionaryCoverage } from "../../../_shared/dictionary-workflow.js";
-import { error, json, readJson } from "../../../_shared/http.js";
+import { error, json } from "../../../_shared/http.js";
 import { publishText, validateTextPayload } from "../../../_shared/texts.js";
+import { readEditorJson } from "./_request.js";
 
 export async function onRequestPost(context) {
   const auth = await requirePermission(context, "publish");
@@ -10,8 +11,10 @@ export async function onRequestPost(context) {
   const storyId = Number(context.params.id);
   if (!Number.isInteger(storyId)) return error(400, "Invalid story ID.");
 
-  const payload = await readJson(context.request);
-  const validation = validateTextPayload(payload, { allowLevel: true });
+  const body = await readEditorJson(context.request);
+  if (body.response) return body.response;
+
+  const validation = validateTextPayload(body.payload, { allowLevel: true });
   if (!validation.ok) return error(400, validation.message);
 
   let dictionaryCoverages;

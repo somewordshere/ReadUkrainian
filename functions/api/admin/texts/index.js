@@ -1,6 +1,7 @@
 import { requirePermission } from "../../../_shared/auth.js";
-import { error, json, readJson } from "../../../_shared/http.js";
+import { error, json } from "../../../_shared/http.js";
 import { createTextDraft, listAdminTextSummaries, validateTextPayload } from "../../../_shared/texts.js";
+import { readEditorJson } from "./_request.js";
 
 export async function onRequestGet(context) {
   const auth = await requirePermission(context, "read");
@@ -18,8 +19,10 @@ export async function onRequestPost(context) {
     return auth.response;
   }
 
-  const payload = await readJson(context.request);
-  const validation = validateTextPayload(payload, { allowLevel: true });
+  const body = await readEditorJson(context.request);
+  if (body.response) return body.response;
+
+  const validation = validateTextPayload(body.payload, { allowLevel: true });
 
   if (!validation.ok) {
     return error(400, validation.message);

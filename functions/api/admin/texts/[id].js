@@ -1,6 +1,7 @@
 import { requirePermission } from "../../../_shared/auth.js";
-import { error, json, readJson } from "../../../_shared/http.js";
+import { error, json } from "../../../_shared/http.js";
 import { getAdminStoryById, saveTextDraft, validateTextPayload } from "../../../_shared/texts.js";
+import { readEditorJson } from "./_request.js";
 
 export async function onRequestGet(context) {
   const auth = await requirePermission(context, "read");
@@ -35,19 +36,20 @@ export async function onRequestPut(context) {
     return error(400, "Invalid story ID.");
   }
 
-  const existing = await getAdminStoryById(context.env.DB, storyId);
+  const body = await readEditorJson(context.request);
+  if (body.response) return body.response;
 
-  if (!existing) {
-    return error(404, "Story not found.");
-  }
-
-  const payload = await readJson(context.request);
-  const validation = validateTextPayload(payload, { allowLevel: true });
+  const validation = validateTextPayload(body.payload, { allowLevel: true });
 
   if (!validation.ok) {
     return error(400, validation.message);
   }
 
+  // saveTextDraft reads the row itself and returns null for an unknown story.
   const story = await saveTextDraft(context.env.DB, storyId, validation.value, auth.session);
+  if (!story) {
+    return error(404, "Story not found.");
+  }
+
   return json({ story });
 }
