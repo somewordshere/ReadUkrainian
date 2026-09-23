@@ -10,8 +10,10 @@ const VOWELS = /[аеєиіїоуюя]/giu;
 
 export const STRESS_MARK = "\u0301";
 
+// Stripped from the decomposed text so a grave accent already merged into е or
+// и (ѐ, ѝ) is removed too.
 export function stripStressMarks(value) {
-  return String(value ?? "").replace(STRESS_MARKS, "");
+  return String(value ?? "").normalize("NFD").replace(STRESS_MARKS, "").normalize("NFC");
 }
 
 // The lookup key for a word: unstressed, lower-case, one apostrophe form.

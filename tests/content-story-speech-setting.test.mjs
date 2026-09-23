@@ -108,3 +108,35 @@ test("story content keeps the site voice when the shortlist cannot load, and no 
   }))).json();
   assert.deepEqual(speechOff.story.speechVoices, []);
 });
+
+test("an unreadable quiz row is dropped instead of failing the story", async () => {
+  const { listQuestionsForStory } = await import("../functions/_shared/questions.js");
+  const errors = [];
+  const originalError = console.error;
+  console.error = (message) => errors.push(message);
+  try {
+    const db = {
+      prepare() {
+        return {
+          bind() {
+            return {
+              async all() {
+                return {
+                  results: [
+                    { id: 1, prompt: "Хто?", correct_answer: "Я", wrong_answers_json: '["Ти","Він","Вона"]' },
+                    { id: 2, prompt: "Де?", correct_answer: "Тут", wrong_answers_json: "{broken" },
+                  ],
+                };
+              },
+            };
+          },
+        };
+      },
+    };
+    const questions = await listQuestionsForStory(db, 7);
+    assert.deepEqual(questions.map((question) => question.id), [1]);
+    assert.match(errors.join(" "), /question_row_unreadable/);
+  } finally {
+    console.error = originalError;
+  }
+});
