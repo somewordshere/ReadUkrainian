@@ -241,6 +241,20 @@
 .public-page .word-count-note { margin: 0; color: var(--muted); font-size: 0.8125rem; font-weight: 400; }
 .public-page .selection-speech-popover { border-radius: 12px; box-shadow: 0 6px 24px #1f232826; }
 .public-page .selection-translation-word { font-weight: 600; }
+/* First-visit tip: a dark bubble like the word popover, pointing up at a word
+   that pulses in the tapped-word yellow until the learner taps a word. */
+.public-page .story-content { position: relative; }
+.public-page .word-tip { position: absolute; z-index: 15; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; width: max-content; max-width: min(300px, 100%); padding: 12px 14px; border-radius: 12px; background: var(--ink); color: var(--paper); box-shadow: 0 6px 24px #1f232826; }
+.public-page .word-tip[hidden] { display: none; }
+.public-page .word-tip::before { content: ""; position: absolute; top: -6px; left: calc(var(--tip-arrow-left, 24px) - 6px); width: 12px; height: 12px; border-radius: 2px; background: var(--ink); transform: rotate(45deg); }
+.public-page .word-tip-message { margin: 0; font-size: 0.875rem; line-height: 1.45; }
+.public-page .word-tip-close { min-height: 32px; padding: 0 12px; border: 0; border-radius: 8px; background: #ffffff26; color: var(--paper); font: inherit; font-size: 0.8125rem; font-weight: 600; cursor: pointer; }
+.public-page .word-tip-close:hover { background: #ffffff40; }
+.public-page .word-tip-close:focus-visible { outline: 2px solid var(--paper); outline-offset: 2px; }
+.public-page .story-word.is-tip-target { background: var(--highlight-soft); box-shadow: 0 0 0 2px var(--highlight-soft); animation: word-tip-pulse 1.6s ease-in-out infinite; }
+@keyframes word-tip-pulse {
+  50% { background: var(--highlight); box-shadow: 0 0 0 4px var(--highlight); }
+}
 .public-page .selection-word-actions :is(button) { font-weight: 600; }
 .public-page .selection-speech-popover :is(button, a):focus-visible { outline-color: #a9bbd3; outline-offset: -4px; }
 

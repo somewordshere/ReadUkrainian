@@ -4,6 +4,7 @@ import { findNextIncompleteStory, getStoryHref } from "./library-utils.mjs";
 import { initSelectionSpeech } from "./selection-speech.js";
 import { applyStress, tokenizeParagraph } from "./story-words.mjs";
 import { initVoicePicker } from "./voice-picker.js";
+import { initWordTip } from "./word-tip.mjs";
 
 const params = new URLSearchParams(window.location.search);
 const level = params.get("level") || "A1";
@@ -37,6 +38,14 @@ const selectionSpeech = initSelectionSpeech({
   translationResult: document.getElementById("selectionTranslationResult"),
   unavailable: document.getElementById("selectionSpeechUnavailable"),
   status: document.getElementById("selectionSpeechStatus"),
+});
+
+const wordTip = initWordTip({
+  container: storyContent,
+  root: storyText,
+  tip: document.getElementById("wordTip"),
+  message: document.getElementById("wordTipMessage"),
+  closeButton: document.getElementById("wordTipClose"),
 });
 
 function getSavedTranslationLanguage() {
@@ -92,6 +101,7 @@ async function renderStressMarks() {
   storyText.querySelectorAll(".story-word").forEach((word) => {
     word.textContent = stressMap ? applyStress(word.dataset.word, stressMap) : word.dataset.word;
   });
+  wordTip.position();
 }
 
 function setStressMarks(showStress) {
@@ -670,6 +680,7 @@ async function initStory() {
     selectionSpeech.setEnabled(true);
     selectionSpeech.setSpeechEnabled(story.speechEnabled === true);
     setupVoicePicker(story);
+    wordTip.show({ speechEnabled: story.speechEnabled === true });
 
     const questions = await resolveQuestions(story, storyLevelId);
 

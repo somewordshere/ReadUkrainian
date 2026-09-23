@@ -23,6 +23,7 @@
     <link rel="modulepreload" href="./js/app/selection-speech.js" />
     <link rel="modulepreload" href="./js/app/story-words.mjs" />
     <link rel="modulepreload" href="./js/app/voice-picker.js" />
+    <link rel="modulepreload" href="./js/app/word-tip.mjs" />
   </head>
   <body class="public-page reader-page">
     <a class="skip-link" href="#storyTitle">Перейти до тексту</a>
@@ -84,6 +85,10 @@
               <p class="story-note">Завантажуємо текст…</p>
             </div>
             <div class="story-meta" id="storyMeta"></div>
+            <div class="word-tip" id="wordTip" role="status" hidden>
+              <p class="word-tip-message" id="wordTipMessage"></p>
+              <button class="word-tip-close" id="wordTipClose" type="button">Зрозуміло</button>
+            </div>
           </div>
           <div
             class="selection-speech-popover"
