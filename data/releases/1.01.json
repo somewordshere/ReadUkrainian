@@ -1,5 +1,5 @@
 {
-  "version": "1.1",
+  "version": "1.01",
   "summary": "Code-only release: when stress marks were switched off, the Наголоси switch no longer shows on and slides off each time the story page loads. No content or migration changes.",
   "releaseMigrations": [
     "0033_dictionary_uk_de_update_2026_09_20.sql"
