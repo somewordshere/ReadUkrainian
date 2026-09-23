@@ -3,7 +3,10 @@ import { createHash } from "node:crypto";
 import { readdirSync, readFileSync } from "node:fs";
 import test from "node:test";
 
-import { CONTENT_SECURITY_POLICY, INLINE_SCRIPT_HASHES, handleRequest } from "../src/worker.js";
+import { CONTENT_SECURITY_POLICY, INLINE_SCRIPT_HASHES } from "../src/security-headers.js";
+import worker, * as workerModule from "../src/worker.js";
+
+const { handleRequest } = workerModule;
 
 const PUBLIC_DIRECTORY = new URL("../public/", import.meta.url);
 const HTML_PAGES = readdirSync(PUBLIC_DIRECTORY).filter((file) => file.endsWith(".html"));
@@ -73,4 +76,13 @@ test("static files skip the Worker, pages and the API do not", () => {
     assert.ok(rules.includes(`!/${directory}/*`), `/${directory} should bypass the Worker`);
   }
   assert.ok(!rules.some((rule) => /^!\/(api|admin)/.test(rule)));
+});
+
+test("the Worker entry module exports only handlers, as workerd requires", () => {
+  for (const [name, value] of Object.entries(workerModule)) {
+    const isHandler = typeof value === "function"
+      || (value && typeof value === "object" && typeof value.fetch === "function");
+    assert.ok(isHandler, `src/worker.js exports ${name}, which is not a handler; workerd would refuse to start`);
+  }
+  assert.equal(typeof worker.fetch, "function");
 });
