@@ -89,3 +89,38 @@ test("oversized or non-JSON login bodies are rejected before the limiter", async
   assert.equal(wrongTypeResponse.status, 415);
   assert.equal(limiterTouched, false);
 });
+
+test("login refuses to run without its rate limiter", async () => {
+  const response = await login({
+    request: loginRequest(),
+    env: {
+      DB: {
+        prepare() {
+          throw new Error("D1 should not be queried without a limiter.");
+        },
+      },
+    },
+  });
+
+  assert.equal(response.status, 503);
+});
+
+test("an unknown email costs the same password hashing as a wrong password", async () => {
+  const allowAll = { async limit() { return { success: true }; } };
+  const noUser = {
+    prepare() {
+      return { bind() { return { async first() { return null; } }; } };
+    },
+  };
+
+  const started = performance.now();
+  const response = await login({
+    request: loginRequest({ email: "nobody@example.com", password: "guess" }),
+    env: { ADMIN_LOGIN_RATE_LIMITER: allowAll, DB: noUser, SESSION_SECRET: "unused" },
+  });
+  const elapsed = performance.now() - started;
+
+  assert.equal(response.status, 401);
+  // A 600,000-iteration PBKDF2 takes well over 30 ms; returning early took ~1 ms.
+  assert.ok(elapsed > 30, `unknown-email login returned in ${elapsed.toFixed(1)} ms`);
+});
