@@ -1,4 +1,6 @@
 import {
+  checkRateLimit,
+  clientAddress,
   createSessionCookie,
   error,
   json,
@@ -11,6 +13,12 @@ import {
 } from "../../_shared/auth.js";
 
 const MAX_LOGIN_REQUEST_BYTES = 2 * 1024;
+// The hash of a random password nobody knows, in the same format and iteration
+// count as real ones. An unknown email is checked against it, so every failed
+// login costs the same PBKDF2 work and response time cannot reveal which email
+// addresses have accounts.
+const UNKNOWN_USER_HASH =
+  "pbkdf2_sha256$600000$xh1d-tKhcUHcRzS1MVlpOg$_a8W8Y6vsgUWs9Alr7EEarOtF77_yqnF1LHbxk1VG4I";
 
 export async function onRequestPost(context) {
   const requestUrl = new URL(context.request.url);
@@ -28,8 +36,14 @@ export async function onRequestPost(context) {
     return error(400, "Email and password are required.");
   }
 
-  const rateLimitResult = await checkLoginRateLimit(context.env, context.request);
-  if (rateLimitResult === false) {
+  const rateLimitResult = await checkRateLimit(
+    context.env.ADMIN_LOGIN_RATE_LIMITER,
+    `admin-login:${clientAddress(context.request) || "unknown"}`
+  );
+  if (rateLimitResult === null) {
+    return error(503, "Sign-in is temporarily unavailable.");
+  }
+  if (!rateLimitResult) {
     return error(429, "Too many login attempts. Try again in a minute.", {
       headers: { "retry-after": "60" },
     });
@@ -44,13 +58,9 @@ export async function onRequestPost(context) {
     .bind(email)
     .first();
 
-  if (!user || !user.is_active) {
-    return error(401, "Invalid credentials.");
-  }
+  const valid = await verifyPassword(password, user?.password_hash || UNKNOWN_USER_HASH);
 
-  const valid = await verifyPassword(password, user.password_hash);
-
-  if (!valid) {
+  if (!user || !user.is_active || !valid) {
     return error(401, "Invalid credentials.");
   }
 
@@ -78,20 +88,4 @@ export async function onRequestPost(context) {
       },
     }
   );
-}
-
-async function checkLoginRateLimit(env, request) {
-  if (
-    !env.ADMIN_LOGIN_RATE_LIMITER ||
-    typeof env.ADMIN_LOGIN_RATE_LIMITER.limit !== "function"
-  ) {
-    return null;
-  }
-
-  const clientAddress = request.headers.get("cf-connecting-ip") || "unknown";
-  const result = await env.ADMIN_LOGIN_RATE_LIMITER.limit({
-    key: `admin-login:${clientAddress}`,
-  });
-
-  return typeof result?.success === "boolean" ? result.success : null;
 }
