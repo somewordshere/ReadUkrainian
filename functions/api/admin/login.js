@@ -36,7 +36,7 @@ export async function onRequestPost(context) {
   }
 
   const user = await context.env.DB.prepare(`
-    SELECT id, email, password_hash, role, is_active
+    SELECT id, email, password_hash, role, is_active, session_version
     FROM users
     WHERE email = ?1
     LIMIT 1
@@ -62,6 +62,7 @@ export async function onRequestPost(context) {
     userId: user.id,
     email: user.email,
     role: user.role,
+    sv: Number(user.session_version) || 1,
   });
 
   return json(

@@ -161,6 +161,15 @@ export async function readSessionToken(secret, token) {
   }
 }
 
+function unauthenticated() {
+  return { ok: false, response: error(401, "Authentication required.") };
+}
+
+// Cookies issued before session versions existed carry no version.
+function tokenSessionVersion(token) {
+  return Number.isInteger(token?.sv) ? token.sv : 1;
+}
+
 export async function requireAdmin(context) {
   const secret = context.env.SESSION_SECRET;
 
@@ -168,14 +177,41 @@ export async function requireAdmin(context) {
     return { ok: false, response: error(500, "SESSION_SECRET is not configured.") };
   }
 
-  const token = getCookie(context.request, "admin_session");
-  const session = await readSessionToken(secret, token);
+  const token = await readSessionToken(secret, getCookie(context.request, "admin_session"));
 
-  if (!session?.userId) {
-    return { ok: false, response: error(401, "Authentication required.") };
+  if (!token?.userId) {
+    return unauthenticated();
   }
 
-  return { ok: true, session };
+  // The cookie only proves who signed in. Whether that user may still act, and
+  // in which role, is read on every request so deactivation, role changes and
+  // logout take effect immediately instead of when the cookie expires.
+  const user = await context.env.DB
+    .prepare(`
+      SELECT id, email, role, is_active AS isActive, session_version AS sessionVersion
+      FROM users
+      WHERE id = ?1
+      LIMIT 1
+    `)
+    .bind(token.userId)
+    .first();
+
+  if (!user || !user.isActive || Number(user.sessionVersion) !== tokenSessionVersion(token)) {
+    return unauthenticated();
+  }
+
+  return {
+    ok: true,
+    session: { userId: user.id, email: user.email, role: user.role },
+  };
+}
+
+// Signs the user out everywhere: every cookie carrying the old version stops working.
+export async function revokeSessions(db, userId) {
+  await db
+    .prepare("UPDATE users SET session_version = session_version + 1 WHERE id = ?1")
+    .bind(userId)
+    .run();
 }
 
 export function getPermissionsForRole(role) {

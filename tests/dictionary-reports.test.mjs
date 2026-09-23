@@ -12,6 +12,11 @@ const SESSION_SECRET = "a sufficiently long test session secret";
 
 function setup() {
   const { sqlite, db } = seedDatabase();
+  sqlite.exec(`
+    INSERT INTO users (id, email, password_hash, role) VALUES
+      (1, 'admin@example.com', 'unused', 'admin'),
+      (2, 'editor@example.com', 'unused', 'editor');
+  `);
   const story = sqlite.prepare("SELECT id, paragraphs_json AS paragraphs FROM texts WHERE is_enabled = 1 ORDER BY id LIMIT 1").get();
   const word = extractUkrainianWords(JSON.parse(story.paragraphs).join(" "))[0];
   const limiterCalls = [];
@@ -38,7 +43,8 @@ function reportRequest(body, headers = {}) {
 }
 
 async function adminContext(env, { method = "GET", path = "/api/admin/dictionary/reports", body, params = {}, role = "admin" } = {}) {
-  const token = await createSessionToken(SESSION_SECRET, { userId: 1, email: "admin@example.com", role });
+  const userId = role === "admin" ? 1 : 2;
+  const token = await createSessionToken(SESSION_SECRET, { userId, email: `${role}@example.com`, role });
   return {
     request: new Request(`${ORIGIN}${path}`, {
       method,
