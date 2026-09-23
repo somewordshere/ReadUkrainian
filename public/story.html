@@ -11,6 +11,13 @@
     <link rel="stylesheet" href="./css/styles.css" />
     <link rel="stylesheet" href="./css/theme.css" />
     <link rel="stylesheet" href="./css/public.css" />
+    <script>
+      // Draw the stress switch off from the first paint when that was the saved
+      // choice; story.js reads it too late and the switch would slide on → off.
+      try {
+        if (localStorage.getItem("readukrainian.stress-marks") === "off") document.documentElement.dataset.stress = "off";
+      } catch {}
+    </script>
     <link rel="preload" href="./fonts/literata/literata-cyrillic-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="./fonts/literata/literata-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
 
