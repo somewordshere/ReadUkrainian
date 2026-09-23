@@ -68,6 +68,7 @@ function loadProgress({ local = {}, session = {}, windowName = "" } = {}) {
 
   return {
     api: context.__api,
+    context,
     counters,
     window: win,
     emitStorageEvent: (key) => listeners.get("storage")?.({ key }),
@@ -89,7 +90,7 @@ function serialized(progress) {
   return JSON.stringify(progress);
 }
 
-test("round-trips story progress through every persistence layer", () => {
+test("round-trips story progress through local and session storage", () => {
   const harness = loadProgress();
 
   harness.api.setStoryProgress(STORY.level, STORY.storyId, STORY.title, SAMPLE);
@@ -100,7 +101,7 @@ test("round-trips story progress through every persistence layer", () => {
   );
   assert.deepEqual(harness.readLocal(), { A1: { "id:7": SAMPLE } });
   assert.deepEqual(harness.readSession(), { A1: { "id:7": SAMPLE } });
-  assert.match(harness.window.name, /__isukProgress__/);
+  assert.equal(harness.window.name, "");
 });
 
 test("reads saved progress without writing to storage", () => {
@@ -120,23 +121,48 @@ test("reads saved progress without writing to storage", () => {
   assert.equal(harness.counters["local.set"], writesAfterFirstRead);
   assert.equal(harness.counters["session.set"], writesAfterFirstRead);
   assert.equal(harness.counters["local.get"], readsAfterFirstRead);
-  assert.equal(harness.counters["windowName.set"], writesAfterFirstRead);
+  assert.equal(harness.counters["windowName.set"], 0);
 });
 
-test("merges progress recorded in different persistence layers", () => {
+test("merges progress recorded in local and session storage", () => {
   const harness = loadProgress({
     local: { "isuk-progress": serialized({ A1: { "id:1": SAMPLE } }) },
     session: { "isuk-progress": serialized({ A2: { "id:2": SAMPLE } }) },
-    windowName: serialized({
-      __isukProgress__: serialized({ B1: { "id:3": SAMPLE } }),
-    }),
   });
 
   assert.deepEqual(plain(harness.api.getStoryProgress("A1", 1, "One")), SAMPLE);
   assert.deepEqual(plain(harness.api.getStoryProgress("A2", 2, "Two")), SAMPLE);
-  assert.deepEqual(plain(harness.api.getStoryProgress("B1", 3, "Three")), SAMPLE);
-  // The merged view is written back so every layer carries all three entries.
-  assert.deepEqual(Object.keys(harness.readLocal()).sort(), ["A1", "A2", "B1"]);
+  // The merged view is written back so both layers carry both entries.
+  assert.deepEqual(Object.keys(harness.readLocal()).sort(), ["A1", "A2"]);
+  assert.deepEqual(Object.keys(harness.readSession()).sort(), ["A1", "A2"]);
+});
+
+test("ignores progress another site planted in window.name and removes it", () => {
+  const harness = loadProgress({
+    windowName: serialized({
+      theme: "dark",
+      __isukProgress__: serialized({ B1: { "id:3": SAMPLE } }),
+      __isukLastStory__: serialized({ level: "B1", storyId: 3 }),
+    }),
+  });
+
+  assert.equal(harness.api.getStoryProgress("B1", 3, "Three"), null);
+  assert.equal(harness.api.getLastVisitedStory(), null);
+  // Only this app's retired keys are removed; anything else in the name stays.
+  assert.deepEqual(JSON.parse(harness.window.name), { theme: "dark" });
+});
+
+test("stored progress cannot write to Object.prototype", () => {
+  const polluting = String.raw`{"__proto__":{"polluted":"yes","id:9":{"completed":true}},"A1":{"__proto__":{"polluted":"yes"},"constructor":{"completed":true},"id:1":{"completed":false}}}`;
+  const harness = loadProgress({
+    local: { "isuk-progress": polluting },
+    windowName: serialized({ __isukProgress__: polluting }),
+  });
+
+  assert.deepEqual(plain(harness.api.getStoryProgress("A1", 1, "One")), { completed: false });
+  assert.equal(harness.api.getStoryProgress("A2", 9, "Nine"), null);
+  assert.equal(vm.runInContext("({}).polluted", harness.context), undefined);
+  assert.equal(vm.runInContext("({})['id:9']", harness.context), undefined);
 });
 
 test("migrates title-keyed progress onto the story id", () => {
@@ -148,7 +174,10 @@ test("migrates title-keyed progress onto the story id", () => {
     plain(harness.api.getStoryProgress(STORY.level, STORY.storyId, STORY.title)),
     SAMPLE
   );
-  assert.deepEqual(harness.readLocal(), { A1: { "id:7": SAMPLE } });
+  // Reading migrates in memory only; the next write stores the id-keyed entry.
+  assert.deepEqual(harness.readLocal(), { A1: { "title:Мій день": SAMPLE } });
+  harness.api.setStoryBookmarked(STORY.level, STORY.storyId, STORY.title, true);
+  assert.deepEqual(harness.readLocal(), { A1: { "id:7": { ...SAMPLE, bookmarked: true } } });
 });
 
 test("migrates legacy numeric keys onto known story titles", () => {
