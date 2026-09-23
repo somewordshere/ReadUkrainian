@@ -10,6 +10,7 @@ import { initWordTip } from "./word-tip.mjs";
 // before this module; their functions are globals. Naming them here makes the
 // dependency visible in one place.
 const {
+  carryOverLegacyAnswers,
   getQuestionsForStory,
   getStoryProgress,
   isLevelActive,
@@ -147,6 +148,10 @@ if (getSavedStressPreference()) {
 stressToggle.addEventListener("click", () => {
   setStressMarks(stressToggle.getAttribute("aria-checked") !== "true");
 });
+
+// Saved answers are option positions. Progress saved with the pre-1.02 shuffle
+// has no optionOrder and is carried over by answer text (see questions.js).
+const OPTION_ORDER_VERSION = 2;
 
 const VOICE_STORAGE_KEY = "readukrainian.speech-voice";
 const voicePicker = initVoicePicker(
@@ -369,13 +374,14 @@ function syncProgress(latestResult = "") {
     correctCount,
     bookmarked,
     opened: true,
+    optionOrder: OPTION_ORDER_VERSION,
   });
 
   updateQuestionStatus(completedCount, correctCount, latestResult);
   updateCompletionActions(completedCount, correctCount);
 }
 
-function applySavedProgress() {
+function applySavedProgress(questions) {
   if (questionInputs.length === 0) {
     updateQuestionStatus(0, 0);
     updateCompletionActions(0, 0);
@@ -390,7 +396,11 @@ function applySavedProgress() {
     return;
   }
 
-  savedProgress.answers.forEach((savedOptionIndex, questionIndex) => {
+  const savedAnswers = savedProgress.optionOrder === OPTION_ORDER_VERSION
+    ? savedProgress.answers
+    : carryOverLegacyAnswers(questions, savedProgress.answers);
+
+  savedAnswers.forEach((savedOptionIndex, questionIndex) => {
     if (savedOptionIndex === null || savedOptionIndex === undefined) {
       return;
     }
@@ -614,6 +624,7 @@ restartButton.addEventListener("click", () => {
     correctCount: 0,
     bookmarked,
     opened: true,
+    optionOrder: OPTION_ORDER_VERSION,
   });
 
   updateQuestionStatus(0, 0);
@@ -712,7 +723,7 @@ async function initStory() {
 
     configureNextStory();
     renderQuestions(questions);
-    applySavedProgress();
+    applySavedProgress(questions);
     renderBookmarkState();
     document.title = `Історії українською - ${storyLevelId} - ${story.title}`;
   } catch (error) {
