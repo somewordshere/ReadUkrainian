@@ -263,12 +263,47 @@ async function collectFormAliases(sourcePath, wantedWords) {
   return aliases;
 }
 
+const PERSONAL_PRONOUN_IDENTITY_TAGS = new Set([
+  "first-person", "second-person", "third-person",
+  "singular", "plural",
+  "masculine", "feminine", "neuter",
+  "formal", "informal",
+]);
+
+// Since September 2026 English Wiktionary shows one shared table of every personal
+// pronoun on each pronoun's page, and Kaikki lists that whole table as the entry's
+// forms: я, ми, вона… all arrive as forms of «ти». Keep only the rows for the
+// entry's own pronoun, identified by its nominative row. A pronoun page with no
+// nominative row of its own (possessive його, її, їх) keeps none of the table.
+function ownPersonalPronounForms(entry, forms, normalizedLemma) {
+  if (entry.pos !== "pron" || !forms.some((form) => form?.tags?.includes("personal"))) {
+    return forms;
+  }
+
+  const identity = (tags) => (tags || []).filter((tag) => PERSONAL_PRONOUN_IDENTITY_TAGS.has(tag)).sort().join(",");
+  const ownRow = forms.find((form) => (
+    form?.tags?.includes("personal")
+    && form.tags.includes("nominative")
+    && canonicalizeUkrainianWord(form.form, { allowSurroundingPunctuation: false }) === normalizedLemma
+  ));
+  const ownIdentity = ownRow ? identity(ownRow.tags) : null;
+
+  return forms.filter((form) => (
+    !form?.tags?.includes("personal")
+    || (ownIdentity !== null && identity(form.tags) === ownIdentity)
+  ));
+}
+
 function getEntryForms(entry, wantedWords) {
   const analysesByForm = new Map();
-  const listedForms = Array.isArray(entry.forms) ? entry.forms : [];
   const normalizedLemma = canonicalizeUkrainianWord(entry.word, {
     allowSurroundingPunctuation: false,
   });
+  const listedForms = ownPersonalPronounForms(
+    entry,
+    Array.isArray(entry.forms) ? entry.forms : [],
+    normalizedLemma
+  );
   const hasListedLemma = listedForms.some((candidate) => (
     canonicalizeUkrainianWord(candidate?.form, { allowSurroundingPunctuation: false })
       === normalizedLemma
