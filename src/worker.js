@@ -38,7 +38,12 @@ import {
   onVoiceOptionPut as updateSpeechVoiceOption,
 } from "../functions/api/admin/settings/speech.js";
 import { error } from "../functions/_shared/http.js";
-import { ADMIN_API_HEADERS, SECURITY_HEADERS } from "./security-headers.js";
+import {
+  ADMIN_API_HEADERS,
+  SECURITY_HEADERS,
+  contentSecurityPolicy,
+  createNonce,
+} from "./security-headers.js";
 
 const CANONICAL_HOSTNAME = "readukrainianapp.com";
 
@@ -188,6 +193,25 @@ function withHeaders(response, headers) {
   return updated;
 }
 
+// Pages carry a fresh CSP nonce that Cloudflare copies onto the script it
+// injects into the body. A 304 would pair the browser's cached body (and its
+// old nonce) with a new header, so page requests are always answered in full
+// and pages are sent without validators.
+function isPagePath(pathname) {
+  return pathname.endsWith(".html") || !/.[a-z0-9]+$/i.test(pathname);
+}
+
+function unconditional(request) {
+  const headers = new Headers(request.headers);
+  headers.delete("if-none-match");
+  headers.delete("if-modified-since");
+  return new Request(request, { headers });
+}
+
+function isHtml(response) {
+  return response.headers.get("content-type")?.toLowerCase().startsWith("text/html") || false;
+}
+
 async function routeRequest(request, env, ctx, pathname) {
   if (env.ADMIN_ENABLED !== "true" && isAdminPath(pathname)) {
     return disabledAdminResponse(pathname);
@@ -197,7 +221,7 @@ async function routeRequest(request, env, ctx, pathname) {
     return handleApiRequest(request, env, pathname, ctx);
   }
 
-  return env.ASSETS.fetch(request);
+  return env.ASSETS.fetch(isPagePath(pathname) ? unconditional(request) : request);
 }
 
 // Static files under /css, /js, /fonts, /icons and /speech are served straight
@@ -215,6 +239,15 @@ export async function handleRequest(request, env, ctx) {
 
   const { pathname } = url;
   const response = await routeRequest(request, env, ctx, pathname);
+  if (isHtml(response)) {
+    const page = withHeaders(response, {
+      ...SECURITY_HEADERS,
+      "content-security-policy": contentSecurityPolicy(createNonce()),
+    });
+    page.headers.delete("etag");
+    page.headers.delete("last-modified");
+    return page;
+  }
   return withHeaders(
     response,
     pathname.startsWith("/api/admin/") ? ADMIN_API_HEADERS : SECURITY_HEADERS
