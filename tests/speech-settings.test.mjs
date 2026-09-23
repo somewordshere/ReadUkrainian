@@ -340,3 +340,26 @@ test("preview speaks admin text in any Ukrainian voice", async () => {
     assert.equal(failed.status, status, JSON.stringify(options));
   }
 });
+
+test("Google's voice list is fetched once and then served from the edge cache", async () => {
+  const stored = new Map();
+  const cache = {
+    async match(request) {
+      return stored.get(request.url)?.clone() || null;
+    },
+    async put(request, response) {
+      stored.set(request.url, response);
+    },
+  };
+  const calls = [];
+
+  for (let load = 0; load < 3; load += 1) {
+    const context = await createContext({ fetch: googleCatalogFetch(calls) });
+    context.cache = cache;
+    const response = await onRequestGet(context);
+    assert.equal(response.status, 200);
+    assert.ok((await response.json()).voices.some((voice) => voice.id === PUCK));
+  }
+
+  assert.equal(calls.filter(([url]) => url.includes("/voices")).length, 1);
+});

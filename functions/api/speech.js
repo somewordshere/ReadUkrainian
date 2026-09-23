@@ -11,11 +11,13 @@ import {
   checkRateLimit,
   clientAddress,
   declaresTooMuch,
+  edgeCache,
   decodeJson,
   hasMediaType,
   noStoreError,
   readLimitedBytes,
   readLimitedJson,
+  runInBackground,
 } from "../_shared/http.js";
 import { getSpeechSetting, resolveLearnerSpeechVoice } from "../_shared/speech-settings.js";
 import {
@@ -126,13 +128,6 @@ async function buildProviderCacheRequest(requestUrl, canonicalWord, voiceConfig)
     new URL(`/__speech-cache/google/${hash}.mp3`, requestUrl),
     { method: "GET" }
   );
-}
-
-function getCache(context) {
-  if (Object.prototype.hasOwnProperty.call(context, "cache")) {
-    return context.cache;
-  }
-  return globalThis.caches?.default || null;
 }
 
 function speechAudioResponse(sourceResponse, source, cacheStatus, voiceId) {
@@ -246,17 +241,12 @@ function forgetEarlierSpeechClients(env, day) {
 }
 
 function inBackground(context, promise) {
-  const settled = promise.catch((backgroundError) => {
+  return runInBackground(context, promise.catch((backgroundError) => {
     console.error(JSON.stringify({
       message: "speech_quota_bookkeeping_failed",
       error: backgroundError instanceof Error ? backgroundError.message : String(backgroundError),
     }));
-  });
-  if (typeof context.waitUntil === "function") {
-    context.waitUntil(settled);
-    return Promise.resolve();
-  }
-  return settled;
+  }));
 }
 
 async function reserveDailySpeechQuota(env, day, characterCount, dailyLimit) {
@@ -419,7 +409,7 @@ export async function onRequestPost(context) {
     return noStoreError(503, "Pronunciation is temporarily unavailable.");
   }
 
-  const cache = getCache(context);
+  const cache = edgeCache(context);
   let cacheRequest = null;
   if (cache) {
     try {
@@ -531,14 +521,10 @@ export async function onRequestPost(context) {
 
   const generatedResponse = bufferedAudioResponse(providerAudio);
   if (cache && cacheRequest) {
-    const cacheWrite = cache
-      .put(cacheRequest, generatedResponse.clone())
-      .catch(() => undefined);
-    if (typeof context.waitUntil === "function") {
-      context.waitUntil(cacheWrite);
-    } else {
-      await cacheWrite;
-    }
+    await runInBackground(
+      context,
+      cache.put(cacheRequest, generatedResponse.clone()).catch(() => undefined)
+    );
   }
 
   return speechAudioResponse(

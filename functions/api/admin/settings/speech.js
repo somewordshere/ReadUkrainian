@@ -8,10 +8,12 @@ import {
   googleVoicesRequestInit,
 } from "../../../_shared/google-speech.js";
 import {
+  edgeCache,
   json,
   noStoreError,
   readLimitedJson,
   requireSameOrigin,
+  runInBackground,
 } from "../../../_shared/http.js";
 import {
   getSpeechSetting,
@@ -29,6 +31,9 @@ const MAX_PREVIEW_CHARACTERS = 200;
 const GOOGLE_TIMEOUT_MS = 8_000;
 const NO_STORE_HEADERS = Object.freeze({ "cache-control": "no-store" });
 const GENDERS = Object.freeze({ FEMALE: "female", MALE: "male" });
+// Google's Ukrainian voice list changes a few times a year; one call a day
+// keeps every settings load and toggle from waiting on it.
+const VOICE_CATALOG_CACHE_SECONDS = 24 * 60 * 60;
 
 function hasExactKeys(payload, keys) {
   return Boolean(payload)
@@ -61,8 +66,27 @@ function googleFetch(context, url, init) {
   return fetchImpl(url, { ...init, signal: AbortSignal.timeout(GOOGLE_TIMEOUT_MS) });
 }
 
-// Every Ukrainian voice Google offers, as [{ id, gender }].
+function voiceCatalogCacheKey(requestUrl) {
+  return new Request(new URL("/__admin-cache/google-voices/uk-UA", requestUrl), { method: "GET" });
+}
+
+async function readCachedVoiceCatalog(cache, cacheKey) {
+  try {
+    const cached = await cache.match(cacheKey);
+    const catalog = cached ? await cached.json() : null;
+    return Array.isArray(catalog) ? catalog : null;
+  } catch {
+    return null;
+  }
+}
+
+// Every Ukrainian voice Google offers, as [{ id, gender }], cached for a day.
 async function fetchVoiceCatalog(context) {
+  const cache = edgeCache(context);
+  const cacheKey = cache ? voiceCatalogCacheKey(context.request.url) : null;
+  const cached = cache ? await readCachedVoiceCatalog(cache, cacheKey) : null;
+  if (cached) return cached;
+
   const key = getGoogleApiKey(context.env);
   if (!key) throw new Error("GOOGLE_TTS_API_KEY is not configured.");
 
@@ -70,9 +94,17 @@ async function fetchVoiceCatalog(context) {
   if (!response.ok) throw new Error(`Google returned HTTP ${response.status}.`);
 
   const payload = await response.json();
-  return (Array.isArray(payload?.voices) ? payload.voices : [])
+  const catalog = (Array.isArray(payload?.voices) ? payload.voices : [])
     .filter((voice) => resolveSpeechVoice(voice?.name))
     .map((voice) => ({ id: voice.name, gender: GENDERS[voice.ssmlGender] || null }));
+
+  if (cache && catalog.length) {
+    const stored = Response.json(catalog, {
+      headers: { "cache-control": `public, max-age=${VOICE_CATALOG_CACHE_SECONDS}` },
+    });
+    await runInBackground(context, cache.put(cacheKey, stored).catch(() => undefined));
+  }
+  return catalog;
 }
 
 async function buildResponse(context, setting) {
@@ -149,8 +181,10 @@ export async function onRequestPut(context) {
     return noStoreError(400, validation.message);
   }
 
-  const current = await getSpeechSetting(context.env.DB);
-  const enabledIds = await listEnabledSpeechVoiceIds(context.env.DB);
+  const [current, enabledIds] = await Promise.all([
+    getSpeechSetting(context.env.DB),
+    listEnabledSpeechVoiceIds(context.env.DB),
+  ]);
   if (validation.voiceId !== current.voiceId && !enabledIds.has(validation.voiceId)) {
     return noStoreError(409, "Enable the voice before making it the site voice.");
   }
