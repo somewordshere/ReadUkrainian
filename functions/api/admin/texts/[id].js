@@ -1,7 +1,12 @@
 import { requirePermission } from "../../../_shared/auth.js";
 import { error, json } from "../../../_shared/http.js";
-import { getAdminStoryById, saveTextDraft, validateTextPayload } from "../../../_shared/texts.js";
-import { readEditorJson } from "./_request.js";
+import {
+  EditConflictError,
+  getAdminStoryById,
+  saveTextDraft,
+  validateTextPayload,
+} from "../../../_shared/texts.js";
+import { baseVersionOf, readEditorJson } from "./_request.js";
 
 export async function onRequestGet(context) {
   const auth = await requirePermission(context, "read");
@@ -45,8 +50,19 @@ export async function onRequestPut(context) {
     return error(400, validation.message);
   }
 
-  // saveTextDraft reads the row itself and returns null for an unknown story.
-  const story = await saveTextDraft(context.env.DB, storyId, validation.value, auth.session);
+  let story;
+  try {
+    story = await saveTextDraft(
+      context.env.DB,
+      storyId,
+      validation.value,
+      auth.session,
+      baseVersionOf(body.payload)
+    );
+  } catch (saveError) {
+    if (saveError instanceof EditConflictError) return error(409, saveError.message);
+    throw saveError;
+  }
   if (!story) {
     return error(404, "Story not found.");
   }

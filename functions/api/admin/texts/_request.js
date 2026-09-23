@@ -18,3 +18,9 @@ export async function readEditorJson(request) {
   if (!parsed.ok) return { response: error(parsed.status, parsed.message) };
   return { payload: parsed.value };
 }
+
+// The editVersion the editor loaded, echoed back so a stale save is refused.
+export function baseVersionOf(payload) {
+  const version = payload?.baseVersion;
+  return typeof version === "string" && version.length <= 64 ? version : null;
+}

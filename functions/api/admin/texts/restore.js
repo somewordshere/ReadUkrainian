@@ -1,6 +1,6 @@
 import { requirePermission } from "../../../_shared/auth.js";
 import { error, json } from "../../../_shared/http.js";
-import { RevisionDataError, restoreTextRevision } from "../../../_shared/texts.js";
+import { EditConflictError, RevisionDataError, restoreTextRevision } from "../../../_shared/texts.js";
 import { requireEditorOrigin } from "./_request.js";
 
 export async function onRequestPost(context) {
@@ -29,7 +29,7 @@ export async function onRequestPost(context) {
   } catch (caughtError) {
     // Only a checkpoint that fails validation is the editor's to know about;
     // database errors are logged, not echoed to the browser.
-    if (caughtError instanceof RevisionDataError) {
+    if (caughtError instanceof RevisionDataError || caughtError instanceof EditConflictError) {
       return error(409, caughtError.message);
     }
     console.error(JSON.stringify({
