@@ -93,43 +93,25 @@ async function createContext({
   };
 }
 
-test("exposes only catalog-backed Ukrainian voices without leaking provider configuration", () => {
-  assert.equal(DEFAULT_SPEECH_VOICE_ID, "lada");
+test("exposes only Google voices without leaking provider configuration", () => {
+  assert.equal(DEFAULT_SPEECH_VOICE_ID, "achernar");
   assert.deepEqual(
     listPublicSpeechVoices().map((voice) => voice.id),
-    ["lada", "mai"]
+    ["achernar"]
   );
-  assert.equal(resolveSpeechVoice("lada").providerModel, "piper");
-  assert.equal(resolveSpeechVoice("lada").providerVoice, "uk_UA-lada-x_low");
-  assert.equal(resolveSpeechVoice("lada").providerFormat, "mp3");
-  assert.equal(resolveSpeechVoice("mai").providerModel, "vits");
-  assert.equal(resolveSpeechVoice("mai").providerVoice, "mai_uk");
-  assert.equal(resolveSpeechVoice("mai").providerFormat, "wav");
-  assert.equal(resolveSpeechVoice("mykyta"), null);
-  assert.equal(resolveSpeechVoice("tetiana"), null);
-  assert.equal(resolveSpeechVoice("unknown"), null);
-  const providerTuples = listPublicSpeechVoices().map(({ id }) => {
-    const voice = resolveSpeechVoice(id);
-    assert.equal("speaker" in voice, false);
-    assert.equal("speakerId" in voice, false);
-    return JSON.stringify([
-      voice.providerModel,
-      voice.providerVoice,
-      voice.providerFormat,
-    ]);
-  });
-  assert.equal(new Set(providerTuples).size, providerTuples.length);
-  assert.equal("providerModel" in listPublicSpeechVoices()[0], false);
+  assert.equal(resolveSpeechVoice("achernar").providerVoice, "uk-UA-Chirp3-HD-Achernar");
+  for (const retired of ["lada", "mai", "mykyta", "tetiana", "unknown"]) {
+    assert.equal(resolveSpeechVoice(retired), null);
+  }
   assert.equal("providerVoice" in listPublicSpeechVoices()[0], false);
-  assert.equal("providerFormat" in listPublicSpeechVoices()[0], false);
 });
 
-test("falls back to Lada and disables speech for a missing or invalid enabled setting", async () => {
+test("falls back to Achernar and disables speech for a missing or invalid enabled setting", async () => {
   const missingDb = new FakeSpeechSettingsDb();
   const missingSetting = await getSpeechSetting(missingDb);
-  assert.equal(missingSetting.voiceId, "lada");
+  assert.equal(missingSetting.voiceId, "achernar");
   assert.equal(missingSetting.enabled, false);
-  assert.equal((await getSpeechVoice(missingDb)).id, "lada");
+  assert.equal((await getSpeechVoice(missingDb)).id, "achernar");
 
   const invalidDb = new FakeSpeechSettingsDb({
     voiceId: "not-allowed",
@@ -140,10 +122,10 @@ test("falls back to Lada and disables speech for a missing or invalid enabled se
     updatedByEmail: null,
   });
   assert.equal((await getSpeechSetting(invalidDb)).enabled, true);
-  assert.equal((await getSpeechVoice(invalidDb)).id, "lada");
+  assert.equal((await getSpeechVoice(invalidDb)).id, "achernar");
 
   const invalidEnabledDb = new FakeSpeechSettingsDb({
-    voiceId: "mai",
+    voiceId: "achernar",
     enabled: 2,
     version: 3,
     updatedAt: "2026-08-05 11:00:00",
@@ -151,7 +133,7 @@ test("falls back to Lada and disables speech for a missing or invalid enabled se
     updatedByEmail: null,
   });
   const invalidEnabledSetting = await getSpeechSetting(invalidEnabledDb);
-  assert.equal(invalidEnabledSetting.voiceId, "mai");
+  assert.equal(invalidEnabledSetting.voiceId, "achernar");
   assert.equal(invalidEnabledSetting.enabled, false);
 });
 
@@ -165,7 +147,7 @@ test("atomically persists voice and enabled state with actor audit data", async 
     updatedByEmail: null,
   });
   const enabledSetting = await saveSpeechSetting(db, {
-    voiceId: "mai",
+    voiceId: "achernar",
     enabled: true,
   }, {
     userId: 7,
@@ -173,7 +155,7 @@ test("atomically persists voice and enabled state with actor audit data", async 
   });
 
   assert.deepEqual(enabledSetting, {
-    voiceId: "mai",
+    voiceId: "achernar",
     enabled: true,
     version: 5,
     updatedAt: "2026-08-05 12:00:00",
@@ -181,14 +163,14 @@ test("atomically persists voice and enabled state with actor audit data", async 
     updatedByEmail: "admin@example.com",
   });
   assert.deepEqual(db.writes[0].parameters, [
-    "mai",
+    "achernar",
     1,
     7,
     "admin@example.com",
   ]);
 
   const disabledSetting = await saveSpeechSetting(db, {
-    voiceId: "lada",
+    voiceId: "achernar",
     enabled: false,
   }, {
     userId: 7,
@@ -196,7 +178,7 @@ test("atomically persists voice and enabled state with actor audit data", async 
   });
 
   assert.deepEqual(disabledSetting, {
-    voiceId: "lada",
+    voiceId: "achernar",
     enabled: false,
     version: 6,
     updatedAt: "2026-08-05 12:00:00",
@@ -204,7 +186,7 @@ test("atomically persists voice and enabled state with actor audit data", async 
     updatedByEmail: "admin@example.com",
   });
   assert.deepEqual(db.writes[1].parameters, [
-    "lada",
+    "achernar",
     0,
     7,
     "admin@example.com",
@@ -215,7 +197,7 @@ test("atomically persists voice and enabled state with actor audit data", async 
     RangeError
   );
   await assert.rejects(
-    () => saveSpeechSetting(db, { voiceId: "lada", enabled: 1 }, {}),
+    () => saveSpeechSetting(db, { voiceId: "achernar", enabled: 1 }, {}),
     TypeError
   );
   assert.equal(db.writes.length, 2);
@@ -229,9 +211,9 @@ test("GET requires the admin-only settings permission", async () => {
   assert.equal(adminResponse.status, 200);
   assert.equal(adminResponse.headers.get("cache-control"), "no-store");
   const payload = await adminResponse.json();
-  assert.equal(payload.setting.voiceId, "lada");
+  assert.equal(payload.setting.voiceId, "achernar");
   assert.equal(payload.setting.enabled, false);
-  assert.equal(payload.voices.length, 2);
+  assert.equal(payload.voices.length, 1);
 });
 
 test("PUT enforces same-origin JSON and exactly voiceId plus boolean enabled", async () => {
@@ -239,7 +221,7 @@ test("PUT enforces same-origin JSON and exactly voiceId plus boolean enabled", a
     await createContext({
       method: "PUT",
       origin: "https://example.com",
-      payload: { voiceId: "mai", enabled: true },
+      payload: { voiceId: "achernar", enabled: true },
     })
   );
   assert.equal(crossOriginResponse.status, 403);
@@ -248,20 +230,20 @@ test("PUT enforces same-origin JSON and exactly voiceId plus boolean enabled", a
     await createContext({
       method: "PUT",
       contentType: "text/plain",
-      payload: { voiceId: "mai", enabled: true },
+      payload: { voiceId: "achernar", enabled: true },
     })
   );
   assert.equal(wrongTypeResponse.status, 415);
 
   const missingEnabledResponse = await onRequestPut(
-    await createContext({ method: "PUT", payload: { voiceId: "mai" } })
+    await createContext({ method: "PUT", payload: { voiceId: "achernar" } })
   );
   assert.equal(missingEnabledResponse.status, 400);
 
   const invalidEnabledResponse = await onRequestPut(
     await createContext({
       method: "PUT",
-      payload: { voiceId: "mai", enabled: 1 },
+      payload: { voiceId: "achernar", enabled: 1 },
     })
   );
   assert.equal(invalidEnabledResponse.status, 400);
@@ -269,7 +251,7 @@ test("PUT enforces same-origin JSON and exactly voiceId plus boolean enabled", a
   const extraKeyResponse = await onRequestPut(
     await createContext({
       method: "PUT",
-      payload: { voiceId: "mai", enabled: true, extra: true },
+      payload: { voiceId: "achernar", enabled: true, extra: true },
     })
   );
   assert.equal(extraKeyResponse.status, 400);
@@ -287,13 +269,13 @@ test("PUT enforces same-origin JSON and exactly voiceId plus boolean enabled", a
     await createContext({
       db,
       method: "PUT",
-      payload: { voiceId: "mai", enabled: true },
+      payload: { voiceId: "achernar", enabled: true },
     })
   );
   assert.equal(successResponse.status, 200);
   assert.equal(successResponse.headers.get("cache-control"), "no-store");
   const successPayload = await successResponse.json();
-  assert.equal(successPayload.setting.voiceId, "mai");
+  assert.equal(successPayload.setting.voiceId, "achernar");
   assert.equal(successPayload.setting.enabled, true);
   assert.equal(successPayload.setting.updatedByEmail, "admin@example.com");
 
@@ -301,12 +283,12 @@ test("PUT enforces same-origin JSON and exactly voiceId plus boolean enabled", a
     await createContext({
       db,
       method: "PUT",
-      payload: { voiceId: "mai", enabled: false },
+      payload: { voiceId: "achernar", enabled: false },
     })
   );
   assert.equal(disableResponse.status, 200);
   const disablePayload = await disableResponse.json();
-  assert.equal(disablePayload.setting.voiceId, "mai");
+  assert.equal(disablePayload.setting.voiceId, "achernar");
   assert.equal(disablePayload.setting.enabled, false);
   assert.equal(disablePayload.setting.version, 2);
 });

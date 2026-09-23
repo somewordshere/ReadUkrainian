@@ -1,21 +1,13 @@
-export const DEFAULT_SPEECH_VOICE_ID = "lada";
+export const DEFAULT_SPEECH_VOICE_ID = "achernar";
 
+// Each voice needs a generated static set in public/speech/<id>/ (see
+// scripts/speech/README.md); the Google fallback only covers words added since.
 const SPEECH_VOICES = Object.freeze([
   Object.freeze({
-    id: "lada",
-    label: "Lada",
-    description: "Ukrainian female voice · Piper",
-    providerModel: "piper",
-    providerVoice: "uk_UA-lada-x_low",
-    providerFormat: "mp3",
-  }),
-  Object.freeze({
-    id: "mai",
-    label: "MAI",
-    description: "Alternative Ukrainian voice · VITS",
-    providerModel: "vits",
-    providerVoice: "mai_uk",
-    providerFormat: "wav",
+    id: "achernar",
+    label: "Achernar",
+    description: "Ukrainian female voice · Google Chirp 3 HD",
+    providerVoice: "uk-UA-Chirp3-HD-Achernar",
   }),
 ]);
 

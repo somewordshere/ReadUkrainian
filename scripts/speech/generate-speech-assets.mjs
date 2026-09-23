@@ -5,14 +5,25 @@ import {
   access,
   copyFile,
   mkdir,
+  readdir,
   readFile,
   rename,
-  stat,
+  unlink,
   writeFile,
 } from "node:fs/promises";
-import { delimiter, resolve } from "node:path";
-import { spawn } from "node:child_process";
+import { resolve } from "node:path";
 import process from "node:process";
+import { setTimeout as sleep } from "node:timers/promises";
+import {
+  GOOGLE_AUDIO_CONFIG,
+  GOOGLE_REQUEST_VERSION,
+  GOOGLE_TTS_ENDPOINT,
+  decodeGoogleAudio,
+  googleSpeechRequestInit,
+  isMp3,
+} from "../../functions/_shared/google-speech.js";
+import { resolveSpeechVoice, DEFAULT_SPEECH_VOICE_ID } from "../../functions/_shared/speech-voices.js";
+import { applyStress } from "../../public/js/app/story-words.mjs";
 import {
   SPEECH_CANONICALIZATION_VERSION,
   extractCanonicalSpeechWords,
@@ -24,49 +35,47 @@ const DEFAULT_API_BASE = "https://readukrainianapp.com";
 const DEFAULT_SEED = resolve(PROJECT_ROOT, "data/content-seed.json");
 const DEFAULT_OUTPUT = resolve(PROJECT_ROOT, "public/speech");
 const DEFAULT_BUILD_DIR = resolve(PROJECT_ROOT, ".speech-build");
-const VOICE_NAME = "uk_UA-ukrainian_tts-medium";
-const VOICE_MODEL_URL =
-  "https://huggingface.co/rhasspy/piper-voices/tree/main/uk/uk_UA/ukrainian_tts/medium";
-const STATIC_VOICES = Object.freeze({
-  "lada-medium": Object.freeze({ speakerId: 0, speakerName: "lada" }),
-  mykyta: Object.freeze({ speakerId: 1, speakerName: "mykyta" }),
-  tetiana: Object.freeze({ speakerId: 2, speakerName: "tetiana" }),
-});
-const DEFAULT_STATIC_VOICE_ID = "tetiana";
-const PIPER_VERSION = "1.5.0";
-const FFMPEG_BRIDGE_VERSION = "0.6.0";
-const MANIFEST_SCHEMA_VERSION = 2;
+const STRESS_MAP_PATH = resolve(PROJECT_ROOT, "public/js/data/stress-map.json");
+const DEV_VARS_PATH = resolve(PROJECT_ROOT, ".dev.vars");
+const MANIFEST_SCHEMA_VERSION = 3;
+// Comfortably under Google's per-minute Text-to-Speech quota.
+const DEFAULT_REQUESTS_PER_MINUTE = 200;
+const SYNTHESIS_CONCURRENCY = 4;
+const MAX_ATTEMPTS = 6;
+const MIN_AUDIO_BYTES = 512;
 
 function usage() {
-  return `Generate static Ukrainian pronunciation assets.
+  return `Generate static Ukrainian pronunciation assets with Google Cloud Text-to-Speech.
 
 Usage:
   node scripts/speech/generate-speech-assets.mjs [options]
 
 Options:
   --plan                         Collect and validate words without synthesizing audio.
+  --sample WORD[,WORD...]        Render the words with the chosen voice, with and without
+                                 stress marks, into .speech-build/samples/ to listen to.
   --source production|seed       Content source (default: production).
   --api-base URL                 Published site origin (default: ${DEFAULT_API_BASE}).
   --allow-seed-fallback          Use data/content-seed.json if the production API fails.
   --seed PATH                    Seed fallback path (default: data/content-seed.json).
   --output PATH                  Generated asset root (default: public/speech).
   --build-dir PATH               Ignored build/cache directory (default: .speech-build).
-  --python PATH                  Python 3.10+ executable used for Piper.
-  --bootstrap                    Install pinned build-only dependencies and download the voice.
-  --voice-id ID                  lada-medium, mykyta, or tetiana (default: tetiana).
-  --speaker-id NUMBER            Compatibility alias for voice IDs: 0, 1, or 2.
+  --voice-id ID                  Site voice to generate (default: ${DEFAULT_SPEECH_VOICE_ID}).
+  --stress                       Send stress marks from public/js/data/stress-map.json.
+  --requests-per-minute NUMBER   Google request pace (default: ${DEFAULT_REQUESTS_PER_MINUTE}).
   --concurrency NUMBER           Concurrent production story requests (default: 8).
   --help                         Show this help.
 
-Production is always attempted first. Seed fallback is deliberately opt-in so a deploy
-cannot silently omit newly published admin content.
+GOOGLE_TTS_API_KEY comes from the environment or .dev.vars.
+Runs are resumable: finished words are kept in the build directory, and words whose
+published audio is still current are reused instead of synthesized again.
 `;
 }
 
-function parsePositiveInteger(rawValue, label, { allowZero = false } = {}) {
+function parsePositiveInteger(rawValue, label) {
   const value = Number(rawValue);
-  if (!Number.isSafeInteger(value) || value < (allowZero ? 0 : 1)) {
-    throw new Error(`${label} must be ${allowZero ? "a non-negative" : "a positive"} integer.`);
+  if (!Number.isSafeInteger(value) || value < 1) {
+    throw new Error(`${label} must be a positive integer.`);
   }
   return value;
 }
@@ -74,20 +83,18 @@ function parsePositiveInteger(rawValue, label, { allowZero = false } = {}) {
 function parseArgs(argv) {
   const options = {
     plan: false,
+    sample: null,
     source: "production",
     apiBase: DEFAULT_API_BASE,
     allowSeedFallback: false,
     seed: DEFAULT_SEED,
     output: DEFAULT_OUTPUT,
     buildDir: DEFAULT_BUILD_DIR,
-    python: process.env.SPEECH_BUILD_PYTHON || "python",
-    bootstrap: false,
-    voiceId: DEFAULT_STATIC_VOICE_ID,
-    speakerId: STATIC_VOICES[DEFAULT_STATIC_VOICE_ID].speakerId,
+    voiceId: DEFAULT_SPEECH_VOICE_ID,
+    stress: false,
+    requestsPerMinute: DEFAULT_REQUESTS_PER_MINUTE,
     concurrency: 8,
   };
-  let requestedVoiceId = null;
-  let requestedSpeakerId = null;
 
   for (let index = 0; index < argv.length; index += 1) {
     const argument = argv[index];
@@ -104,11 +111,14 @@ function parseArgs(argv) {
       case "--plan":
         options.plan = true;
         break;
+      case "--sample":
+        options.sample = nextValue().split(",").map((word) => word.trim()).filter(Boolean);
+        break;
       case "--allow-seed-fallback":
         options.allowSeedFallback = true;
         break;
-      case "--bootstrap":
-        options.bootstrap = true;
+      case "--stress":
+        options.stress = true;
         break;
       case "--api-base":
         options.apiBase = nextValue().replace(/\/+$/u, "");
@@ -130,14 +140,11 @@ function parseArgs(argv) {
       case "--build-dir":
         options.buildDir = resolve(nextValue());
         break;
-      case "--python":
-        options.python = resolve(nextValue());
-        break;
       case "--voice-id":
-        requestedVoiceId = nextValue();
+        options.voiceId = nextValue();
         break;
-      case "--speaker-id":
-        requestedSpeakerId = parsePositiveInteger(nextValue(), "--speaker-id", { allowZero: true });
+      case "--requests-per-minute":
+        options.requestsPerMinute = parsePositiveInteger(nextValue(), "--requests-per-minute");
         break;
       case "--concurrency":
         options.concurrency = parsePositiveInteger(nextValue(), "--concurrency");
@@ -152,24 +159,9 @@ function parseArgs(argv) {
     }
   }
 
-  if (requestedVoiceId && !Object.hasOwn(STATIC_VOICES, requestedVoiceId)) {
-    throw new Error("--voice-id must be lada-medium, mykyta, or tetiana.");
+  if (!resolveSpeechVoice(options.voiceId)) {
+    throw new Error(`Unknown --voice-id ${JSON.stringify(options.voiceId)}; see functions/_shared/speech-voices.js.`);
   }
-
-  const speakerVoiceId = requestedSpeakerId === null
-    ? null
-    : Object.keys(STATIC_VOICES).find(
-        (voiceId) => STATIC_VOICES[voiceId].speakerId === requestedSpeakerId
-      );
-  if (requestedSpeakerId !== null && !speakerVoiceId) {
-    throw new Error("--speaker-id must be 0 (lada-medium), 1 (mykyta), or 2 (tetiana).");
-  }
-  if (requestedVoiceId && speakerVoiceId && requestedVoiceId !== speakerVoiceId) {
-    throw new Error("--voice-id and --speaker-id select different voices.");
-  }
-
-  options.voiceId = requestedVoiceId || speakerVoiceId || DEFAULT_STATIC_VOICE_ID;
-  options.speakerId = STATIC_VOICES[options.voiceId].speakerId;
 
   return options;
 }
@@ -347,24 +339,10 @@ function buildWordPlan(stories) {
   return { jobs, tokenCount };
 }
 
-function commandLabel(command, args) {
-  return [command, ...args].map((part) => JSON.stringify(part)).join(" ");
-}
-
-async function run(command, args, options = {}) {
-  process.stdout.write(`> ${commandLabel(command, args)}\n`);
-  await new Promise((resolvePromise, reject) => {
-    const child = spawn(command, args, {
-      cwd: PROJECT_ROOT,
-      stdio: "inherit",
-      ...options,
-    });
-    child.once("error", reject);
-    child.once("exit", (code, signal) => {
-      if (code === 0) resolvePromise();
-      else reject(new Error(`${command} failed (${signal || `exit ${code}`}).`));
-    });
-  });
+async function writeJsonAtomically(path, value) {
+  const temporaryPath = `${path}.${process.pid}.tmp`;
+  await writeFile(temporaryPath, `${JSON.stringify(value, null, 2)}\n`, "utf8");
+  await rename(temporaryPath, path);
 }
 
 async function pathExists(path) {
@@ -376,172 +354,238 @@ async function pathExists(path) {
   }
 }
 
-async function prepareBuildRuntime(options) {
-  const pythonPackages = resolve(options.buildDir, "python-packages");
-  const modelDir = resolve(options.buildDir, "models");
-  const modelPath = resolve(modelDir, `${VOICE_NAME}.onnx`);
-  const modelConfigPath = `${modelPath}.json`;
-  await mkdir(options.buildDir, { recursive: true });
-
-  const pythonPath = [pythonPackages, process.env.PYTHONPATH].filter(Boolean).join(delimiter);
-  const env = { ...process.env, PYTHONPATH: pythonPath };
-
-  if (options.bootstrap) {
-    await mkdir(pythonPackages, { recursive: true });
-    await run(
-      options.python,
-      [
-        "-m",
-        "pip",
-        "install",
-        "--disable-pip-version-check",
-        "--no-input",
-        "--target",
-        pythonPackages,
-        `piper-tts==${PIPER_VERSION}`,
-        `imageio-ffmpeg==${FFMPEG_BRIDGE_VERSION}`,
-      ],
-      { env }
-    );
-    await mkdir(modelDir, { recursive: true });
-    await run(
-      options.python,
-      ["-m", "piper.download_voices", "--data-dir", modelDir, VOICE_NAME],
-      { env }
-    );
-  }
-
-  if (!(await pathExists(modelPath)) || !(await pathExists(modelConfigPath))) {
-    throw new Error(
-      `Piper model is missing at ${modelPath}. Use --bootstrap on a network-enabled build machine.`
-    );
-  }
-
-  return { env, modelPath };
+function sha256(value) {
+  return createHash("sha256").update(value, "utf8").digest("hex");
 }
 
-async function validateStagedAssets(stagingDir, jobs) {
-  let totalBytes = 0;
-  const assetSizes = {};
+async function readDevVars() {
+  let text;
+  try {
+    text = await readFile(DEV_VARS_PATH, "utf8");
+  } catch {
+    return {};
+  }
+  const values = {};
+  for (const line of text.split(/\r?\n/u)) {
+    const match = line.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*?)\s*$/u);
+    if (match) values[match[1]] = match[2].replace(/^(["'])(.*)\1$/u, "$2");
+  }
+  return values;
+}
 
-  for (const job of jobs) {
-    const assetPath = resolve(stagingDir, job.filename);
-    const assetStat = await stat(assetPath);
-    if (!assetStat.isFile() || assetStat.size < 128) {
-      throw new Error(`Invalid or empty generated asset: ${job.filename}`);
+async function loadGoogleApiKey() {
+  const devVars = await readDevVars();
+  const key = (process.env.GOOGLE_TTS_API_KEY || devVars.GOOGLE_TTS_API_KEY || "").trim();
+  if (!key) {
+    throw new Error("Set GOOGLE_TTS_API_KEY in the environment or .dev.vars.");
+  }
+  return key;
+}
+
+// Paces requests to the Google quota and retries throttling and transient failures.
+function createSynthesizer(key, requestsPerMinute) {
+  const interval = Math.ceil(60_000 / requestsPerMinute);
+  let nextStart = 0;
+
+  return async function synthesize(text, voice) {
+    for (let attempt = 1; ; attempt += 1) {
+      const wait = nextStart - Date.now();
+      nextStart = Math.max(nextStart, Date.now()) + interval;
+      if (wait > 0) await sleep(wait);
+
+      let response;
+      try {
+        response = await fetch(
+          GOOGLE_TTS_ENDPOINT,
+          googleSpeechRequestInit({ key, text, voice, signal: AbortSignal.timeout(30_000) })
+        );
+      } catch (error) {
+        if (attempt >= MAX_ATTEMPTS) throw new Error(`Google request failed: ${error.message}`, { cause: error });
+        await sleep(5_000 * attempt);
+        continue;
+      }
+
+      if (response.status === 401 || response.status === 403) {
+        throw new Error(`Google rejected the key (HTTP ${response.status}): ${await response.text()}`);
+      }
+      if (response.status === 429 || response.status >= 500) {
+        if (attempt >= MAX_ATTEMPTS) throw new Error(`Google kept returning HTTP ${response.status}.`);
+        const retryAfter = Number(response.headers.get("retry-after"));
+        const delay = Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter * 1000 : 15_000 * attempt;
+        process.stderr.write(`Google HTTP ${response.status}; retrying in ${Math.round(delay / 1000)}s.\n`);
+        await sleep(delay);
+        continue;
+      }
+      if (!response.ok) {
+        throw new Error(`Google returned HTTP ${response.status} for ${JSON.stringify(text)}: ${await response.text()}`);
+      }
+
+      const bytes = decodeGoogleAudio(await response.json());
+      if (!bytes || bytes.byteLength < MIN_AUDIO_BYTES) {
+        throw new Error(`Google returned invalid audio for ${JSON.stringify(text)}.`);
+      }
+      return bytes;
     }
-    totalBytes += assetStat.size;
-    assetSizes[job.word] = assetStat.size;
-  }
-
-  return { totalBytes, assetSizes };
+  };
 }
 
-async function writeJsonAtomically(path, value) {
-  const temporaryPath = `${path}.${process.pid}.tmp`;
-  await writeFile(temporaryPath, `${JSON.stringify(value, null, 2)}\n`, "utf8");
-  await rename(temporaryPath, path);
+async function loadStressMap() {
+  return JSON.parse(await readFile(STRESS_MAP_PATH, "utf8"));
+}
+
+function synthesisIdentity(voice, stress) {
+  return {
+    provider: "google",
+    requestVersion: GOOGLE_REQUEST_VERSION,
+    audioConfig: GOOGLE_AUDIO_CONFIG,
+    providerVoice: voice.providerVoice,
+    stressMarks: stress,
+  };
+}
+
+async function readPublishedManifest(voiceOutput) {
+  try {
+    return JSON.parse(await readFile(resolve(voiceOutput, "manifest.json"), "utf8"));
+  } catch {
+    return null;
+  }
+}
+
+function formatDuration(milliseconds) {
+  const minutes = Math.round(milliseconds / 60_000);
+  return minutes >= 60 ? `${Math.floor(minutes / 60)}h ${minutes % 60}m` : `${minutes}m`;
 }
 
 async function publishAssets(options, collection, plan, sourceDigest) {
-  const runtime = await prepareBuildRuntime(options);
-  const stagingDir = resolve(
-    options.buildDir,
-    "staging",
-    options.voiceId,
-    sourceDigest
-  );
-  const jobsPath = resolve(
-    options.buildDir,
-    `jobs-${options.voiceId}-${sourceDigest}.json`
-  );
+  const voice = resolveSpeechVoice(options.voiceId);
+  const identity = synthesisIdentity(voice, options.stress);
+  const identityHash = sha256(JSON.stringify(identity));
+  const stressMap = options.stress ? await loadStressMap() : null;
+  const voiceOutput = resolve(options.output, voice.id);
+  const stagingDir = resolve(options.buildDir, "google",`${voice.id}-${identityHash.slice(0, 16)}`);
   await mkdir(stagingDir, { recursive: true });
-  await writeJsonAtomically(jobsPath, {
-    voice: VOICE_NAME,
-    voiceId: options.voiceId,
-    speakerId: options.speakerId,
-    // Prove the live story's observed first word before committing to the full batch.
-    jobs: [...plan.jobs]
-      .sort((left, right) => Number(right.word === "наша") - Number(left.word === "наша"))
-      .map(({ word, filename }) => ({ word, filename })),
-  });
-
-  await run(
-    options.python,
-    [
-      resolve(import.meta.dirname, "synthesize_piper.py"),
-      "--model",
-      runtime.modelPath,
-      "--jobs",
-      jobsPath,
-      "--output",
-      stagingDir,
-      "--speaker-id",
-      String(options.speakerId),
-    ],
-    { env: runtime.env }
-  );
-
-  const validation = await validateStagedAssets(stagingDir, plan.jobs);
-  const voiceOutput = resolve(options.output, options.voiceId);
   await mkdir(voiceOutput, { recursive: true });
 
-  for (const job of plan.jobs) {
-    await copyFile(resolve(stagingDir, job.filename), resolve(voiceOutput, job.filename));
+  const published = await readPublishedManifest(voiceOutput);
+  const publishedIsCurrent = published?.identityHash === identityHash;
+
+  const jobs = plan.jobs.map((job) => {
+    const text = stressMap ? applyStress(job.word, stressMap) : job.word;
+    return { ...job, text, staged: resolve(stagingDir, `${sha256(text)}.mp3`) };
+  });
+
+  let reused = 0;
+  const pending = [];
+  for (const job of jobs) {
+    if (await pathExists(job.staged)) continue;
+    const publishedFile = resolve(voiceOutput, job.filename);
+    if (publishedIsCurrent && published.assets?.[job.word]?.text === job.text && await pathExists(publishedFile)) {
+      await copyFile(publishedFile, job.staged);
+      reused += 1;
+      continue;
+    }
+    pending.push(job);
+  }
+
+  const characters = pending.reduce((total, job) => total + job.text.length, 0);
+  process.stdout.write(
+    `${jobs.length - pending.length} words already done (${reused} reused from public/speech); ` +
+      `${pending.length} to synthesize, ${characters} characters, ` +
+      `about ${formatDuration((pending.length * 60_000) / options.requestsPerMinute)}.\n`
+  );
+
+  if (pending.length) {
+    const synthesize = createSynthesizer(await loadGoogleApiKey(), options.requestsPerMinute);
+    const startedAt = Date.now();
+    let done = 0;
+    await mapConcurrent(pending, SYNTHESIS_CONCURRENCY, async (job) => {
+      const bytes = await synthesize(job.text, voice);
+      const temporaryPath = `${job.staged}.${process.pid}.tmp`;
+      await writeFile(temporaryPath, bytes);
+      await rename(temporaryPath, job.staged);
+
+      done += 1;
+      if (done === 1 || done % 250 === 0 || done === pending.length) {
+        const remaining = ((Date.now() - startedAt) / done) * (pending.length - done);
+        process.stdout.write(`  ${done}/${pending.length} (${job.word}); ${formatDuration(remaining)} left\n`);
+      }
+    });
+  }
+
+  const assets = {};
+  let totalBytes = 0;
+  const wanted = new Set();
+  for (const job of jobs) {
+    const bytes = await readFile(job.staged);
+    if (bytes.byteLength < MIN_AUDIO_BYTES || !isMp3(bytes)) {
+      throw new Error(`Invalid staged audio for ${JSON.stringify(job.word)}; delete ${job.staged} and re-run.`);
+    }
+    await copyFile(job.staged, resolve(voiceOutput, job.filename));
+    wanted.add(job.filename);
+    totalBytes += bytes.byteLength;
+    assets[job.word] = { file: job.filename, text: job.text, bytes: bytes.byteLength, occurrences: job.occurrences };
+  }
+
+  // Words no longer in any published story would otherwise ship forever.
+  let removed = 0;
+  for (const name of await readdir(voiceOutput)) {
+    if (name.endsWith(".mp3") && !wanted.has(name)) {
+      await unlink(resolve(voiceOutput, name));
+      removed += 1;
+    }
   }
 
   const manifest = {
     schemaVersion: MANIFEST_SCHEMA_VERSION,
     generatedAt: new Date().toISOString(),
     canonicalization: SPEECH_CANONICALIZATION_VERSION,
-    voice: {
-      id: options.voiceId,
-      engine: "Piper",
-      engineVersion: PIPER_VERSION,
-      model: VOICE_NAME,
-      modelUrl: VOICE_MODEL_URL,
-      speakerId: options.speakerId,
-      speakerName: STATIC_VOICES[options.voiceId].speakerName,
-    },
-    audio: {
-      extension: "mp3",
-      mimeType: "audio/mpeg",
-      codec: "MP3",
-      bitrateKbps: 32,
-      sampleRateHz: 22050,
-      channels: 1,
-    },
+    voice: { id: voice.id, ...identity },
+    identityHash,
+    audio: { extension: "mp3", mimeType: "audio/mpeg" },
     source: {
       ...collection.source,
       storyCount: collection.stories.length,
       digestSha256: sourceDigest,
     },
     tokenCount: plan.tokenCount,
-    assetCount: plan.jobs.length,
-    totalBytes: validation.totalBytes,
-    assets: Object.fromEntries(
-      plan.jobs.map((job) => [
-        job.word,
-        {
-          file: job.filename,
-          bytes: validation.assetSizes[job.word],
-          occurrences: job.occurrences,
-        },
-      ])
-    ),
+    assetCount: jobs.length,
+    totalBytes,
+    assets,
   };
 
   // The manifest is the commit marker. It is published only after every audio file validates.
   await writeJsonAtomically(resolve(voiceOutput, "manifest.json"), manifest);
-  return manifest;
+  return { manifest, removed };
+}
+
+async function renderSamples(options) {
+  const voice = resolveSpeechVoice(options.voiceId);
+  const synthesize = createSynthesizer(await loadGoogleApiKey(), options.requestsPerMinute);
+  const stressMap = await loadStressMap();
+  const sampleDir = resolve(options.buildDir, "samples");
+  await mkdir(sampleDir, { recursive: true });
+
+  for (const word of options.sample) {
+    const stressed = applyStress(word, stressMap);
+    const variants = stressed === word ? [["plain", word]] : [["plain", word], ["stressed", stressed]];
+    for (const [label, text] of variants) {
+      const name = `${word}-${voice.id}-${label}.mp3`;
+      await writeFile(resolve(sampleDir, name), await synthesize(text, voice));
+      process.stdout.write(`${resolve(sampleDir, name)}  (${text})\n`);
+    }
+  }
 }
 
 async function main() {
   const options = parseArgs(process.argv.slice(2));
+  if (options.sample) {
+    await renderSamples(options);
+    return;
+  }
+
   const collection = await collectStories(options);
   const plan = buildWordPlan(collection.stories);
   const sourceDigest = stableSourceDigest(collection.stories);
-  const sample = plan.jobs.slice(0, 12);
   const hasNasha = plan.jobs.some(({ word }) => word === "наша");
 
   const summary = {
@@ -550,15 +594,12 @@ async function main() {
     storyCount: collection.stories.length,
     tokenCount: plan.tokenCount,
     uniqueWordCount: plan.jobs.length,
+    characterCount: plan.jobs.reduce((total, { word }) => total + word.length, 0),
     sourceDigestSha256: sourceDigest,
-    voice: {
-      id: options.voiceId,
-      model: VOICE_NAME,
-      speakerId: options.speakerId,
-      speakerName: STATIC_VOICES[options.voiceId].speakerName,
-    },
+    voice: resolveSpeechVoice(options.voiceId),
+    stressMarks: options.stress,
     includesCanonicalNasha: hasNasha,
-    sample,
+    sample: plan.jobs.slice(0, 12),
   };
   process.stdout.write(`${JSON.stringify(summary, null, 2)}\n`);
 
@@ -568,9 +609,10 @@ async function main() {
 
   if (options.plan) return;
 
-  const manifest = await publishAssets(options, collection, plan, sourceDigest);
+  const { manifest, removed } = await publishAssets(options, collection, plan, sourceDigest);
   process.stdout.write(
-    `Published ${manifest.assetCount} MP3 assets (${manifest.totalBytes} bytes) to ${resolve(options.output, options.voiceId)}.\n`
+    `Published ${manifest.assetCount} MP3 assets (${manifest.totalBytes} bytes, ${removed} stale removed) ` +
+      `to ${resolve(options.output, options.voiceId)}.\n`
   );
 }
 
