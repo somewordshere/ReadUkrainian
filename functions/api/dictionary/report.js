@@ -2,7 +2,14 @@
 // The server records what the dictionary shows for that word itself, so a report
 // carries no free text and cannot be used to store arbitrary content.
 import { lookupDictionaryWord } from "../../_shared/dictionary.js";
-import { error, json, readLimitedJson } from "../../_shared/http.js";
+import {
+  checkRateLimit,
+  clientAddress,
+  json,
+  noStoreError,
+  readLimitedJson,
+  requireSameOrigin,
+} from "../../_shared/http.js";
 import { getStoryById } from "../../_shared/texts.js";
 import { canonicalizeUkrainianWord, extractUkrainianWords } from "../../_shared/ukrainian-word.js";
 
@@ -12,15 +19,6 @@ const TARGET_LANGUAGES = new Set(["en", "de"]);
 // New words reported per day across the site; repeats only raise a count.
 const MAX_NEW_REPORTS_PER_DAY = 200;
 const NO_STORE_HEADERS = Object.freeze({ "cache-control": "no-store" });
-
-function noStoreError(status, message, headers = {}) {
-  return error(status, message, { headers: { ...NO_STORE_HEADERS, ...headers } });
-}
-
-function isSameOrigin(request) {
-  const origin = request.headers.get("origin");
-  return Boolean(origin) && origin === new URL(request.url).origin;
-}
 
 function validatePayload(payload) {
   const keys = payload && typeof payload === "object" && !Array.isArray(payload) ? Object.keys(payload) : [];
@@ -51,18 +49,10 @@ function validatePayload(payload) {
   return { ok: true, word, targetLanguage, storyId };
 }
 
-async function withinRateLimit(env, request) {
-  if (typeof env.REPORT_RATE_LIMITER?.limit !== "function") return null;
-  const client = request.headers.get("cf-connecting-ip") || "unknown";
-  const result = await env.REPORT_RATE_LIMITER.limit({ key: `dictionary-report:${client}` });
-  return typeof result?.success === "boolean" ? result.success : null;
-}
-
 export async function onRequestPost(context) {
   const { request, env } = context;
-  if (!isSameOrigin(request)) {
-    return noStoreError(403, "Same-origin report requests are required.");
-  }
+  const originError = requireSameOrigin(request, "Same-origin report requests are required.");
+  if (originError) return originError;
 
   const parsed = await readLimitedJson(request, MAX_REQUEST_BYTES);
   if (!parsed.ok) {
@@ -76,7 +66,10 @@ export async function onRequestPost(context) {
   const { word, targetLanguage, storyId } = validation;
 
   try {
-    const allowed = await withinRateLimit(env, request);
+    const allowed = await checkRateLimit(
+      env.REPORT_RATE_LIMITER,
+      `dictionary-report:${clientAddress(request) || "unknown"}`
+    );
     if (allowed === null) return noStoreError(503, "Reports are temporarily unavailable.");
     if (!allowed) {
       return noStoreError(429, "Too many reports. Please try again later.", { "retry-after": "60" });

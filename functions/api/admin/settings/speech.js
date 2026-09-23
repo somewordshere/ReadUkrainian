@@ -3,10 +3,16 @@ import {
   GOOGLE_TTS_ENDPOINT,
   GOOGLE_VOICES_ENDPOINT,
   decodeGoogleAudio,
+  getGoogleApiKey,
   googleSpeechRequestInit,
   googleVoicesRequestInit,
 } from "../../../_shared/google-speech.js";
-import { error, json } from "../../../_shared/http.js";
+import {
+  json,
+  noStoreError,
+  readLimitedJson,
+  requireSameOrigin,
+} from "../../../_shared/http.js";
 import {
   getSpeechSetting,
   listEnabledSpeechVoiceIds,
@@ -23,67 +29,6 @@ const MAX_PREVIEW_CHARACTERS = 200;
 const GOOGLE_TIMEOUT_MS = 8_000;
 const NO_STORE_HEADERS = Object.freeze({ "cache-control": "no-store" });
 const GENDERS = Object.freeze({ FEMALE: "female", MALE: "male" });
-
-function noStoreError(status, message) {
-  return error(status, message, { headers: NO_STORE_HEADERS });
-}
-
-function isSameOrigin(request) {
-  const origin = request.headers.get("origin");
-  return Boolean(origin) && origin === new URL(request.url).origin;
-}
-
-async function readLimitedJson(request) {
-  const declaredLength = Number(request.headers.get("content-length"));
-
-  if (Number.isFinite(declaredLength) && declaredLength > MAX_REQUEST_BYTES) {
-    return { ok: false, status: 413, message: "Request body is too large." };
-  }
-
-  if (!request.body) {
-    return { ok: false, status: 400, message: "A JSON request body is required." };
-  }
-
-  const reader = request.body.getReader();
-  const chunks = [];
-  let totalBytes = 0;
-
-  try {
-    while (true) {
-      const { done, value } = await reader.read();
-
-      if (done) {
-        break;
-      }
-
-      totalBytes += value.byteLength;
-
-      if (totalBytes > MAX_REQUEST_BYTES) {
-        await reader.cancel();
-        return { ok: false, status: 413, message: "Request body is too large." };
-      }
-
-      chunks.push(value);
-    }
-  } finally {
-    reader.releaseLock();
-  }
-
-  const bytes = new Uint8Array(totalBytes);
-  let offset = 0;
-
-  for (const chunk of chunks) {
-    bytes.set(chunk, offset);
-    offset += chunk.byteLength;
-  }
-
-  try {
-    return { ok: true, value: JSON.parse(new TextDecoder().decode(bytes)) };
-  } catch {
-    return { ok: false, status: 400, message: "Invalid JSON request body." };
-  }
-}
-
 
 function hasExactKeys(payload, keys) {
   return Boolean(payload)
@@ -109,11 +54,6 @@ function validateVoiceToggle(payload) {
   }
 
   return { ok: true, voiceId: voice.id, enabled: payload.enabled };
-}
-
-function getGoogleApiKey(env) {
-  const key = typeof env.GOOGLE_TTS_API_KEY === "string" ? env.GOOGLE_TTS_API_KEY.trim() : "";
-  return key || null;
 }
 
 function googleFetch(context, url, init) {
@@ -173,17 +113,12 @@ async function readAdminJson(context) {
     return { response: auth.response };
   }
 
-  if (!isSameOrigin(context.request)) {
-    return { response: noStoreError(403, "Same-origin settings requests are required.") };
+  const originError = requireSameOrigin(context.request, "Same-origin settings requests are required.");
+  if (originError) {
+    return { response: originError };
   }
 
-  const contentType = context.request.headers.get("content-type")?.split(";", 1)[0].trim().toLowerCase();
-
-  if (contentType !== "application/json") {
-    return { response: noStoreError(415, "Content-Type must be application/json.") };
-  }
-
-  const parsed = await readLimitedJson(context.request);
+  const parsed = await readLimitedJson(context.request, MAX_REQUEST_BYTES);
 
   if (!parsed.ok) {
     return { response: noStoreError(parsed.status, parsed.message) };

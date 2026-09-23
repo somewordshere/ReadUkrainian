@@ -30,20 +30,80 @@ export async function readJson(request) {
   }
 }
 
-export async function readLimitedJson(request, maximumBytes) {
-  const contentType = request.headers
-    .get("content-type")
-    ?.split(";", 1)[0]
-    .trim()
-    .toLowerCase();
+export function noStoreError(status, message, headers = {}) {
+  return error(status, message, { headers: { ...headers, "cache-control": NO_STORE } });
+}
 
-  if (contentType !== "application/json") {
+// Browsers always send Origin on POST/PUT, so a missing or foreign one means the
+// request did not come from this site's own pages.
+export function isSameOrigin(request) {
+  const origin = request.headers.get("origin");
+  return Boolean(origin) && origin === new URL(request.url).origin;
+}
+
+export function requireSameOrigin(request, message = "Same-origin requests are required.") {
+  return isSameOrigin(request) ? null : noStoreError(403, message);
+}
+
+function mediaType(headers) {
+  return headers.get("content-type")?.split(";", 1)[0].trim().toLowerCase() || "";
+}
+
+export function declaresTooMuch(headers, maximumBytes) {
+  const declaredLength = Number(headers.get("content-length"));
+  return Number.isFinite(declaredLength) && declaredLength > maximumBytes;
+}
+
+// Reads a whole body, but stops as soon as it passes maximumBytes. Returns null
+// when the body is missing, too large or fails mid-stream.
+export async function readLimitedBytes(stream, maximumBytes) {
+  if (!stream) return null;
+
+  const reader = stream.getReader();
+  const chunks = [];
+  let totalBytes = 0;
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      totalBytes += value.byteLength;
+      if (totalBytes > maximumBytes) {
+        await reader.cancel();
+        return null;
+      }
+      chunks.push(value);
+    }
+  } catch {
+    return null;
+  } finally {
+    reader.releaseLock();
+  }
+
+  const bytes = new Uint8Array(totalBytes);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return bytes;
+}
+
+export function decodeJson(bytes) {
+  try {
+    return { ok: true, value: JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes)) };
+  } catch {
+    return { ok: false };
+  }
+}
+
+export async function readLimitedJson(request, maximumBytes) {
+  if (mediaType(request.headers) !== "application/json") {
     return { ok: false, status: 415, message: "Content-Type must be application/json." };
   }
 
-  const declaredLength = Number(request.headers.get("content-length"));
-
-  if (Number.isFinite(declaredLength) && declaredLength > maximumBytes) {
+  if (declaresTooMuch(request.headers, maximumBytes)) {
     return { ok: false, status: 413, message: "Request body is too large." };
   }
 
@@ -51,49 +111,47 @@ export async function readLimitedJson(request, maximumBytes) {
     return { ok: false, status: 400, message: "A JSON request body is required." };
   }
 
-  const reader = request.body.getReader();
-  const chunks = [];
-  let totalBytes = 0;
-
-  try {
-    while (true) {
-      const { done, value } = await reader.read();
-
-      if (done) {
-        break;
-      }
-
-      totalBytes += value.byteLength;
-
-      if (totalBytes > maximumBytes) {
-        await reader.cancel();
-        return { ok: false, status: 413, message: "Request body is too large." };
-      }
-
-      chunks.push(value);
-    }
-  } catch {
-    return { ok: false, status: 400, message: "Invalid JSON request body." };
-  } finally {
-    reader.releaseLock();
+  const bytes = await readLimitedBytes(request.body, maximumBytes);
+  if (!bytes) {
+    return { ok: false, status: 413, message: "Request body is too large." };
   }
 
-  const bytes = new Uint8Array(totalBytes);
-  let offset = 0;
+  const parsed = decodeJson(bytes);
+  return parsed.ok
+    ? parsed
+    : { ok: false, status: 400, message: "Invalid JSON request body." };
+}
 
-  for (const chunk of chunks) {
-    bytes.set(chunk, offset);
-    offset += chunk.byteLength;
-  }
+export function hasMediaType(headers, expected) {
+  return mediaType(headers) === expected;
+}
 
-  try {
-    return {
-      ok: true,
-      value: JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes)),
-    };
-  } catch {
-    return { ok: false, status: 400, message: "Invalid JSON request body." };
-  }
+// Every limiter in this app fails closed: a missing binding is a broken deploy,
+// so callers treat null as "refuse" rather than running unprotected.
+// Returns true (allowed), false (over the limit) or null (no usable limiter).
+export async function checkRateLimit(limiter, key) {
+  if (typeof limiter?.limit !== "function") return null;
+  const result = await limiter.limit({ key });
+  return typeof result?.success === "boolean" ? result.success : null;
+}
+
+function ipv6Prefix(address) {
+  const [head, tail = ""] = address.split("::");
+  const headGroups = head ? head.split(":") : [];
+  const tailGroups = tail ? tail.split(":") : [];
+  const missing = address.includes("::") ? 8 - headGroups.length - tailGroups.length : 0;
+  const groups = [...headGroups, ...Array(Math.max(0, missing)).fill("0"), ...tailGroups];
+  return `${groups.slice(0, 4).map((group) => group.toLowerCase().padStart(4, "0")).join(":")}::/64`;
+}
+
+// The client's address as Cloudflare saw it, with IPv6 reduced to its /64: one
+// household or phone gets a whole /64 and can rotate through it freely.
+// Null when the request did not come through Cloudflare's edge (a service
+// binding such as the release probe, or a unit test).
+export function clientAddress(request) {
+  const address = request.headers.get("cf-connecting-ip")?.trim();
+  if (!address) return null;
+  return address.includes(":") ? ipv6Prefix(address) : address;
 }
 
 export function getCookie(request, name) {

@@ -1,11 +1,7 @@
-import { error } from "../../../_shared/http.js";
+import { requireSameOrigin as requireSameOriginRequest } from "../../../_shared/http.js";
 
 export function requireSameOrigin(request) {
-  const origin = request.headers.get("origin");
-  if (!origin || origin !== new URL(request.url).origin) {
-    return error(403, "Same-origin dictionary administration requests are required.");
-  }
-  return null;
+  return requireSameOriginRequest(request, "Same-origin dictionary administration requests are required.");
 }
 
 export async function getSuggestion(db, suggestionId) {

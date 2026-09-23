@@ -1,5 +1,11 @@
 import { requirePermission } from "../../../_shared/auth.js";
-import { error, json, readLimitedJson } from "../../../_shared/http.js";
+import {
+  declaresTooMuch,
+  error,
+  json,
+  readLimitedBytes,
+  readLimitedJson,
+} from "../../../_shared/http.js";
 import { requireSameOrigin } from "./_shared.js";
 
 const MAX_SOURCE_PAGE_BYTES = 256 * 1024;
@@ -15,36 +21,11 @@ const SOURCES = Object.freeze({
 });
 
 async function readLimitedText(response, maximumBytes) {
-  const declaredLength = Number(response.headers.get("content-length"));
-  if (Number.isFinite(declaredLength) && declaredLength > maximumBytes) {
+  if (declaresTooMuch(response.headers, maximumBytes)) {
     throw new Error("The upstream version page is too large.");
   }
-
-  if (!response.body) throw new Error("The upstream version page is empty.");
-  const reader = response.body.getReader();
-  const chunks = [];
-  let total = 0;
-  try {
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      total += value.byteLength;
-      if (total > maximumBytes) {
-        await reader.cancel();
-        throw new Error("The upstream version page is too large.");
-      }
-      chunks.push(value);
-    }
-  } finally {
-    reader.releaseLock();
-  }
-
-  const bytes = new Uint8Array(total);
-  let offset = 0;
-  chunks.forEach((chunk) => {
-    bytes.set(chunk, offset);
-    offset += chunk.byteLength;
-  });
+  const bytes = await readLimitedBytes(response.body, maximumBytes);
+  if (!bytes) throw new Error("The upstream version page is empty or too large.");
   return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
 }
 
