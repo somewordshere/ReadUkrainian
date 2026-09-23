@@ -75,9 +75,10 @@ export async function analyzeDictionaryCoverage(
   const words = [...counts.keys()];
   const covered = new Set();
 
-  for (const wordChunk of chunk(words, QUERY_CHUNK_SIZE)) {
+  // Chunks are independent queries, so they go out together.
+  const chunkResults = await Promise.all(chunk(words, QUERY_CHUNK_SIZE).map(async (wordChunk) => {
     const placeholders = wordChunk.map((_, index) => `?${index + 2}`).join(", ");
-    const result = await db
+    return db
       .prepare(`
         SELECT DISTINCT form.normalized_form AS normalizedForm
         FROM dictionary_forms AS form
@@ -92,9 +93,11 @@ export async function analyzeDictionaryCoverage(
       `)
       .bind(targetLanguage, ...wordChunk)
       .all();
+  }));
 
+  chunkResults.forEach((result) => {
     (result.results || []).forEach((row) => covered.add(row.normalizedForm));
-  }
+  });
 
   const missing = words
     .filter((word) => !covered.has(word))
@@ -119,13 +122,9 @@ export async function analyzeEnabledDictionaryCoverage(db, paragraphs) {
     WHERE source_language = 'uk' AND enabled = 1
     ORDER BY target_language ASC
   `).all();
-  const coverages = [];
-  for (const row of result.results || []) {
-    coverages.push(await analyzeDictionaryCoverage(db, paragraphs, {
-      targetLanguage: row.targetLanguage,
-    }));
-  }
-  return coverages;
+  return Promise.all((result.results || []).map((row) => analyzeDictionaryCoverage(db, paragraphs, {
+    targetLanguage: row.targetLanguage,
+  })));
 }
 
 export function validateDictionarySuggestion(payload) {

@@ -146,6 +146,25 @@ export function clientAddress(request) {
   return address.includes(":") ? ipv6Prefix(address) : address;
 }
 
+// The Workers edge cache, or the one a test injects as context.cache (which may
+// be null to mean "no cache").
+export function edgeCache(context) {
+  if (Object.prototype.hasOwnProperty.call(context, "cache")) {
+    return context.cache;
+  }
+  return globalThis.caches?.default || null;
+}
+
+// Hands background work to waitUntil when the runtime offers it, so the
+// response is not held up; otherwise waits for it.
+export async function runInBackground(context, promise) {
+  if (typeof context.waitUntil === "function") {
+    context.waitUntil(promise);
+    return;
+  }
+  await promise;
+}
+
 export function getCookie(request, name) {
   const cookieHeader = request.headers.get("cookie");
 
