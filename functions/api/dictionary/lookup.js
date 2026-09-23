@@ -1,5 +1,12 @@
 import { lookupDictionaryWord } from "../../_shared/dictionary.js";
-import { json, noStoreError, readLimitedJson, requireSameOrigin } from "../../_shared/http.js";
+import {
+  checkRateLimit,
+  clientAddress,
+  json,
+  noStoreError,
+  readLimitedJson,
+  requireSameOrigin,
+} from "../../_shared/http.js";
 
 const MAX_REQUEST_BYTES = 1024;
 const MAX_WORD_CHARACTERS = 80;
@@ -57,6 +64,20 @@ export async function onRequestPost(context) {
   const validation = validatePayload(parsed.value);
   if (!validation.ok) {
     return noStoreError(validation.status || 400, validation.message);
+  }
+
+  // Every tap on a word is a lookup, so the per-client limit is generous. It
+  // applies to requests that came through Cloudflare's edge; the release probe
+  // reaches this Worker over a service binding with no client address.
+  const client = clientAddress(context.request);
+  if (client) {
+    const allowed = await checkRateLimit(context.env.LOOKUP_RATE_LIMITER, `dictionary-lookup:${client}`);
+    if (allowed === null) {
+      return noStoreError(503, "The dictionary is temporarily unavailable.");
+    }
+    if (!allowed) {
+      return noStoreError(429, "Too many dictionary lookups. Please wait a moment.", { "retry-after": "60" });
+    }
   }
 
   let result;
