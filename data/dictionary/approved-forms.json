@@ -134,6 +134,12 @@
       "lemma": "продати"
     },
     {
+      "language": "de",
+      "pos": "verb",
+      "form": "розуміти",
+      "lemma": "зрозуміти"
+    },
+    {
       "language": "en",
       "pos": "adj",
       "form": "безпечно",
@@ -1636,6 +1642,12 @@
     {
       "language": "en",
       "pos": "verb",
+      "form": "платити",
+      "lemma": "заплатити"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
       "form": "побачити",
       "lemma": "бачити"
     },
@@ -1644,6 +1656,18 @@
       "pos": "verb",
       "form": "повернутися",
       "lemma": "повертатися"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "повторити",
+      "lemma": "повторювати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "повторити",
+      "lemma": "повторяти"
     },
     {
       "language": "en",

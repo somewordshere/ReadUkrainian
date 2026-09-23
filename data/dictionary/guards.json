@@ -10,5 +10,10 @@
     "default": 12
   },
   "canaryDiffWords": 300,
-  "knownTags": []
+  "knownTags": [
+    "formal",
+    "informal",
+    "personal",
+    "pronoun"
+  ]
 }
