@@ -126,12 +126,15 @@ test("the German Wiktionary and Linguisto seeds form an attributed language pair
   // 473 Ukrainian lexemes to the English edition's 2540, and the curated
   // supplement writes English translations only, so this pair cannot reach the
   // 100% the English test asserts.
+  // Floors, not exact values: a prepared dictionary update (prepare-update.mjs)
+  // only adds entries, so coverage may rise but must never fall below this.
   assert.equal(coverage.totalUniqueWords, 4091);
-  assert.equal(coverage.coveredUniqueWords, 2893);
-  assert.equal(coverage.coveragePercent, 70.7);
+  assert.ok(coverage.coveredUniqueWords >= 2893);
+  assert.ok(coverage.coveragePercent >= 70.7);
   assert.ok(coverage.missing.length > 0);
   assert.equal(lookup.entries[0].translations[0].text, "Mama");
-  assert.equal(lookup.attribution.sourceRevision, "2026-08-04");
+  assert.match(lookup.attribution.sourceRevision, /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/);
+  assert.ok(lookup.attribution.sourceRevision >= "2026-08-04");
   assert.equal(linguistoLookup.entries[0].translations[0].text, "ruhig");
   assert.equal(
     linguistoLookup.attributions[0].name,
@@ -250,10 +253,16 @@ test("the refresh action records only the available upstream revision", async ()
     // Cloudflare Workers throw on redirect: "error"; only "manual" or "follow" work.
     assert.equal(options.redirect, "manual");
     return new Response(
-      "This dictionary is based on structured data extracted today from the enwiktionary dump dated 2026-08-12 using wiktextract.",
+      "This dictionary is based on structured data extracted today from the enwiktionary dump dated 2099-08-12 using wiktextract.",
       { headers: { "content-type": "text/html; charset=utf-8" } }
     );
   };
+
+  // Whatever revision the migrations installed; a later dictionary update moves it.
+  const installed = (await db.prepare(`
+    SELECT source_revision AS currentRevision FROM dictionary_language_pairs
+    WHERE source_language = 'uk' AND target_language = 'en'
+  `).first()).currentRevision;
 
   try {
     const response = await checkUpdate(await adminContext(db, {
@@ -261,8 +270,8 @@ test("the refresh action records only the available upstream revision", async ()
     }));
     assert.equal(response.status, 200);
     const result = await response.json();
-    assert.equal(result.currentRevision, "2026-08-05");
-    assert.equal(result.availableRevision, "2026-08-12");
+    assert.equal(result.currentRevision, installed);
+    assert.equal(result.availableRevision, "2099-08-12");
     assert.equal(result.updateAvailable, true);
     assert.equal(requests, 1);
 
@@ -270,8 +279,8 @@ test("the refresh action records only the available upstream revision", async ()
       SELECT source_revision AS currentRevision, available_revision AS availableRevision
       FROM dictionary_language_pairs WHERE source_language = 'uk' AND target_language = 'en'
     `).first();
-    assert.equal(pair.currentRevision, "2026-08-05");
-    assert.equal(pair.availableRevision, "2026-08-12");
+    assert.equal(pair.currentRevision, installed);
+    assert.equal(pair.availableRevision, "2099-08-12");
   } finally {
     globalThis.fetch = previousFetch;
   }

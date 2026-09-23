@@ -1,0 +1,85 @@
+name: Prepare dictionary update
+# Builds a newer Kaikki/Wiktionary source into a reviewable release branch.
+# Nothing reaches learners from here: the branch holds the migration, release
+# manifest and version bump, and publishing still means merging it and running
+# "Release production". Started from the admin panel's "Prepare update" link.
+on:
+  workflow_dispatch:
+    inputs:
+      language:
+        description: Dictionary to update (en = Ukrainian → English, de = Ukrainian → German)
+        type: choice
+        options: [en, de]
+        default: en
+        required: true
+permissions:
+  contents: write
+concurrency:
+  group: dictionary-update-${{ inputs.language }}
+  cancel-in-progress: false
+jobs:
+  prepare:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    env:
+      LANGUAGE: ${{ inputs.language }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: Compare installed and available source versions
+        id: revision
+        run: node scripts/dictionary/source-revision.mjs --target "$LANGUAGE" | tee -a "$GITHUB_OUTPUT"
+      - name: Nothing newer
+        if: steps.revision.outputs.update != 'true'
+        run: echo "The installed ${LANGUAGE} source (${{ steps.revision.outputs.installed }}) is current; nothing to prepare." >> "$GITHUB_STEP_SUMMARY"
+      - name: Download the Wiktionary extracts
+        if: steps.revision.outputs.update == 'true'
+        run: |
+          # English is always needed: German takes its inflected forms from it.
+          curl -fsSL --retry 3 -o "$RUNNER_TEMP/en.jsonl.gz" https://kaikki.org/dictionary/raw-wiktextract-data.jsonl.gz
+          if [ "$LANGUAGE" = de ]; then
+            curl -fsSL --retry 3 -o "$RUNNER_TEMP/de.jsonl.gz" https://kaikki.org/dictionary/downloads/de/de-extract.jsonl.gz
+          fi
+          ls -la "$RUNNER_TEMP"/*.jsonl.gz
+      - name: Build and validate the update
+        if: steps.revision.outputs.update == 'true'
+        run: |
+          node scripts/dictionary/prepare-update.mjs \
+            --target "$LANGUAGE" \
+            --revision "${{ steps.revision.outputs.available }}" \
+            --en-raw "$RUNNER_TEMP/en.jsonl.gz" \
+            $([ "$LANGUAGE" = de ] && echo --de-raw "$RUNNER_TEMP/de.jsonl.gz") \
+            --work "$RUNNER_TEMP/work" \
+            --summary "$RUNNER_TEMP/summary.md"
+      - name: Run the full repository check
+        if: steps.revision.outputs.update == 'true'
+        run: npm run check
+      - name: Push the release branch for review
+        if: steps.revision.outputs.update == 'true'
+        run: |
+          branch="dictionary-update/${LANGUAGE}-${{ steps.revision.outputs.available }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git add migrations data/releases docs/change.log package.json package-lock.json public/js/app/version.js
+          git commit -m "Update the ${LANGUAGE} dictionary to the ${{ steps.revision.outputs.available }} source" -m "$(cat "$RUNNER_TEMP/summary.md")"
+          git push origin "$branch"
+          {
+            cat "$RUNNER_TEMP/summary.md"
+            echo
+            echo "**Review it:** [open a pull request for \`$branch\`](https://github.com/${GITHUB_REPOSITORY}/compare/main...${branch}?expand=1)"
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Keep the reviewer summary and validation report
+        if: always() && steps.revision.outputs.update == 'true'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: dictionary-update-${{ inputs.language }}
+          path: |
+            ${{ runner.temp }}/summary.md
+            ${{ runner.temp }}/work/validation-*.json
+          if-no-files-found: ignore
