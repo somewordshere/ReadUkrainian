@@ -1,68 +1,68 @@
 # Static Ukrainian speech assets
 
-This build-only pipeline turns every unique Ukrainian word in the published story
-paragraphs into a compact MP3. Runtime requests cost no text-to-speech API money:
-the Worker validates the selected word and serves the immutable static file whose
-name is the SHA-256 of the canonical UTF-8 word.
+This build pipeline turns every unique Ukrainian word in the published stories into
+an MP3 made by Google Cloud Text-to-Speech (Chirp 3 HD voice set in
+`functions/_shared/speech-voices.js`). Tapping «Прослухати» then serves a file that
+is already on Cloudflare instead of waiting for synthesis. The Worker names each
+file after the SHA-256 of the canonical UTF-8 word and serves
+`public/speech/<voice-id>/<sha256>.mp3`.
 
-## Safe workflow
+## Credentials
 
-1. Prove content collection and normalization without installing anything:
+Put a Google Cloud API key restricted to the Cloud Text-to-Speech API in
+`.dev.vars` (gitignored, also read by `wrangler dev`):
+
+```
+GOOGLE_TTS_API_KEY=...
+```
+
+Production needs the same key as a Worker secret
+(`npx wrangler secret put GOOGLE_TTS_API_KEY`). Without it static audio still
+plays; only words added after the last generation fail.
+
+## Workflow
+
+1. Check what would be generated (no Google calls):
 
    ```powershell
-   node scripts/speech/generate-speech-assets.mjs --plan
+   npm run speech:plan
    ```
 
-2. On a network-enabled build machine, synthesize one of the supported medium
-   voices using an isolated ignored cache:
+2. Optionally listen first. This renders words with the site voice, with and
+   without stress marks, into `.speech-build/samples/`:
 
    ```powershell
-   node scripts/speech/generate-speech-assets.mjs --bootstrap --voice-id tetiana --python C:\path\to\python.exe
+   node scripts/speech/generate-speech-assets.mjs --sample замок,мука,наша
    ```
 
-   The static generator supports `lada-medium` (speaker 0), `mykyta` (speaker 1),
-   and `tetiana` (speaker 2). The default runtime voice `lada` uses the separate
-   `uk_UA-lada-x_low` model through the server-side provider and is not generated
-   by this medium-model pipeline.
+3. Generate and publish into `public/speech/<voice-id>/`:
 
-   These three build-time speakers are not exposed in the admin selector until a
-   complete production manifest for each voice has been generated and deployed.
-   TTS.ai does not expose Piper's multi-speaker control, so a missing static file
-   must never silently fall back and claim to be Mykyta or Tetiana. The current
-   provider-backed admin choices are Lada (Piper) and MAI (VITS).
+   ```powershell
+   npm run speech:build
+   ```
 
-The normal command fails if the production API cannot be read. To deliberately
-build from the repository seed instead, add `--allow-seed-fallback`. The resulting
-manifest records that degraded source and warns that admin-published stories may
-be missing.
+   The full run (about 4,200 words, 28,000 characters) takes about 20 minutes and
+   fits in Google's free monthly allowance. It is resumable: finished words stay in
+   `.speech-build/google/`, and words whose published MP3 is still current are
+   reused, so later runs only synthesize new words.
 
-For an offline, explicit seed-only validation (without attempting the network), use
-`--source seed --plan`. Keep the default production source for release builds.
+4. Commit `public/speech/<voice-id>/` (MP3s and `manifest.json`) and release as usual.
 
-`--bootstrap` installs pinned Piper and FFmpeg bridge packages only under
-`.speech-build/`, then downloads `uk_UA-ukrainian_tts-medium` there. Neither the
-Piper runtime nor the ONNX model is copied to `public/`. The generator stages and
-validates every MP3, copies the audio files into
-`public/speech/<voice-id>/`, and writes that voice's `manifest.json` last as the
-commit marker.
+`--stress` sends the stress marks from `public/js/data/stress-map.json`. Switching
+it on or off, or changing the voice, regenerates everything, because the request
+sent to Google changes.
 
-The live-story word `наша` is synthesized first. Its duration, compressed bytes,
-and build time are printed as a sample proof; unexpected sample size, duration, or
-latency stops the batch before thousands of files are generated.
+The production API is the default source. `--allow-seed-fallback` or
+`--source seed` builds from `data/content-seed.json` instead; the manifest records
+that degraded source.
+
+## Content lifecycle
+
+Publishing or editing a story in the admin does not generate audio. New words are
+synthesized on demand by `/api/speech` (rate limited, with a daily character
+budget) until the next `npm run speech:build` puts them in static files. Words
+that leave every story are deleted from `public/speech/<voice-id>/` on the next run.
 
 Canonicalization is NFC, trimmed, Ukrainian-locale lowercase, maps common apostrophe
-and dash variants to ASCII, and accepts exactly one Ukrainian token. Assets are
-32 kbps, 22.05 kHz, mono MP3 files named
-`public/speech/<voice-id>/<sha256>.mp3`. Keeping the voice ID in the path prevents
-an asset generated for one voice from being served after an administrator selects
-another voice.
-
-## Content lifecycle limitation
-
-Publishing or editing a story through the admin UI does not synthesize new static
-audio. Run this generator and redeploy after published paragraph changes if static
-coverage is required. Only provider-backed voice IDs may use the server-side
-fallback; a future static-only voice must fail closed when an asset is missing.
-The browser never falls back to a device voice.
-
-See `public/speech/NOTICE.txt` for model/runtime attribution.
+and dash variants to ASCII, and accepts exactly one Ukrainian token. It must match
+`canonicalizeSpeechWord` in `functions/api/speech.js`.

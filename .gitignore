@@ -12,9 +12,8 @@ ux-audit/
 *.db-wal
 *.log
 
-# Generated speech is a release artifact, not source
-public/speech/**/*.mp3
-public/speech/**/*.wav
+# Generated speech MP3s under public/speech/<voice>/ are committed: the release
+# workflow deploys from a clean checkout. Build caches stay in .speech-build/.
 
 # Local environments and secrets
 .dev.vars

@@ -1,3 +1,11 @@
+import {
+  GOOGLE_AUDIO_CONFIG,
+  GOOGLE_REQUEST_VERSION,
+  GOOGLE_TTS_ENDPOINT,
+  decodeGoogleAudio,
+  googleSpeechRequestInit,
+  isMp3,
+} from "../_shared/google-speech.js";
 import { error } from "../_shared/http.js";
 import { getSpeechSetting } from "../_shared/speech-settings.js";
 import {
@@ -7,21 +15,13 @@ import {
 import { getStoryById } from "../_shared/texts.js";
 
 const MAX_REQUEST_BYTES = 8 * 1024;
-const MAX_PROVIDER_JSON_BYTES = 32 * 1024;
 const MAX_PROVIDER_AUDIO_BYTES = 2 * 1024 * 1024;
+// Base64 inflates the audio by a third, plus a little JSON around it.
+const MAX_PROVIDER_JSON_BYTES = Math.ceil((MAX_PROVIDER_AUDIO_BYTES * 4) / 3) + 1024;
 const SPEECH_ASSET_FORMAT = "mp3";
 const SPEECH_CONTENT_TYPE = "audio/mpeg";
 const IMMUTABLE_CACHE_SECONDS = 365 * 24 * 60 * 60;
-
-const TTS_AI_CREATE_URL = "https://api.tts.ai/v1/tts/";
-const TTS_AI_RESULTS_URL = "https://api.tts.ai/v1/speech/results/";
-const TTS_AI_AUDIO_HOSTS = new Set(["api.tts.ai", "cdn.tts.ai"]);
-const TTS_AI_LANGUAGE = "uk";
-const TTS_AI_SPEED = 0.9;
-const MAX_POLL_ATTEMPTS = 8;
-const POLL_DELAY_MS = 750;
-const PROVIDER_TOTAL_TIMEOUT_MS = 12_000;
-const PROVIDER_FETCH_TIMEOUT_MS = 5_000;
+const PROVIDER_TIMEOUT_MS = 8_000;
 
 const APOSTROPHE_VARIANTS = /[\u2019\u2018\u02BC\uFF07\u0060\u00B4]/gu;
 const HYPHEN_VARIANTS = /[\u2010\u2011\u2012\u2013\u2014\u2212]/gu;
@@ -33,17 +33,7 @@ const SELECTED_WORD_PATTERN = new RegExp(
 );
 const STORY_TOKEN_PATTERN =
   /[\p{L}\p{M}\p{N}]+(?:['-][\p{L}\p{M}\p{N}]+)*/gu;
-const UUID_PATTERN = /^(?:[0-9a-f]{32}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/iu;
-const AUDIO_CONTENT_TYPES = new Map([
-  ["audio/mpeg", "audio/mpeg"],
-  ["audio/mp3", "audio/mpeg"],
-  ["audio/x-mpeg", "audio/mpeg"],
-  ["audio/wav", "audio/wav"],
-  ["audio/wave", "audio/wav"],
-  ["audio/x-wav", "audio/wav"],
-  ["audio/vnd.wave", "audio/wav"],
-]);
-const PENDING_JOB_STATUSES = new Set(["pending", "queued", "processing"]);
+const AUDIO_CONTENT_TYPES = new Set(["audio/mpeg", "audio/mp3", "audio/x-mpeg"]);
 
 function normalizeJoiners(value) {
   return value
@@ -156,28 +146,6 @@ async function readLimitedBody(body, maximumBytes) {
   return bytes;
 }
 
-async function readProviderJson(response) {
-  const contentType = response.headers.get("content-type")?.split(";", 1)[0].trim().toLowerCase();
-  const declaredLength = Number(response.headers.get("content-length"));
-  if (
-    !response.ok ||
-    contentType !== "application/json" ||
-    (Number.isFinite(declaredLength) && declaredLength > MAX_PROVIDER_JSON_BYTES)
-  ) {
-    return null;
-  }
-
-  const bytes = await readLimitedBody(response.body, MAX_PROVIDER_JSON_BYTES);
-  if (!bytes) return null;
-
-  try {
-    const value = JSON.parse(new TextDecoder().decode(bytes));
-    return value && typeof value === "object" && !Array.isArray(value) ? value : null;
-  } catch {
-    return null;
-  }
-}
-
 async function readProviderAudio(response) {
   const declaredContentType = response.headers.get("content-type")?.split(";", 1)[0].trim().toLowerCase();
   const declaredLength = Number(response.headers.get("content-length"));
@@ -190,30 +158,33 @@ async function readProviderAudio(response) {
   }
 
   const bytes = await readLimitedBody(response.body, MAX_PROVIDER_AUDIO_BYTES);
-  if (!bytes?.byteLength) return null;
+  if (!bytes?.byteLength || !isMp3(bytes)) return null;
 
-  const isWave =
-    bytes.byteLength >= 12 &&
-    bytes[0] === 0x52 &&
-    bytes[1] === 0x49 &&
-    bytes[2] === 0x46 &&
-    bytes[3] === 0x46 &&
-    bytes[8] === 0x57 &&
-    bytes[9] === 0x41 &&
-    bytes[10] === 0x56 &&
-    bytes[11] === 0x45;
-  const isMp3 =
-    (bytes.byteLength >= 3 && bytes[0] === 0x49 && bytes[1] === 0x44 && bytes[2] === 0x33) ||
-    (bytes.byteLength >= 2 && bytes[0] === 0xff && (bytes[1] & 0xe0) === 0xe0);
+  return { bytes, contentType: SPEECH_CONTENT_TYPE };
+}
 
-  return {
-    bytes,
-    contentType: isWave
-      ? "audio/wav"
-      : isMp3
-        ? "audio/mpeg"
-        : AUDIO_CONTENT_TYPES.get(declaredContentType),
-  };
+async function readGoogleAudio(response) {
+  const contentType = response.headers.get("content-type")?.split(";", 1)[0].trim().toLowerCase();
+  const declaredLength = Number(response.headers.get("content-length"));
+  if (
+    !response.ok ||
+    contentType !== "application/json" ||
+    (Number.isFinite(declaredLength) && declaredLength > MAX_PROVIDER_JSON_BYTES)
+  ) {
+    return null;
+  }
+
+  const body = await readLimitedBody(response.body, MAX_PROVIDER_JSON_BYTES);
+  if (!body) return null;
+
+  let payload;
+  try {
+    payload = JSON.parse(new TextDecoder().decode(body));
+  } catch {
+    return null;
+  }
+  const bytes = decodeGoogleAudio(payload);
+  return bytes ? { bytes, contentType: SPEECH_CONTENT_TYPE } : null;
 }
 
 async function sha256Hex(value) {
@@ -241,19 +212,16 @@ export async function buildSpeechAssetPath(
 
 async function buildProviderCacheRequest(requestUrl, canonicalWord, voiceConfig) {
   const cacheIdentity = [
-    "tts.ai",
-    voiceConfig.providerModel,
+    "google",
+    GOOGLE_REQUEST_VERSION,
+    JSON.stringify(GOOGLE_AUDIO_CONFIG),
     voiceConfig.id,
     voiceConfig.providerVoice,
-    "", // Preserve the former speaker slot so verified Lada cache entries remain reusable.
-    TTS_AI_LANGUAGE,
-    voiceConfig.providerFormat,
-    String(TTS_AI_SPEED),
     canonicalWord,
   ].join("\u0000");
   const hash = await sha256Hex(cacheIdentity);
   return new Request(
-    new URL(`/__speech-cache/tts-ai/${hash}.mp3`, requestUrl),
+    new URL(`/__speech-cache/google/${hash}.mp3`, requestUrl),
     { method: "GET" }
   );
 }
@@ -275,14 +243,9 @@ function noStoreError(status, message, headers = {}) {
 }
 
 function speechAudioResponse(sourceResponse, source, cacheStatus, voiceId) {
-  const sourceContentType = sourceResponse.headers
-    .get("content-type")
-    ?.split(";", 1)[0]
-    .trim()
-    .toLowerCase();
   const headers = new Headers({
     "cache-control": `public, max-age=${IMMUTABLE_CACHE_SECONDS}, immutable`,
-    "content-type": AUDIO_CONTENT_TYPES.get(sourceContentType) || SPEECH_CONTENT_TYPE,
+    "content-type": SPEECH_CONTENT_TYPE,
     "x-content-type-options": "nosniff",
     "x-speech-cache": cacheStatus,
     "x-speech-source": source,
@@ -307,7 +270,7 @@ function bufferedAudioResponse(audio) {
       "content-length": String(audio.bytes.byteLength),
       "content-type": audio.contentType,
       "x-content-type-options": "nosniff",
-      "x-speech-source": "tts-ai",
+      "x-speech-source": "google",
     },
   });
 }
@@ -345,7 +308,7 @@ async function checkRateLimit(env) {
   }
 
   const result = await env.SPEECH_RATE_LIMITER.limit({
-    key: "speech:tts-ai",
+    key: "speech:google",
   });
   return typeof result?.success === "boolean" ? result.success : null;
 }
@@ -383,142 +346,29 @@ async function fetchWithTimeout(fetchImpl, input, init, timeoutMs, requestSignal
   }
 }
 
-function validateResultUrl(value) {
-  if (typeof value !== "string" || value.length > 2048) return null;
-
-  try {
-    const url = new URL(value);
-    if (
-      url.protocol !== "https:" ||
-      !TTS_AI_AUDIO_HOSTS.has(url.hostname) ||
-      (url.port && url.port !== "443") ||
-      url.username ||
-      url.password
-    ) {
-      return null;
-    }
-    return url;
-  } catch {
-    return null;
-  }
+function getGoogleApiKey(env) {
+  const key = typeof env.GOOGLE_TTS_API_KEY === "string" ? env.GOOGLE_TTS_API_KEY.trim() : "";
+  return key || null;
 }
 
-async function fetchTtsAiAudio(context, canonicalWord, voiceConfig) {
+async function fetchGoogleAudio(context, key, canonicalWord, voiceConfig) {
   const fetchImpl = context.fetch || globalThis.fetch;
-  const sleep = context.sleep || ((milliseconds) =>
-    new Promise((resolve) => setTimeout(resolve, milliseconds)));
-  const now = context.now || Date.now;
   if (typeof fetchImpl !== "function") throw new Error("Fetch unavailable.");
 
-  const deadline = now() + PROVIDER_TOTAL_TIMEOUT_MS;
-  const remainingTimeout = () =>
-    Math.min(PROVIDER_FETCH_TIMEOUT_MS, deadline - now());
-  const requestSignal = context.request.signal;
-
-  const providerPayload = {
-    model: voiceConfig.providerModel,
-    voice: voiceConfig.providerVoice,
-    language: TTS_AI_LANGUAGE,
-    text: canonicalWord,
-    format: voiceConfig.providerFormat,
-    speed: TTS_AI_SPEED,
-  };
-
-  const createResponse = await fetchWithTimeout(
+  const response = await fetchWithTimeout(
     fetchImpl,
-    TTS_AI_CREATE_URL,
-    {
-      method: "POST",
-      headers: {
-        accept: "audio/*, application/json",
-        "content-type": "application/json",
-      },
-      redirect: "manual",
-      body: JSON.stringify(providerPayload),
-    },
-    remainingTimeout(),
-    requestSignal
+    GOOGLE_TTS_ENDPOINT,
+    googleSpeechRequestInit({ key, text: canonicalWord, voice: voiceConfig }),
+    PROVIDER_TIMEOUT_MS,
+    context.request.signal
   );
-
-  if (!createResponse.ok) {
-    throw new Error(`TTS create request returned HTTP ${createResponse.status}.`);
+  if (!response.ok) {
+    throw new Error(`Google speech request returned HTTP ${response.status}.`);
   }
 
-  const createContentType = createResponse.headers
-    .get("content-type")
-    ?.split(";", 1)[0]
-    .trim()
-    .toLowerCase();
-  if (AUDIO_CONTENT_TYPES.has(createContentType)) {
-    const audio = await readProviderAudio(createResponse);
-    if (!audio) throw new Error("Invalid provider audio.");
-    return audio;
-  }
-
-  const createPayload = await readProviderJson(createResponse);
-  const uuid = typeof createPayload?.uuid === "string"
-    ? createPayload.uuid.trim()
-    : "";
-  if (!UUID_PATTERN.test(uuid)) {
-    throw new Error("Invalid provider job.");
-  }
-
-  for (let attempt = 0; attempt < MAX_POLL_ATTEMPTS; attempt += 1) {
-    if (attempt > 0) {
-      const remaining = deadline - now();
-      if (remaining <= POLL_DELAY_MS) break;
-      await sleep(POLL_DELAY_MS);
-    }
-
-    const pollUrl = new URL(TTS_AI_RESULTS_URL);
-    pollUrl.searchParams.set("uuid", uuid);
-    const pollResponse = await fetchWithTimeout(
-      fetchImpl,
-      pollUrl,
-      {
-        method: "GET",
-        headers: { accept: "application/json" },
-        redirect: "manual",
-      },
-      remainingTimeout(),
-      requestSignal
-    );
-    if (!pollResponse.ok) {
-      throw new Error(`TTS status request returned HTTP ${pollResponse.status}.`);
-    }
-    const pollPayload = await readProviderJson(pollResponse);
-    if (!pollPayload) throw new Error("Invalid provider status.");
-
-    const status = String(pollPayload.status || "").trim().toLowerCase();
-    if (status === "completed") {
-      const resultUrl = validateResultUrl(pollPayload.result_url);
-      if (!resultUrl) throw new Error("Invalid provider result URL.");
-
-      const audioResponse = await fetchWithTimeout(
-        fetchImpl,
-        resultUrl,
-        {
-          method: "GET",
-          headers: { accept: "audio/*" },
-          redirect: "manual",
-        },
-        remainingTimeout(),
-        requestSignal
-      );
-      if (!audioResponse.ok) {
-        throw new Error(`TTS audio request returned HTTP ${audioResponse.status}.`);
-      }
-      const audio = await readProviderAudio(audioResponse);
-      if (!audio) throw new Error("Invalid provider result audio.");
-      return audio;
-    }
-
-    if (!PENDING_JOB_STATUSES.has(status)) {
-      throw new Error("Provider job failed.");
-    }
-  }
-
-  throw new Error("Provider job timed out.");
+  const audio = await readGoogleAudio(response);
+  if (!audio) throw new Error("Invalid provider audio.");
+  return audio;
 }
 
 export async function onRequestPost(context) {
@@ -612,7 +462,7 @@ export async function onRequestPost(context) {
         if (cachedAudio) {
           return speechAudioResponse(
             bufferedAudioResponse(cachedAudio),
-            "tts-ai",
+            "google",
             "HIT",
             voiceConfig.id
           );
@@ -624,7 +474,8 @@ export async function onRequestPost(context) {
   }
 
   const dailyLimit = getDailyCharacterLimit(context.env);
-  if (!dailyLimit) {
+  const apiKey = getGoogleApiKey(context.env);
+  if (!dailyLimit || !apiKey) {
     return noStoreError(503, "Pronunciation is temporarily unavailable.");
   }
 
@@ -666,15 +517,14 @@ export async function onRequestPost(context) {
 
   let providerAudio;
   try {
-    providerAudio = await fetchTtsAiAudio(context, canonicalWord, voiceConfig);
+    providerAudio = await fetchGoogleAudio(context, apiKey, canonicalWord, voiceConfig);
   } catch (providerError) {
     const providerErrorMessage = providerError instanceof Error
       ? providerError.message
       : "Unknown provider error.";
     console.error(JSON.stringify({
       message: "speech_provider_failed",
-      provider: "tts-ai",
-      model: voiceConfig.providerModel,
+      provider: "google",
       voice: voiceConfig.id,
       error: providerErrorMessage,
     }));
@@ -695,7 +545,7 @@ export async function onRequestPost(context) {
 
   return speechAudioResponse(
     generatedResponse,
-    "tts-ai",
+    "google",
     "MISS",
     voiceConfig.id
   );
