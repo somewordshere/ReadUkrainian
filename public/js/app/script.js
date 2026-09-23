@@ -8,6 +8,15 @@ import {
   storyMatchesFilters,
 } from "./library-utils.mjs";
 
+// progress.js is a classic script loaded before this module; its functions are
+// globals. Naming them here makes the dependency visible in one place.
+const {
+  getLastVisitedStory,
+  getStoryProgress,
+  isStoryBookmarked,
+  setStoryBookmarked,
+} = window;
+
 const levelsContainer = document.getElementById("levels");
 const libraryTools = document.getElementById("libraryTools");
 const libraryState = document.getElementById("libraryState");
