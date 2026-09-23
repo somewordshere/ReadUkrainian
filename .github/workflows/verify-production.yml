@@ -1,8 +1,13 @@
 name: Verify production
 # Re-runs only the release verification against the live site, without
 # deploying, so a failed verification can be retried or debugged safely.
+# It also runs every morning, so a live problem (a dictionary canary word
+# showing the wrong entry, missing content) reaches GitHub's failure email
+# within a day even when nobody released anything.
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '17 5 * * *'
 permissions:
   contents: read
 concurrency:

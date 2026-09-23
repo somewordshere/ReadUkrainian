@@ -17,7 +17,8 @@ const seed=[...old,...historical.stories.map(({level,order,after})=>({level,sort
 const qs=historical.stories.flatMap(s=>s.after.questions.map((q,i)=>({...q,level:s.level,storyOrder:s.order,displayOrder:i+1})));
 const words=s=>s.split(/\s+/).filter(w=>/[\p{L}\p{N}]/u.test(w));
 test('every release dictionary probe is reachable through the public lookup contract',async()=>{
- const {sqlite,db}=seedDatabase();
+ // The probes describe the dictionary as released; 0031 later removed the misleading серед → середа.
+ const {sqlite,db}=seedDatabase({before:'0031'});
  try{for(const p of loadReleaseManifest('0.84').dictionaryProbes){
   const r=await lookupDictionaryWord(db,{text:p.text,targetLanguage:p.language});
   assert.ok(r.entries.some(e=>e.lemma===p.lemma&&e.translations.some(t=>t.text===p.translation)),`${p.language}:${p.text}`);

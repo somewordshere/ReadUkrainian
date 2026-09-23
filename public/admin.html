@@ -126,7 +126,7 @@
           <div class="admin-dictionary-settings-copy">
             <p class="admin-kicker">Dictionary</p>
             <h2 id="dictionarySettingsTitle">Dictionaries</h2>
-            <p>Translations are stored on the server. “Check for update” compares the installed version with Kaikki.org. “Prepare update” builds the new entries for words your stories use on GitHub, as a branch for you to review and release; learners see nothing until that release.</p>
+            <p>Translations are stored on the server. “Check for update” compares the installed version with Kaikki.org. “Prepare update” builds the new entries for words your stories use on GitHub, checks them with the dictionary guards, and opens a pull request for you to review and release; learners see nothing until that release. GitHub also checks for newer sources every Monday by itself.</p>
           </div>
           <div class="admin-dictionary-pairs" id="dictionaryPairs" aria-live="polite"></div>
           <p class="admin-status admin-dictionary-settings-status" id="dictionarySettingsStatus" aria-live="polite"></p>
@@ -136,6 +136,14 @@
               <button class="admin-text-action" id="refreshDictionarySuggestionsButton" type="button">Refresh</button>
             </div>
             <div class="admin-dictionary-suggestions" id="dictionarySuggestionsList"></div>
+          </div>
+          <div class="admin-dictionary-review" id="dictionaryReportsSection" hidden>
+            <div class="admin-dictionary-review-heading">
+              <h3>Learner reports</h3>
+              <button class="admin-text-action" id="refreshDictionaryReportsButton" type="button">Refresh</button>
+            </div>
+            <p class="admin-dictionary-reports-note">Words learners flagged as wrongly or not translated, with what the dictionary showed them. Fix a wrong entry with a suggestion above, or a repair in the dictionary data, then mark the report fixed.</p>
+            <div class="admin-dictionary-suggestions" id="dictionaryReportsList"></div>
           </div>
         </section>
 

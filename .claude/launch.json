@@ -4,8 +4,26 @@
     {
       "name": "readukrainian-dev",
       "runtimeExecutable": "npx",
-      "runtimeArgs": ["wrangler", "dev", "--port", "8787"],
+      "runtimeArgs": [
+        "wrangler",
+        "dev",
+        "--port",
+        "8787"
+      ],
       "port": 8787
+    },
+    {
+      "name": "readukrainian-fresh",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "wrangler",
+        "dev",
+        "--port",
+        "8788",
+        "--persist-to",
+        ".wrangler/state-fresh"
+      ],
+      "port": 8788
     }
   ]
 }

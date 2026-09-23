@@ -18,6 +18,12 @@ const EXCLUDED_FORMS = new Map([
     "парк", "парки", "парку", "парків", "паркові", "паркам", "парком",
     "парками", "парках",
   ])],
+  // Reviewed 2026-09-23: real forms that mislead, since the stories always mean the
+  // other word. Keep migration 0031 aligned.
+  ["name\u0000порошенко", new Set(["по"])],
+  ["name\u0000мен", new Set(["мене", "мені"])],
+  ["name\u0000мена", new Set(["мені"])],
+  ["noun\u0000середа", new Set(["серед"])],
 ]);
 
 export function removeKnownIncorrectForms(normalizedLemma, partOfSpeech, forms) {

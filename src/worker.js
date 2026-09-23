@@ -1,6 +1,7 @@
 import { onRequestGet as getContent } from "../functions/api/content.js";
 import { onRequestGet as getStory } from "../functions/api/content/story.js";
 import { onRequestPost as lookupDictionary } from "../functions/api/dictionary/lookup.js";
+import { onRequestPost as reportDictionaryEntry } from "../functions/api/dictionary/report.js";
 import { onRequestPost as createSpeech } from "../functions/api/speech.js";
 import { onRequestPost as checkDictionaryUpdate } from "../functions/api/admin/dictionary/check-update.js";
 import { onRequestPost as checkDictionaryCoverage } from "../functions/api/admin/dictionary/coverage.js";
@@ -11,6 +12,10 @@ import {
 } from "../functions/api/admin/dictionary/suggestions.js";
 import { onRequestPost as approveDictionarySuggestion } from "../functions/api/admin/dictionary/approve.js";
 import { onRequestPost as rejectDictionarySuggestion } from "../functions/api/admin/dictionary/reject.js";
+import {
+  onRequestGet as listDictionaryReports,
+  onResolvePost as resolveDictionaryReport,
+} from "../functions/api/admin/dictionary/reports.js";
 import { onRequestPost as login } from "../functions/api/admin/login.js";
 import { onRequestPost as logout } from "../functions/api/admin/logout.js";
 import { onRequestGet as session } from "../functions/api/admin/session.js";
@@ -40,6 +45,7 @@ const EXACT_API_ROUTES = new Map([
   ["/api/content", { GET: getContent }],
   ["/api/content/story", { GET: getStory }],
   ["/api/dictionary/lookup", { POST: lookupDictionary }],
+  ["/api/dictionary/report", { POST: reportDictionaryEntry }],
   ["/api/speech", { POST: createSpeech }],
   ["/api/admin/login", { POST: login }],
   ["/api/admin/logout", { POST: logout }],
@@ -50,6 +56,7 @@ const EXACT_API_ROUTES = new Map([
   ["/api/admin/dictionary/status", { GET: getDictionaryStatus }],
   ["/api/admin/dictionary/check-update", { POST: checkDictionaryUpdate }],
   ["/api/admin/dictionary/coverage", { POST: checkDictionaryCoverage }],
+  ["/api/admin/dictionary/reports", { GET: listDictionaryReports }],
   ["/api/admin/dictionary/suggestions", {
     GET: listDictionarySuggestions,
     POST: createDictionarySuggestion,
@@ -58,6 +65,11 @@ const EXACT_API_ROUTES = new Map([
 ]);
 
 const PARAMETERIZED_API_ROUTES = [
+  {
+    pattern: /^\/api\/admin\/dictionary\/reports\/(\d+)\/resolve$/,
+    handlers: { POST: resolveDictionaryReport },
+    getParams: (match) => ({ id: match[1] }),
+  },
   {
     pattern: /^\/api\/admin\/dictionary\/suggestions\/(\d+)\/approve$/,
     handlers: { POST: approveDictionarySuggestion },

@@ -73,7 +73,8 @@ test('revision stops on editorial drift and resumes after its additive dictionar
 });
 
 test('revised word forms resolve to the reviewed English and German meanings',async()=>{
- const {sqlite,db}=seedDatabase();
+ // The probes describe the dictionary as released; 0031 later removed the misleading серед → середа.
+ const {sqlite,db}=seedDatabase({before:'0031'});
  try{for(const p of release.dictionaryProbes){const result=await lookupDictionaryWord(db,{text:p.text,targetLanguage:p.language});assert.ok(result.entries.some(e=>e.lemma===p.lemma&&e.translations.some(t=>t.text===p.translation)),`${p.language}:${p.text}`);}}
  finally{sqlite.close();}
 });

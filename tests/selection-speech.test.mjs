@@ -833,3 +833,55 @@ test("a drag selection strips stress marks before looking the word up", async ()
     harness.restore();
   }
 });
+
+function findByClass(element, className) {
+  if (element?.className === className) return element;
+  for (const child of element?.children || []) {
+    const found = findByClass(child, className);
+    if (found) return found;
+  }
+  return null;
+}
+
+test("a learner can report a wrong translation, sending only the word, language and story", async () => {
+  const responses = [
+    Response.json({
+      query: { text: "мама", sourceLanguage: "uk", targetLanguage: "de" },
+      entries: [{
+        lemma: "мама",
+        normalizedLemma: "мама",
+        partOfSpeech: "noun",
+        forms: [],
+        translations: [{ text: "Mama" }],
+      }],
+      attribution: null,
+    }),
+    new Response(null, { status: 500 }),
+    Response.json({ reported: true }, { status: 202 }),
+  ];
+  const harness = createHarness({ selectionText: "мама", fetchImpl: async () => responses.shift() });
+  try {
+    harness.controller.setTargetLanguage("de");
+    showSelection(harness);
+    harness.translateButton.dispatchEvent(new Event("click"));
+    await flushAsyncWork();
+
+    const report = findByClass(harness.translationResult, "selection-translation-report-button");
+    assert.ok(report, "the report link is shown under the translation");
+    assert.match(report.textContent, /Повідомити про помилку/);
+
+    report.dispatchEvent(new Event("click"));
+    await flushAsyncWork();
+    assert.equal(harness.requests[1][0], "/api/dictionary/report");
+    assert.deepEqual(JSON.parse(harness.requests[1][1].body), { text: "мама", targetLanguage: "de", storyId: 42 });
+    assert.match(report.textContent, /Не вдалося надіслати/);
+    assert.equal(report.disabled, false, "a failed report can be retried");
+
+    report.dispatchEvent(new Event("click"));
+    await flushAsyncWork();
+    assert.match(allText(harness.translationResult), /Дякуємо! Ми перевіримо цей переклад/);
+    assert.match(harness.status.textContent, /Дякуємо/);
+  } finally {
+    harness.restore();
+  }
+});
