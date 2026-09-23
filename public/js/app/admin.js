@@ -6,6 +6,7 @@ const loginForm = byId("loginForm");
 const loginStatus = byId("loginStatus");
 const logoutButton = byId("logoutButton");
 const userSummary = byId("userSummary");
+const databaseVersion = byId("databaseVersion");
 const speechSettingsForm = byId("speechSettingsForm");
 const speechEnabledCheckbox = byId("speechEnabledCheckbox");
 const speechVoiceSelect = byId("speechVoiceSelect");
@@ -64,6 +65,7 @@ const dictionarySuggestionDialog = byId("dictionarySuggestionDialog");
 const dictionarySuggestionForm = byId("dictionarySuggestionForm");
 const closeDictionarySuggestionButton = byId("closeDictionarySuggestionButton");
 const dictionarySuggestionStatus = byId("dictionarySuggestionStatus");
+const suggestDictionaryWordButton = byId("suggestDictionaryWordButton");
 
 const STATUS_LABELS = {
   draft: "Draft",
@@ -122,6 +124,27 @@ function formatDate(value) {
   return Number.isNaN(date.valueOf())
     ? String(value)
     : new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(date);
+}
+
+// D1 records applied_at as "YYYY-MM-DD HH:MM:SS" in UTC.
+function formatMigrationDate(migration) {
+  const appliedAt = new Date(`${String(migration?.appliedAt).replace(" ", "T")}Z`);
+  return Number.isNaN(appliedAt.valueOf())
+    ? ""
+    : new Intl.DateTimeFormat(undefined, { dateStyle: "medium" }).format(appliedAt);
+}
+
+function describeMigration(migration) {
+  const appliedAt = formatMigrationDate(migration);
+  return appliedAt ? `${migration.name}, applied ${appliedAt}` : migration.name;
+}
+
+function renderDatabaseVersion(database) {
+  databaseVersion.hidden = !database?.latest;
+  if (!database?.latest) return;
+  const appliedAt = formatMigrationDate(database.latest);
+  databaseVersion.textContent = `Database version ${database.latest.number}${appliedAt ? ` · applied ${appliedAt}` : ""}`;
+  databaseVersion.title = `${database.latest.name} · ${database.count} migrations applied`;
 }
 
 function hasPermission(permission) {
@@ -440,14 +463,16 @@ function renderDictionaryPairs(pairs) {
     versions.className = "admin-dictionary-version";
     [
       ["Installed", pair.currentRevision || "Unavailable"],
+      ["Migration", pair.migration?.number || "Unknown", pair.migration && describeMigration(pair.migration)],
       ["Available", pair.availableRevision || "Not checked"],
       ["Last checked", pair.lastCheckedAt ? formatDate(pair.lastCheckedAt) : "Never"],
-    ].forEach(([label, value]) => {
+    ].forEach(([label, value, title]) => {
       const item = document.createElement("div");
       const term = document.createElement("dt");
       const detail = document.createElement("dd");
       term.textContent = label;
       detail.textContent = value;
+      if (title) item.title = title;
       item.append(term, detail);
       versions.appendChild(item);
     });
@@ -554,6 +579,7 @@ async function loadDictionaryStatus() {
   dictionarySettingsSection.setAttribute("aria-busy", "true");
   try {
     const payload = await api("./api/admin/dictionary/status", { method: "GET" });
+    renderDatabaseVersion(payload.database);
     renderDictionaryPairs(Array.isArray(payload.dictionaries) ? payload.dictionaries : [payload.dictionary].filter(Boolean));
     if (hasPermission("dictionary_approve")) await Promise.all([loadDictionarySuggestions(), loadDictionaryReports()]);
   } catch (error) {
@@ -691,13 +717,17 @@ async function reviewDictionarySuggestion(suggestionId, decision) {
   }
 }
 
-function openDictionarySuggestion(word) {
+// A word from a coverage row or report is fixed; without one the editor types any word.
+function openDictionarySuggestion(word = "") {
   dictionarySuggestionForm.reset();
-  dictionarySuggestionForm.elements.word.value = word;
-  dictionarySuggestionForm.elements.lemma.value = word;
+  const { word: wordField, lemma: lemmaField } = dictionarySuggestionForm.elements;
+  wordField.value = word;
+  wordField.readOnly = Boolean(word);
+  lemmaField.value = word;
+  delete lemmaField.dataset.followsWord;
   setStatus(dictionarySuggestionStatus, "");
   dictionarySuggestionDialog.showModal();
-  dictionarySuggestionForm.elements.lemma.focus();
+  (word ? lemmaField : wordField).focus();
 }
 
 function renderDictionaryCoverage(coverage) {
@@ -1409,6 +1439,15 @@ speechPreviewText.addEventListener("keydown", (event) => {
 refreshDictionarySuggestionsButton.addEventListener("click", () => void loadDictionarySuggestions());
 refreshDictionaryReportsButton.addEventListener("click", () => void loadDictionaryReports());
 checkDictionaryCoverageButton.addEventListener("click", () => void checkDictionaryCoverage());
+suggestDictionaryWordButton.addEventListener("click", () => openDictionarySuggestion());
+// Most words are their own lemma, so the lemma follows the word until edited apart.
+dictionarySuggestionForm.elements.word.addEventListener("input", (event) => {
+  const lemmaField = dictionarySuggestionForm.elements.lemma;
+  if (lemmaField.dataset.followsWord !== "false") lemmaField.value = event.target.value;
+});
+dictionarySuggestionForm.elements.lemma.addEventListener("input", (event) => {
+  event.target.dataset.followsWord = String(event.target.value === dictionarySuggestionForm.elements.word.value);
+});
 closeDictionarySuggestionButton.addEventListener("click", () => dictionarySuggestionDialog.close());
 dictionarySuggestionDialog.addEventListener("click", (event) => {
   if (event.target === dictionarySuggestionDialog) dictionarySuggestionDialog.close();

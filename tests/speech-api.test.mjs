@@ -38,6 +38,7 @@ function fakeDb(
     voiceId = "uk-UA-Chirp3-HD-Achernar",
     speechEnabled = true,
     voiceSettingThrows = false,
+    enabledVoices = ["uk-UA-Chirp3-HD-Achernar"],
   } = {}
 ) {
   return {
@@ -57,6 +58,10 @@ function fakeDb(
             };
       };
       return {
+        async all() {
+          assert.match(sql, /FROM speech_voice_options/);
+          return { results: enabledVoices.map((id) => ({ voiceId: id })) };
+        },
         async first() {
           if (sql.includes("FROM speech_settings")) {
             return readSpeechSetting();
@@ -128,6 +133,7 @@ function createContext({
   voiceId = "uk-UA-Chirp3-HD-Achernar",
   speechEnabled = true,
   voiceSettingThrows = false,
+  enabledVoices,
   request,
 } = {}) {
   const assetCalls = [];
@@ -143,6 +149,7 @@ function createContext({
       voiceId,
       speechEnabled,
       voiceSettingThrows,
+      enabledVoices,
     }),
     ASSETS: {
       async fetch(assetRequest) {
@@ -317,6 +324,34 @@ test("falls back to the default voice when the stored voice was retired", async 
   assert.equal(response.status, 200);
   assert.equal(response.headers.get("x-speech-voice"), "uk-UA-Chirp3-HD-Achernar");
   assert.equal(new URL(harness.assetCalls[0].url).pathname, `/speech/uk-UA-Chirp3-HD-Achernar/${GOOD_WORD_HASH}.mp3`);
+});
+
+test("speaks in the learner's chosen voice while it is on the shortlist", async () => {
+  const harness = createContext({
+    payload: { storyId: 42, text: "добрий", voiceId: "uk-UA-Chirp3-HD-Charon" },
+    enabledVoices: ["uk-UA-Chirp3-HD-Achernar", "uk-UA-Chirp3-HD-Charon"],
+  });
+  const response = await onRequestPost(harness.context);
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get("x-speech-voice"), "uk-UA-Chirp3-HD-Charon");
+  assert.equal(
+    new URL(harness.assetCalls[0].url).pathname,
+    `/speech/uk-UA-Chirp3-HD-Charon/${GOOD_WORD_HASH}.mp3`
+  );
+});
+
+test("falls back to the site voice for a voice that is not on the shortlist", async () => {
+  for (const voiceId of ["uk-UA-Chirp3-HD-Charon", "../../escape", 7]) {
+    const harness = createContext({
+      payload: { storyId: 42, text: "добрий", voiceId },
+      enabledVoices: ["uk-UA-Chirp3-HD-Achernar"],
+    });
+    const response = await onRequestPost(harness.context);
+
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get("x-speech-voice"), "uk-UA-Chirp3-HD-Achernar");
+  }
 });
 
 test("rejects provider audio that is not MP3", async () => {

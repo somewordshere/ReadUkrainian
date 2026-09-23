@@ -207,6 +207,23 @@
 .public-page .switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: var(--paper); box-shadow: 0 1px 2px #1f232840; transition: transform 0.18s ease; }
 .public-page .stress-toggle[aria-checked="true"] .switch { background: var(--accent); }
 .public-page .stress-toggle[aria-checked="true"] .switch::after { transform: translateX(14px); }
+/* Voice menu: a tinted button like the stress switch that opens a paper listbox,
+   so the choice looks like the rest of the reader rather than a native select. */
+.public-page .voice-picker { display: flex; align-items: center; gap: 10px; }
+.public-page .voice-picker[hidden] { display: none; }
+.public-page .voice-menu { position: relative; }
+.public-page .voice-menu-button { display: inline-flex; align-items: center; gap: 10px; min-height: 42px; padding: 0 12px 0 14px; border: 0; border-radius: 10px; background: var(--surface-muted); color: var(--ink); font: inherit; font-size: 0.875rem; font-weight: 500; cursor: pointer; }
+.public-page .voice-menu-button:hover, .public-page .voice-picker.is-open .voice-menu-button { background: var(--surface-muted-hover); }
+.public-page .voice-menu-chevron { flex: none; color: var(--muted); transition: transform 0.15s ease; }
+.public-page .voice-picker.is-open .voice-menu-chevron { transform: rotate(180deg); }
+.public-page .voice-menu-list { position: absolute; top: calc(100% + 6px); left: 0; z-index: 20; width: max-content; min-width: 220px; max-width: min(340px, calc(100vw - 32px)); max-height: min(320px, 60vh); margin: 0; padding: 4px; overflow-y: auto; list-style: none; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); box-shadow: 0 6px 24px #1f232826; }
+.public-page .voice-menu-list:focus { outline: none; }
+.public-page .voice-menu-list:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.public-page .voice-option { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; min-height: 40px; padding: 9px 12px 9px 30px; border-radius: 8px; color: var(--ink); font-size: 0.875rem; cursor: pointer; position: relative; }
+.public-page .voice-option:hover, .public-page .voice-option.is-active { background: var(--surface-muted); }
+.public-page .voice-option[aria-selected="true"] { font-weight: 600; }
+.public-page .voice-option[aria-selected="true"]::before { content: ""; position: absolute; left: 11px; top: 50%; width: 8px; height: 4px; border-left: 2px solid var(--accent); border-bottom: 2px solid var(--accent); transform: translateY(-70%) rotate(-45deg); }
+.public-page .voice-option-meta { flex: none; color: var(--muted); font-size: 0.8125rem; font-weight: 400; }
 @media (prefers-reduced-motion: reduce) {
   .public-page :is(.segment, .switch, .switch::after) { transition: none; }
 }

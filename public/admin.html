@@ -39,6 +39,7 @@
               <p class="admin-kicker">Read Ukrainian</p>
               <h1>Stories editor</h1>
               <p class="admin-user-summary" id="userSummary"></p>
+              <p class="admin-user-summary admin-database-version" id="databaseVersion" hidden></p>
             </div>
           </div>
           <button class="admin-logout-button" id="logoutButton" type="button">Log out</button>
@@ -55,8 +56,9 @@
             <p class="admin-kicker">Audio</p>
             <h2 id="speechSettingsTitle">Pronunciation</h2>
             <p id="speechSettingsDescription">
-              Turn word pronunciation on or off and choose the voice learners hear. Only enabled voices
-              from the list below can be the site voice.
+              Turn word pronunciation on or off and choose the voice learners hear by default. Every enabled
+              voice from the list below also appears in the reader's voice picker, and only enabled voices
+              can be the site voice.
             </p>
             <label class="admin-checkbox admin-speech-enabled">
               <input
@@ -130,6 +132,10 @@
           </div>
           <div class="admin-dictionary-pairs" id="dictionaryPairs" aria-live="polite"></div>
           <p class="admin-status admin-dictionary-settings-status" id="dictionarySettingsStatus" aria-live="polite"></p>
+          <div class="admin-dictionary-suggest">
+            <p>Add an English translation for any Ukrainian word, not only the ones a coverage check lists. An administrator approves it before learners see it.</p>
+            <button class="admin-secondary-button" id="suggestDictionaryWordButton" type="button">Suggest a translation</button>
+          </div>
           <div class="admin-dictionary-review" id="dictionaryReviewSection" hidden>
             <div class="admin-dictionary-review-heading">
               <h3>Pending suggestions</h3>
@@ -288,7 +294,7 @@
           <button class="admin-secondary-button" id="closeDictionarySuggestionButton" type="button">Close</button>
         </div>
         <div class="admin-question-grid">
-          <label><span>Selected form</span><input name="word" type="text" readonly /></label>
+          <label><span>Word form <small>As it appears in the text</small></span><input name="word" type="text" lang="uk" maxlength="100" required /></label>
           <label><span>Lemma</span><input name="lemma" type="text" required /></label>
           <label>
             <span>Part of speech</span>

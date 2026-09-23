@@ -3,6 +3,7 @@ import { loadLegacyQuestions } from "./legacy-content.js";
 import { findNextIncompleteStory, getStoryHref } from "./library-utils.mjs";
 import { initSelectionSpeech } from "./selection-speech.js";
 import { applyStress, tokenizeParagraph } from "./story-words.mjs";
+import { initVoicePicker } from "./voice-picker.js";
 
 const params = new URLSearchParams(window.location.search);
 const level = params.get("level") || "A1";
@@ -111,6 +112,45 @@ if (getSavedStressPreference()) {
 stressToggle.addEventListener("click", () => {
   setStressMarks(stressToggle.getAttribute("aria-checked") !== "true");
 });
+
+const VOICE_STORAGE_KEY = "readukrainian.speech-voice";
+const voicePicker = initVoicePicker(
+  {
+    root: document.getElementById("voicePicker"),
+    button: document.getElementById("voiceMenuButton"),
+    value: document.getElementById("voiceMenuValue"),
+    list: document.getElementById("voiceMenuList"),
+  },
+  {
+    onChange(voiceId) {
+      selectionSpeech.setVoice(voiceId);
+      try {
+        window.localStorage.setItem(VOICE_STORAGE_KEY, voiceId);
+      } catch {
+        // The choice still holds for this visit when storage is unavailable.
+      }
+    },
+  }
+);
+
+function getSavedVoice() {
+  try {
+    return window.localStorage.getItem(VOICE_STORAGE_KEY) || "";
+  } catch {
+    return "";
+  }
+}
+
+// Voices come with the story; a saved voice the admin has since removed falls
+// back to the site voice.
+function setupVoicePicker(story) {
+  const voices = story.speechEnabled === true && Array.isArray(story.speechVoices) ? story.speechVoices : [];
+  const voiceId = voicePicker.setVoices(voices, {
+    siteVoiceId: story.speechVoiceId || "",
+    selectedVoiceId: getSavedVoice(),
+  });
+  selectionSpeech.setVoice(voiceId && voiceId !== story.speechVoiceId ? voiceId : "");
+}
 
 function createParagraph(paragraph) {
   const element = document.createElement("p");
@@ -629,6 +669,7 @@ async function initStory() {
     selectionSpeech.setContext({ storyId: story.storyId });
     selectionSpeech.setEnabled(true);
     selectionSpeech.setSpeechEnabled(story.speechEnabled === true);
+    setupVoicePicker(story);
 
     const questions = await resolveQuestions(story, storyLevelId);
 
