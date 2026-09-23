@@ -24,7 +24,7 @@ export class RevisionDataError extends Error {}
 
 const ADMIN_TEXT_COLUMNS = `
   ${TEXT_COLUMNS}, draft_json, draft_updated_at, draft_updated_by_user_id,
-  draft_updated_by_email, updated_by_user_id, updated_by_email, published_at
+  draft_updated_by_email, updated_by_user_id, updated_by_email, published_at, edit_version
 `;
 
 function parseJson(value, fallback) {
@@ -86,13 +86,18 @@ function placementSql(levelParameter) {
           question_index = CASE WHEN level = ${levelParameter} THEN display_order ELSE ${next} END`;
 }
 
-// The version an editor last saw: the draft's save time, or the last published
-// change when there is no draft. Every draft save, publish and restore changes it.
+// The version an editor last saw. Every draft save, publish, unpublish and
+// restore writes a fresh random token, so no two writes share one (timestamps
+// can: two saves in the same millisecond).
 function editVersionOf(row) {
-  return row.draft_updated_at || row.updated_at;
+  return row.edit_version;
 }
 
-const EDIT_VERSION_SQL = "COALESCE(draft_updated_at, updated_at)";
+function newEditVersion() {
+  return crypto.randomUUID();
+}
+
+const EDIT_VERSION_SQL = "edit_version";
 
 export class EditConflictError extends Error {
   constructor() {
@@ -265,9 +270,10 @@ export async function createTextDraft(db, payload, actor) {
       INSERT INTO texts (
         level, display_order, question_index, title, paragraphs_json,
         show_word_count, is_enabled, created_at, updated_at,
-        draft_json, draft_updated_at, draft_updated_by_user_id, draft_updated_by_email
+        draft_json, draft_updated_at, draft_updated_by_user_id, draft_updated_by_email,
+        edit_version
       )
-      SELECT ?1, next_order, next_order, ?2, ?3, ?4, 0, ?5, ?5, ?6, ?5, ?7, ?8
+      SELECT ?1, next_order, next_order, ?2, ?3, ?4, 0, ?5, ?5, ?6, ?5, ?7, ?8, ?9
       FROM (SELECT ${nextDisplayOrderSql("?1")} AS next_order)
     `)
     .bind(
@@ -278,7 +284,8 @@ export async function createTextDraft(db, payload, actor) {
       now,
       toDraftJson(payload),
       actor.userId,
-      actor.email
+      actor.email,
+      newEditVersion()
     )
     .run();
 
@@ -295,10 +302,11 @@ export async function saveTextDraft(db, storyId, payload, actor, baseVersion = n
       SET draft_json = ?1,
           draft_updated_at = ?2,
           draft_updated_by_user_id = ?3,
-          draft_updated_by_email = ?4
+          draft_updated_by_email = ?4,
+          edit_version = ?7
       WHERE id = ?5 AND (?6 IS NULL OR ${EDIT_VERSION_SQL} = ?6)
     `)
-    .bind(toDraftJson(payload), now, actor.userId, actor.email, storyId, baseVersion)
+    .bind(toDraftJson(payload), now, actor.userId, actor.email, storyId, baseVersion, newEditVersion())
     .run();
 
   if (!result.meta.changes) {
@@ -325,6 +333,7 @@ export async function publishText(db, storyId, payload, actor, baseVersion = nul
 
   const current = await withQuestionsForStory(db, toStoryRecord(row), true);
   const now = new Date().toISOString();
+  const writeVersion = newEditVersion();
   const statements = [];
 
   if (row.published_at) {
@@ -348,7 +357,8 @@ export async function publishText(db, storyId, payload, actor, baseVersion = nul
           updated_at = ?5,
           updated_by_user_id = ?6,
           updated_by_email = ?7,
-          published_at = ?5
+          published_at = ?5,
+          edit_version = ?10
       WHERE id = ?8 AND ${EDIT_VERSION_SQL} = ?9
     `).bind(
       payload.level,
@@ -359,9 +369,10 @@ export async function publishText(db, storyId, payload, actor, baseVersion = nul
       actor.userId,
       actor.email,
       storyId,
-      readVersion
+      readVersion,
+      writeVersion
     ),
-    ...buildReplaceQuestionStatements(db, storyId, payload.questions || [], now)
+    ...buildReplaceQuestionStatements(db, storyId, payload.questions || [], writeVersion)
   );
 
   if (!(await runGuardedBatch(db, statements, updateIndex))) throw new EditConflictError();
@@ -383,9 +394,10 @@ export async function unpublishText(db, storyId, actor) {
       SET is_enabled = 0,
           updated_at = ?1,
           updated_by_user_id = ?2,
-          updated_by_email = ?3
+          updated_by_email = ?3,
+          edit_version = ?6
       WHERE id = ?4 AND ${EDIT_VERSION_SQL} = ?5
-    `).bind(now, actor.userId, actor.email, storyId, readVersion),
+    `).bind(now, actor.userId, actor.email, storyId, readVersion, newEditVersion()),
   ], 1);
 
   if (!applied) throw new EditConflictError();
@@ -439,6 +451,7 @@ export async function restoreTextRevision(db, storyId, revisionId, actor) {
   const current = await withQuestionsForStory(db, toStoryRecord(row), true);
   const target = validation.value;
   const now = new Date().toISOString();
+  const writeVersion = newEditVersion();
   const statements = [
     revisionStatement(db, storyId, "before_restore", toSnapshot(current), actor, now, readVersion),
     db.prepare(`
@@ -456,7 +469,8 @@ export async function restoreTextRevision(db, storyId, revisionId, actor) {
           updated_at = ?6,
           updated_by_user_id = ?7,
           updated_by_email = ?8,
-          published_at = CASE WHEN ?5 = 1 THEN ?6 ELSE published_at END
+          published_at = CASE WHEN ?5 = 1 THEN ?6 ELSE published_at END,
+          edit_version = ?11
       WHERE id = ?9 AND ${EDIT_VERSION_SQL} = ?10
     `).bind(
       target.level,
@@ -468,9 +482,10 @@ export async function restoreTextRevision(db, storyId, revisionId, actor) {
       actor.userId,
       actor.email,
       storyId,
-      readVersion
+      readVersion,
+      writeVersion
     ),
-    ...buildReplaceQuestionStatements(db, storyId, target.questions || [], now),
+    ...buildReplaceQuestionStatements(db, storyId, target.questions || [], writeVersion),
   ];
 
   if (!(await runGuardedBatch(db, statements, 1))) throw new EditConflictError();

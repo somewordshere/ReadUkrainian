@@ -3,6 +3,11 @@
 -- before this column existed count as version 1.
 ALTER TABLE users ADD COLUMN session_version INTEGER NOT NULL DEFAULT 1;
 
+-- A random token replaced on every save, publish, unpublish and restore of a
+-- story. The admin sends back the token it loaded, and a save based on an
+-- older one is refused instead of overwriting someone else's newer work.
+ALTER TABLE texts ADD COLUMN edit_version TEXT NOT NULL DEFAULT 'initial';
+
 -- Each client's share of the day's live pronunciation budget, so one client
 -- cannot spend it for everyone. client_hash is a keyed hash of the client's
 -- address and the day, never the address itself; only today's rows are kept.

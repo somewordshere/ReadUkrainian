@@ -252,7 +252,7 @@ test("a publish that loses a race writes nothing: no checkpoint, text or quiz", 
   const racingDb = {
     ...db,
     async batch(statements) {
-      sqlite.prepare("UPDATE texts SET draft_json = '{}', draft_updated_at = '2099-01-01T00:00:00.000Z' WHERE id = ?").run(story.storyId);
+      sqlite.prepare("UPDATE texts SET draft_json = '{}', edit_version = 'another-editors-save' WHERE id = ?").run(story.storyId);
       return db.batch(statements);
     },
   };

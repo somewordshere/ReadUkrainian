@@ -25,13 +25,14 @@ export async function listQuestionsForStory(db, storyId) {
   return (result.results || []).map(toQuestionRecord);
 }
 
-// These run in the same batch after a guarded UPDATE of the story that sets
-// updated_at = writtenAt. Each statement checks for that value, so when the
-// UPDATE lost a race and changed nothing, the quiz is left alone too.
-export function buildReplaceQuestionStatements(db, storyId, questions, writtenAt) {
-  const storyWasWritten = "EXISTS (SELECT 1 FROM texts WHERE id = ?1 AND updated_at = ?2)";
+// These run in the same batch after a guarded UPDATE of the story that sets its
+// edit_version to writeVersion, a token unique to this write. Each statement
+// checks for it, so when the UPDATE lost a race and changed nothing, the quiz
+// is left alone too.
+export function buildReplaceQuestionStatements(db, storyId, questions, writeVersion) {
+  const storyWasWritten = "EXISTS (SELECT 1 FROM texts WHERE id = ?1 AND edit_version = ?2)";
   const statements = [
-    db.prepare(`DELETE FROM questions WHERE story_id = ?1 AND ${storyWasWritten}`).bind(storyId, writtenAt),
+    db.prepare(`DELETE FROM questions WHERE story_id = ?1 AND ${storyWasWritten}`).bind(storyId, writeVersion),
   ];
 
   questions.forEach((question, index) => {
@@ -44,7 +45,7 @@ export function buildReplaceQuestionStatements(db, storyId, questions, writtenAt
         `)
         .bind(
           storyId,
-          writtenAt,
+          writeVersion,
           index + 1,
           question.prompt,
           question.correct,
