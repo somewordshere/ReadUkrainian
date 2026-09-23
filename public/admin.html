@@ -97,17 +97,10 @@
         >
           <div class="admin-dictionary-settings-copy">
             <p class="admin-kicker">Dictionary</p>
-            <h2 id="dictionarySettingsTitle">Ukrainian → English</h2>
-            <p>Translations are stored on the server. Checking for an update reads only the source version page and never replaces reviewed entries.</p>
+            <h2 id="dictionarySettingsTitle">Dictionaries</h2>
+            <p>Translations are stored on the server. “Check for update” compares the installed version with Kaikki.org. “Prepare update” builds the new entries for words your stories use on GitHub, as a branch for you to review and release; learners see nothing until that release.</p>
           </div>
-          <dl class="admin-dictionary-version">
-            <div><dt>Installed source version</dt><dd id="dictionaryCurrentVersion">—</dd></div>
-            <div><dt>Available source version</dt><dd id="dictionaryAvailableVersion">Not checked</dd></div>
-            <div><dt>Last checked</dt><dd id="dictionaryLastChecked">Never</dd></div>
-          </dl>
-          <button class="admin-secondary-button" id="checkDictionaryUpdateButton" type="button" hidden>
-            Check for update
-          </button>
+          <div class="admin-dictionary-pairs" id="dictionaryPairs" aria-live="polite"></div>
           <p class="admin-status admin-dictionary-settings-status" id="dictionarySettingsStatus" aria-live="polite"></p>
           <div class="admin-dictionary-review" id="dictionaryReviewSection" hidden>
             <div class="admin-dictionary-review-heading">
