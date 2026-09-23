@@ -706,7 +706,7 @@ export function initSelectionSpeech(
       playbackState = "idle";
       const errorMessage =
         error?.status === 429
-          ? error?.limit === "daily"
+          ? error?.limit === "daily" || error?.limit === "client"
             ? COPY.dailyLimit
             : COPY.rateLimited
           : error?.status === 404

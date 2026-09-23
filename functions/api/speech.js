@@ -9,6 +9,7 @@ import {
 } from "../_shared/google-speech.js";
 import {
   checkRateLimit,
+  clientAddress,
   declaresTooMuch,
   decodeJson,
   hasMediaType,
@@ -22,6 +23,7 @@ import {
   resolveSpeechVoice,
 } from "../_shared/speech-voices.js";
 import { getStoryById } from "../_shared/texts.js";
+import { canonicalizeUkrainianWord, extractUkrainianWords } from "../_shared/ukrainian-word.js";
 
 const MAX_REQUEST_BYTES = 8 * 1024;
 const MAX_PROVIDER_AUDIO_BYTES = 2 * 1024 * 1024;
@@ -32,52 +34,16 @@ const SPEECH_CONTENT_TYPE = "audio/mpeg";
 const IMMUTABLE_CACHE_SECONDS = 365 * 24 * 60 * 60;
 const PROVIDER_TIMEOUT_MS = 8_000;
 
-const APOSTROPHE_VARIANTS = /[\u2019\u2018\u02BC\uFF07\u0060\u00B4]/gu;
-const HYPHEN_VARIANTS = /[\u2010\u2011\u2012\u2013\u2014\u2212]/gu;
-const UKRAINIAN_WORD_SOURCE = "[а-щьюяєіїґ]+(?:['-][а-щьюяєіїґ]+)*";
-const UKRAINIAN_WORD_PATTERN = new RegExp(`^${UKRAINIAN_WORD_SOURCE}$`, "u");
-const SELECTED_WORD_PATTERN = new RegExp(
-  `^[\\s\\p{P}\\p{S}]*(?<word>${UKRAINIAN_WORD_SOURCE})[\\s\\p{P}\\p{S}]*$`,
-  "u"
-);
-const STORY_TOKEN_PATTERN =
-  /[\p{L}\p{M}\p{N}]+(?:['-][\p{L}\p{M}\p{N}]+)*/gu;
 const AUDIO_CONTENT_TYPES = new Set(["audio/mpeg", "audio/mp3", "audio/x-mpeg"]);
 
-function normalizeJoiners(value) {
-  return value
-    .replace(APOSTROPHE_VARIANTS, "'")
-    .replace(HYPHEN_VARIANTS, "-");
-}
-
-function normalizeForSpeech(value) {
-  return normalizeJoiners(
-    String(value || "")
-      .normalize("NFC")
-      .trim()
-      .toLocaleLowerCase("uk-UA")
-  ).normalize("NFC");
-}
-
+// Selection and story text are compared with the same normalizer the dictionary
+// uses, so a word the dictionary finds is a word pronunciation accepts.
 export function canonicalizeSpeechWord(value) {
-  const normalized = normalizeForSpeech(value);
-  const match = normalized.match(SELECTED_WORD_PATTERN);
-  return match?.groups?.word || null;
+  return canonicalizeUkrainianWord(value);
 }
 
 function storyContainsWord(story, canonicalWord) {
-  const normalizedStory = normalizeForSpeech((story?.paragraphs || []).join(" "));
-
-  for (const match of normalizedStory.matchAll(STORY_TOKEN_PATTERN)) {
-    if (
-      UKRAINIAN_WORD_PATTERN.test(match[0]) &&
-      match[0] === canonicalWord
-    ) {
-      return true;
-    }
-  }
-
-  return false;
+  return extractUkrainianWords((story?.paragraphs || []).join(" ")).includes(canonicalWord);
 }
 
 function parseStoryId(value) {
@@ -202,16 +168,98 @@ function bufferedAudioResponse(audio) {
   });
 }
 
-function getDailyCharacterLimit(env) {
-  const rawLimit = String(env.SPEECH_DAILY_CHARACTER_LIMIT ?? "").trim();
+function parseCharacterLimit(value) {
+  const rawLimit = String(value ?? "").trim();
   if (!/^\d+$/.test(rawLimit)) return null;
 
   const limit = Number(rawLimit);
   return Number.isSafeInteger(limit) && limit > 0 ? limit : null;
 }
 
-async function reserveDailySpeechQuota(env, characterCount, dailyLimit) {
-  const day = new Date().toISOString().slice(0, 10);
+// A keyed hash of the client's address for today. The key keeps the table from
+// being reversed into addresses by hashing all of IPv4, and the day in the
+// input means yesterday's rows cannot be linked to today's.
+async function hashSpeechClient(secret, day, address) {
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const signature = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    new TextEncoder().encode(`speech-client|${day}|${address}`)
+  );
+  return Array.from(new Uint8Array(signature).slice(0, 16), (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+// One client's share of the day's live Google budget, so a single script cannot
+// spend the whole site's pronunciation quota. Reserved before the site-wide
+// budget; atomic like it.
+async function reserveClientSpeechQuota(env, day, client, characterCount, clientLimit) {
+  const row = await env.DB
+    .prepare(`
+      INSERT INTO speech_usage_client_daily (day, client_hash, characters_used)
+      SELECT ?1, ?2, ?3
+      WHERE ?3 <= ?4
+      ON CONFLICT(day, client_hash) DO UPDATE SET
+        characters_used = speech_usage_client_daily.characters_used + excluded.characters_used
+      WHERE speech_usage_client_daily.characters_used + excluded.characters_used <= ?4
+      RETURNING characters_used
+    `)
+    .bind(day, client, characterCount, clientLimit)
+    .first();
+
+  return Boolean(row);
+}
+
+function releaseClientSpeechQuota(env, day, client, characterCount) {
+  return env.DB
+    .prepare(`
+      UPDATE speech_usage_client_daily
+      SET characters_used = MAX(0, characters_used - ?3)
+      WHERE day = ?1 AND client_hash = ?2
+    `)
+    .bind(day, client, characterCount)
+    .run();
+}
+
+function releaseDailySpeechQuota(env, day, characterCount) {
+  return env.DB
+    .prepare(`
+      UPDATE speech_usage_daily
+      SET characters_used = MAX(0, characters_used - ?2), updated_at = CURRENT_TIMESTAMP
+      WHERE day = ?1
+    `)
+    .bind(day, characterCount)
+    .run();
+}
+
+// Only today's client rows are ever needed.
+function forgetEarlierSpeechClients(env, day) {
+  return env.DB
+    .prepare("DELETE FROM speech_usage_client_daily WHERE day < ?1")
+    .bind(day)
+    .run();
+}
+
+function inBackground(context, promise) {
+  const settled = promise.catch((backgroundError) => {
+    console.error(JSON.stringify({
+      message: "speech_quota_bookkeeping_failed",
+      error: backgroundError instanceof Error ? backgroundError.message : String(backgroundError),
+    }));
+  });
+  if (typeof context.waitUntil === "function") {
+    context.waitUntil(settled);
+    return Promise.resolve();
+  }
+  return settled;
+}
+
+async function reserveDailySpeechQuota(env, day, characterCount, dailyLimit) {
   const row = await env.DB
     .prepare(`
       INSERT INTO speech_usage_daily (day, characters_used, updated_at)
@@ -304,12 +352,16 @@ export async function onRequestPost(context) {
     return noStoreError(422, "Select one Ukrainian word, not a phrase.");
   }
 
-  let speechSetting;
-  try {
-    speechSetting = await getSpeechSetting(context.env.DB);
-  } catch {
+  // The setting and the story do not depend on each other, so both D1 reads go
+  // out together; the setting still decides first whether speech is on at all.
+  const [settingResult, storyResult] = await Promise.allSettled([
+    getSpeechSetting(context.env.DB),
+    getStoryById(context.env.DB, storyId),
+  ]);
+  if (settingResult.status === "rejected") {
     return noStoreError(503, "Pronunciation is temporarily unavailable.");
   }
+  const speechSetting = settingResult.value;
   if (!speechSetting.enabled) {
     return noStoreError(404, "Pronunciation is disabled.", {
       "x-speech-disabled": "true",
@@ -332,12 +384,10 @@ export async function onRequestPost(context) {
     return noStoreError(503, "Pronunciation is temporarily unavailable.");
   }
 
-  let story;
-  try {
-    story = await getStoryById(context.env.DB, storyId);
-  } catch {
+  if (storyResult.status === "rejected") {
     return noStoreError(503, "Pronunciation is temporarily unavailable.");
   }
+  const story = storyResult.value;
 
   if (!story?.active) {
     return noStoreError(404, "Published story not found.");
@@ -395,9 +445,10 @@ export async function onRequestPost(context) {
     }
   }
 
-  const dailyLimit = getDailyCharacterLimit(context.env);
+  const dailyLimit = parseCharacterLimit(context.env.SPEECH_DAILY_CHARACTER_LIMIT);
+  const clientLimit = parseCharacterLimit(context.env.SPEECH_CLIENT_DAILY_CHARACTER_LIMIT);
   const apiKey = getGoogleApiKey(context.env);
-  if (!dailyLimit || !apiKey) {
+  if (!dailyLimit || !clientLimit || !apiKey || !context.env.SESSION_SECRET) {
     return noStoreError(503, "Pronunciation is temporarily unavailable.");
   }
 
@@ -417,13 +468,32 @@ export async function onRequestPost(context) {
     return noStoreError(503, "Pronunciation is temporarily unavailable.");
   }
 
+  const day = new Date().toISOString().slice(0, 10);
+  const characters = canonicalWord.length;
+  let client;
   try {
-    const quotaAvailable = await reserveDailySpeechQuota(
-      context.env,
-      canonicalWord.length,
-      dailyLimit
+    client = await hashSpeechClient(
+      context.env.SESSION_SECRET,
+      day,
+      clientAddress(context.request) || "unknown"
     );
+    const clientQuotaAvailable = await reserveClientSpeechQuota(
+      context.env,
+      day,
+      client,
+      characters,
+      clientLimit
+    );
+    if (!clientQuotaAvailable) {
+      return noStoreError(429, "Your daily pronunciation limit has been reached.", {
+        "retry-after": String(secondsUntilNextUtcDay()),
+        "x-speech-limit": "client",
+      });
+    }
+
+    const quotaAvailable = await reserveDailySpeechQuota(context.env, day, characters, dailyLimit);
     if (!quotaAvailable) {
+      await inBackground(context, releaseClientSpeechQuota(context.env, day, client, characters));
       return noStoreError(
         429,
         "The daily pronunciation limit has been reached.",
@@ -436,6 +506,7 @@ export async function onRequestPost(context) {
   } catch {
     return noStoreError(503, "Pronunciation is temporarily unavailable.");
   }
+  await inBackground(context, forgetEarlierSpeechClients(context.env, day));
 
   let providerAudio;
   try {
@@ -450,6 +521,11 @@ export async function onRequestPost(context) {
       voice: voiceConfig.id,
       error: providerErrorMessage,
     }));
+    // Nothing was spoken, so a Google outage must not use up the day's budget.
+    await inBackground(context, Promise.all([
+      releaseDailySpeechQuota(context.env, day, characters),
+      releaseClientSpeechQuota(context.env, day, client, characters),
+    ]));
     return noStoreError(502, "Pronunciation generation failed.");
   }
 
