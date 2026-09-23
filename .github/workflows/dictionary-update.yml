@@ -7,9 +7,9 @@ name: Prepare dictionary update
 # Runs by itself:
 #   - every Monday, for both languages (the revision check skips the download
 #     when Kaikki has nothing newer);
-#   - after a push to main that changes the dictionary builder, its guards or the
-#     migrations, so a pending update is rebuilt on the fixed builder and on the
-#     next free version and migration number.
+#   - after a push to main that changes the dictionary builder, its guards, the
+#     migrations or the release files, so a pending update is rebuilt on the fixed
+#     builder and on the next free version and migration number.
 # The admin panel's "Prepare update" link starts it for one language.
 # Every build passes the dictionary guards (scripts/lib/dictionary-guards.mjs)
 # before a pull request is opened; a failing guard fails the run.
@@ -32,6 +32,7 @@ on:
       - 'functions/_shared/ukrainian-word.js'
       - 'data/dictionary/**'
       - 'migrations/**'
+      - 'data/releases/**'
 permissions:
   contents: write
   pull-requests: write

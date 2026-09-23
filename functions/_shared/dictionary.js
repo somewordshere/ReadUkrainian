@@ -50,6 +50,32 @@ function normalizePairRow(row) {
   };
 }
 
+// Dictionary updates only add rows, and a newer Wiktionary source gives the same
+// word a new entry id, so one word can arrive as several identical entries.
+// Show each lemma and part of speech once, with its translations and forms merged.
+function mergeDuplicateEntries(entries) {
+  const merged = new Map();
+  for (const entry of entries) {
+    const key = `${entry.normalizedLemma}\u0000${entry.partOfSpeech}`;
+    let existing = merged.get(key);
+    if (!existing) {
+      existing = { ...entry, forms: [...entry.forms], translations: [] };
+      merged.set(key, existing);
+    }
+    for (const form of entry.forms) {
+      const signature = JSON.stringify(form.tags);
+      if (!existing.forms.some((known) => JSON.stringify(known.tags) === signature)) existing.forms.push(form);
+    }
+    for (const translation of entry.translations) {
+      const known = existing.translations.find((item) => item.text === translation.text);
+      if (!known) existing.translations.push(translation);
+      else if (translation.preferred) known.preferred = true;
+    }
+    existing.translations = existing.translations.slice(0, MAX_TRANSLATIONS_PER_LEXEME);
+  }
+  return [...merged.values()];
+}
+
 async function getDictionaryLanguagePair(db, sourceLanguage, targetLanguage) {
   const row = await db
     .prepare(`
@@ -196,7 +222,7 @@ export async function lookupDictionaryWord(
     }
   }
 
-  const entries = [...lexemes.values()]
+  const entries = mergeDuplicateEntries([...lexemes.values()])
     .filter((entry) => entry.translations.length)
     .map(({ id: _id, ...entry }) => ({
       ...entry,
