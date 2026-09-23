@@ -1,8 +1,18 @@
 name: Prepare dictionary update
-# Builds a newer Kaikki/Wiktionary source into a reviewable release branch.
-# Nothing reaches learners from here: the branch holds the migration, release
-# manifest and version bump, and publishing still means merging it and running
-# "Release production". Started from the admin panel's "Prepare update" link.
+# Builds a newer Kaikki/Wiktionary source into a pull request for review.
+# Nothing reaches learners from here: the pull request holds the migration,
+# release manifest and version bump, and publishing still means merging it and
+# running "Release production".
+#
+# Runs by itself:
+#   - every Monday, for both languages (the revision check skips the download
+#     when Kaikki has nothing newer);
+#   - after a push to main that changes the dictionary builder, its guards or the
+#     migrations, so a pending update is rebuilt on the fixed builder and on the
+#     next free version and migration number.
+# The admin panel's "Prepare update" link starts it for one language.
+# Every build passes the dictionary guards (scripts/lib/dictionary-guards.mjs)
+# before a pull request is opened; a failing guard fails the run.
 on:
   workflow_dispatch:
     inputs:
@@ -12,18 +22,33 @@ on:
         options: [en, de]
         default: en
         required: true
+  schedule:
+    - cron: '41 6 * * 1'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/dictionary/**'
+      - 'scripts/lib/dictionary-guards.mjs'
+      - 'functions/_shared/ukrainian-word.js'
+      - 'data/dictionary/**'
+      - 'migrations/**'
 permissions:
   contents: write
-concurrency:
-  group: dictionary-update-${{ inputs.language }}
-  cancel-in-progress: false
+  pull-requests: write
 jobs:
   prepare:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ${{ fromJSON(github.event_name == 'workflow_dispatch' && format('["{0}"]', inputs.language) || '["en","de"]') }}
+    concurrency:
+      group: dictionary-update-${{ matrix.language }}
+      cancel-in-progress: false
     env:
-      LANGUAGE: ${{ inputs.language }}
+      LANGUAGE: ${{ matrix.language }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
@@ -46,7 +71,7 @@ jobs:
             curl -fsSL --retry 3 -o "$RUNNER_TEMP/de.jsonl.gz" https://kaikki.org/dictionary/downloads/de/de-extract.jsonl.gz
           fi
           ls -la "$RUNNER_TEMP"/*.jsonl.gz
-      - name: Build and validate the update
+      - name: Build and validate the update, including the dictionary guards
         if: steps.revision.outputs.update == 'true'
         run: |
           node scripts/dictionary/prepare-update.mjs \
@@ -59,28 +84,42 @@ jobs:
       - name: Run the full repository check
         if: steps.revision.outputs.update == 'true'
         run: npm run check
-      - name: Push the release branch for review
+      - name: Push the update branch and open or refresh its pull request
         if: steps.revision.outputs.update == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          branch="dictionary-update/${LANGUAGE}-${{ steps.revision.outputs.available }}"
+          revision="${{ steps.revision.outputs.available }}"
+          branch="dictionary-update/${LANGUAGE}-${revision}"
+          title="Update the ${LANGUAGE} dictionary to the ${revision} source"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git switch -c "$branch"
           git add migrations data/releases docs/change.log package.json package-lock.json public/js/app/version.js
-          git commit -m "Update the ${LANGUAGE} dictionary to the ${{ steps.revision.outputs.available }} source" -m "$(cat "$RUNNER_TEMP/summary.md")"
+          git commit -m "$title" -m "$(cat "$RUNNER_TEMP/summary.md")"
           # Preparing the same source again replaces the earlier branch: it was built
           # on an older main, so its version and migration numbers may be taken since.
           git push --force origin "$branch"
+          # The workflow token's pull requests don't start other workflows, but this
+          # job already ran the full check above.
+          number="$(gh pr list --head "$branch" --state open --json number --jq '.[0].number // empty')"
+          if [ -n "$number" ]; then
+            gh pr edit "$number" --title "$title" --body-file "$RUNNER_TEMP/summary.md"
+            url="$(gh pr view "$number" --json url --jq .url)"
+          elif ! url="$(gh pr create --base main --head "$branch" --title "$title" --body-file "$RUNNER_TEMP/summary.md")"; then
+            echo "::warning::Could not open a pull request. Allow GitHub Actions to create pull requests in the repository settings (Actions → General → Workflow permissions)."
+            url="https://github.com/${GITHUB_REPOSITORY}/compare/main...${branch}?expand=1"
+          fi
           {
             cat "$RUNNER_TEMP/summary.md"
             echo
-            echo "**Review it:** [open a pull request for \`$branch\`](https://github.com/${GITHUB_REPOSITORY}/compare/main...${branch}?expand=1)"
+            echo "**Review it:** ${url}"
           } >> "$GITHUB_STEP_SUMMARY"
       - name: Keep the reviewer summary and validation report
         if: always() && steps.revision.outputs.update == 'true'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: dictionary-update-${{ inputs.language }}
+          name: dictionary-update-${{ matrix.language }}
           path: |
             ${{ runner.temp }}/summary.md
             ${{ runner.temp }}/work/validation-*.json

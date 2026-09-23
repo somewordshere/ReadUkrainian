@@ -1,0 +1,2039 @@
+{
+  "_comment": "Reviewed pairs where a word form is filed under a lemma although the form is also an entry of its own with the same part of speech (є under бути, люди under людина). The dictionary guards fail on any such pair not listed here. Add with npm run dictionary:review-forms -- --approve after checking each pair.",
+  "pairs": [
+    {
+      "language": "de",
+      "pos": "adj",
+      "form": "яблучний",
+      "lemma": "яблушний"
+    },
+    {
+      "language": "de",
+      "pos": "noun",
+      "form": "бабуся",
+      "lemma": "баба"
+    },
+    {
+      "language": "de",
+      "pos": "noun",
+      "form": "вчителька",
+      "lemma": "учитель"
+    },
+    {
+      "language": "de",
+      "pos": "noun",
+      "form": "кіт",
+      "lemma": "кішка"
+    },
+    {
+      "language": "de",
+      "pos": "noun",
+      "form": "міст",
+      "lemma": "місто"
+    },
+    {
+      "language": "de",
+      "pos": "noun",
+      "form": "сусідка",
+      "lemma": "сусід"
+    },
+    {
+      "language": "de",
+      "pos": "noun",
+      "form": "учениця",
+      "lemma": "учень"
+    },
+    {
+      "language": "de",
+      "pos": "noun",
+      "form": "учень",
+      "lemma": "учениця"
+    },
+    {
+      "language": "de",
+      "pos": "noun",
+      "form": "яблуня",
+      "lemma": "яблінь"
+    },
+    {
+      "language": "de",
+      "pos": "noun",
+      "form": "яблуня",
+      "lemma": "яблунь"
+    },
+    {
+      "language": "de",
+      "pos": "pron",
+      "form": "її",
+      "lemma": "вона"
+    },
+    {
+      "language": "de",
+      "pos": "pron",
+      "form": "їх",
+      "lemma": "вони"
+    },
+    {
+      "language": "de",
+      "pos": "pron",
+      "form": "його",
+      "lemma": "він"
+    },
+    {
+      "language": "de",
+      "pos": "pron",
+      "form": "його",
+      "lemma": "воно"
+    },
+    {
+      "language": "de",
+      "pos": "verb",
+      "form": "відкрити",
+      "lemma": "відкривати"
+    },
+    {
+      "language": "de",
+      "pos": "verb",
+      "form": "дати",
+      "lemma": "давати"
+    },
+    {
+      "language": "de",
+      "pos": "verb",
+      "form": "забути",
+      "lemma": "забувати"
+    },
+    {
+      "language": "de",
+      "pos": "verb",
+      "form": "зрозуміти",
+      "lemma": "розуміти"
+    },
+    {
+      "language": "de",
+      "pos": "verb",
+      "form": "купити",
+      "lemma": "купувати"
+    },
+    {
+      "language": "de",
+      "pos": "verb",
+      "form": "купувати",
+      "lemma": "купити"
+    },
+    {
+      "language": "de",
+      "pos": "verb",
+      "form": "приходити",
+      "lemma": "прийти"
+    },
+    {
+      "language": "de",
+      "pos": "verb",
+      "form": "продавати",
+      "lemma": "продати"
+    },
+    {
+      "language": "en",
+      "pos": "adj",
+      "form": "безпечно",
+      "lemma": "безпечний"
+    },
+    {
+      "language": "en",
+      "pos": "adj",
+      "form": "важко",
+      "lemma": "важкий"
+    },
+    {
+      "language": "en",
+      "pos": "adj",
+      "form": "весело",
+      "lemma": "веселий"
+    },
+    {
+      "language": "en",
+      "pos": "adj",
+      "form": "видно",
+      "lemma": "видний"
+    },
+    {
+      "language": "en",
+      "pos": "adj",
+      "form": "втомлений",
+      "lemma": "утомлений"
+    },
+    {
+      "language": "en",
+      "pos": "adj",
+      "form": "дивно",
+      "lemma": "дивний"
+    },
+    {
+      "language": "en",
+      "pos": "adj",
+      "form": "дуже",
+      "lemma": "дужий"
+    },
+    {
+      "language": "en",
+      "pos": "adj",
+      "form": "жарко",
+      "lemma": "жаркий"
+    },
+    {
+      "language": "en",
+      "pos": "adj",
+      "form": "замало",
+      "lemma": "замалий"
+    },
+    {
+      "language": "en",
+      "pos": "adj",
+      "form": "зрозуміло",
+      "lemma": "зрозумілий"
+    },
+    {
+      "language": "en",
+      "pos": "adj",
+      "form": "зручно",
+      "lemma": "зручний"
+    },
+    {
+      "language": "en",
+      "pos": "adj",
+      "form": "кожен",
+      "lemma": "кожний"
+    },
+    {
+      "language": "en",
+      "pos": "adj",
+      "form": "комфортно",
+      "lemma": "комфортний"
+    },
+    {
+      "language": "en",
+      "pos": "adj",
+      "form": "корисно",
+      "lemma": "корисний"
+    },
+    {
+      "language": "en",
+      "pos": "adj",
+      "form": "красиво",
+      "lemma": "красивий"
+    },
+    {
+      "language": "en",
+      "pos": "adj",
+      "form": "легко",
+      "lemma": "легкий"
+    },
+    {
+      "language": "en",
+      "pos": "adj",
+      "form": "маленький",
+      "lemma": "малий"
+    },
+    {
+      "language": "en",
+      "pos": "adj",
+      "form": "молодший",
+      "lemma": "молодий"
+    },
+    {
+      "language": "en",
+      "pos": "adj",
+      "form": "недалеко",
+      "lemma": "недалекий"
+    },
+    {
+      "language": "en",
+      "pos": "adj",
+      "form": "незрозуміло",
+      "lemma": "незрозумілий"
+    },
+    {
+      "language": "en",
+      "pos": "adj",
+      "form": "нудно",
+      "lemma": "нудний"
+    },
+    {
+      "language": "en",
+      "pos": "adj",
+      "form": "однаково",
+      "lemma": "однаковий"
+    },
+    {
+      "language": "en",
+      "pos": "adj",
+      "form": "потрібен",
+      "lemma": "потрібний"
+    },
+    {
+      "language": "en",
+      "pos": "adj",
+      "form": "потрібно",
+      "lemma": "потрібний"
+    },
+    {
+      "language": "en",
+      "pos": "adj",
+      "form": "правильно",
+      "lemma": "правильний"
+    },
+    {
+      "language": "en",
+      "pos": "adj",
+      "form": "приємно",
+      "lemma": "приємний"
+    },
+    {
+      "language": "en",
+      "pos": "adj",
+      "form": "спокійно",
+      "lemma": "спокійний"
+    },
+    {
+      "language": "en",
+      "pos": "adj",
+      "form": "страшно",
+      "lemma": "страшний"
+    },
+    {
+      "language": "en",
+      "pos": "adj",
+      "form": "сумно",
+      "lemma": "сумний"
+    },
+    {
+      "language": "en",
+      "pos": "adj",
+      "form": "тепло",
+      "lemma": "теплий"
+    },
+    {
+      "language": "en",
+      "pos": "adj",
+      "form": "тихо",
+      "lemma": "тихий"
+    },
+    {
+      "language": "en",
+      "pos": "adj",
+      "form": "холодно",
+      "lemma": "холодний"
+    },
+    {
+      "language": "en",
+      "pos": "adj",
+      "form": "цікаво",
+      "lemma": "цікавий"
+    },
+    {
+      "language": "en",
+      "pos": "adj",
+      "form": "червоний",
+      "lemma": "червений"
+    },
+    {
+      "language": "en",
+      "pos": "adj",
+      "form": "чудово",
+      "lemma": "чудовий"
+    },
+    {
+      "language": "en",
+      "pos": "adv",
+      "form": "ввечері",
+      "lemma": "увечері"
+    },
+    {
+      "language": "en",
+      "pos": "adv",
+      "form": "вдома",
+      "lemma": "дома"
+    },
+    {
+      "language": "en",
+      "pos": "adv",
+      "form": "відразу",
+      "lemma": "одразу"
+    },
+    {
+      "language": "en",
+      "pos": "adv",
+      "form": "влітку",
+      "lemma": "улітку"
+    },
+    {
+      "language": "en",
+      "pos": "adv",
+      "form": "вночі",
+      "lemma": "уночі"
+    },
+    {
+      "language": "en",
+      "pos": "adv",
+      "form": "всюди",
+      "lemma": "усюди"
+    },
+    {
+      "language": "en",
+      "pos": "adv",
+      "form": "далі",
+      "lemma": "далеко"
+    },
+    {
+      "language": "en",
+      "pos": "adv",
+      "form": "ледве",
+      "lemma": "ледь"
+    },
+    {
+      "language": "en",
+      "pos": "adv",
+      "form": "одразу",
+      "lemma": "відразу"
+    },
+    {
+      "language": "en",
+      "pos": "adv",
+      "form": "раніше",
+      "lemma": "рано"
+    },
+    {
+      "language": "en",
+      "pos": "adv",
+      "form": "увечері",
+      "lemma": "ввечері"
+    },
+    {
+      "language": "en",
+      "pos": "adv",
+      "form": "удень",
+      "lemma": "вдень"
+    },
+    {
+      "language": "en",
+      "pos": "adv",
+      "form": "улітку",
+      "lemma": "влітку"
+    },
+    {
+      "language": "en",
+      "pos": "adv",
+      "form": "уночі",
+      "lemma": "вночі"
+    },
+    {
+      "language": "en",
+      "pos": "adv",
+      "form": "усе",
+      "lemma": "все"
+    },
+    {
+      "language": "en",
+      "pos": "adv",
+      "form": "учора",
+      "lemma": "вчора"
+    },
+    {
+      "language": "en",
+      "pos": "adv",
+      "form": "швидше",
+      "lemma": "швидко"
+    },
+    {
+      "language": "en",
+      "pos": "conj",
+      "form": "ніж",
+      "lemma": "аніж"
+    },
+    {
+      "language": "en",
+      "pos": "conj",
+      "form": "щоб",
+      "lemma": "щоби"
+    },
+    {
+      "language": "en",
+      "pos": "det",
+      "form": "всі",
+      "lemma": "усі"
+    },
+    {
+      "language": "en",
+      "pos": "det",
+      "form": "усі",
+      "lemma": "всі"
+    },
+    {
+      "language": "en",
+      "pos": "name",
+      "form": "богдан",
+      "lemma": "богдана"
+    },
+    {
+      "language": "en",
+      "pos": "name",
+      "form": "вікторія",
+      "lemma": "віктор"
+    },
+    {
+      "language": "en",
+      "pos": "name",
+      "form": "леся",
+      "lemma": "лесь"
+    },
+    {
+      "language": "en",
+      "pos": "name",
+      "form": "леся",
+      "lemma": "олеся"
+    },
+    {
+      "language": "en",
+      "pos": "name",
+      "form": "львів",
+      "lemma": "лев"
+    },
+    {
+      "language": "en",
+      "pos": "name",
+      "form": "микола",
+      "lemma": "миколай"
+    },
+    {
+      "language": "en",
+      "pos": "name",
+      "form": "назар",
+      "lemma": "назарій"
+    },
+    {
+      "language": "en",
+      "pos": "name",
+      "form": "олексій",
+      "lemma": "олекса"
+    },
+    {
+      "language": "en",
+      "pos": "name",
+      "form": "олю",
+      "lemma": "оля"
+    },
+    {
+      "language": "en",
+      "pos": "name",
+      "form": "параска",
+      "lemma": "парасковія"
+    },
+    {
+      "language": "en",
+      "pos": "name",
+      "form": "соня",
+      "lemma": "софія"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "бабуся",
+      "lemma": "баба"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "базар",
+      "lemma": "базарити"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "вихідних",
+      "lemma": "вихідний"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "вихідних",
+      "lemma": "вихідні"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "вихідні",
+      "lemma": "вихідний"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "візит",
+      "lemma": "візита"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "вчителька",
+      "lemma": "учитель"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "гірка",
+      "lemma": "гора"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "гірка",
+      "lemma": "огірок"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "гість",
+      "lemma": "гостя"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "голубці",
+      "lemma": "голубець"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "голубці",
+      "lemma": "голубка"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "господиня",
+      "lemma": "господар"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "гроші",
+      "lemma": "гріш"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "гроші",
+      "lemma": "грош"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "гуцулка",
+      "lemma": "гуцул"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "дзвінок",
+      "lemma": "дзвін"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "дзвоник",
+      "lemma": "дзвін"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "директор",
+      "lemma": "директорка"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "дівчата",
+      "lemma": "дівчина"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "дівчинка",
+      "lemma": "дівчина"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "діти",
+      "lemma": "дитина"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "доріжка",
+      "lemma": "дорога"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "друг",
+      "lemma": "подруга"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "карта",
+      "lemma": "карт"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "кіт",
+      "lemma": "кітка"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "кіт",
+      "lemma": "кішка"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "коло",
+      "lemma": "кола"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "курка",
+      "lemma": "курок"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "лавка",
+      "lemma": "лава"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "ліки",
+      "lemma": "лік"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "льох",
+      "lemma": "льоха"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "люди",
+      "lemma": "людина"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "математика",
+      "lemma": "математик"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "міст",
+      "lemma": "місто"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "молоді",
+      "lemma": "молода"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "молоді",
+      "lemma": "молодь"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "море",
+      "lemma": "мор"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "наречена",
+      "lemma": "наречений"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "новини",
+      "lemma": "новина"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "образ",
+      "lemma": "образа"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "паска",
+      "lemma": "пасочка"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "пасок",
+      "lemma": "паска"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "пасок",
+      "lemma": "пасочка"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "подруга",
+      "lemma": "друг"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "поле",
+      "lemma": "піл"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "продавець",
+      "lemma": "продавчиня"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "продавець",
+      "lemma": "продавщиця"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "продавчиня",
+      "lemma": "продавець"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "продукти",
+      "lemma": "продукт"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "рано",
+      "lemma": "рана"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "рік",
+      "lemma": "ріка"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "робота",
+      "lemma": "робот"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "садок",
+      "lemma": "сад"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "салат",
+      "lemma": "салата"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "свічка",
+      "lemma": "свіча"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "свята",
+      "lemma": "святий"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "свята",
+      "lemma": "свято"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "святий",
+      "lemma": "свята"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "столик",
+      "lemma": "стіл"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "сторінка",
+      "lemma": "сторона"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "сусідка",
+      "lemma": "сусід"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "сусідка",
+      "lemma": "сусіда"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "сутінки",
+      "lemma": "сутінок"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "сходи",
+      "lemma": "схід"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "тату",
+      "lemma": "тато"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "урок",
+      "lemma": "урка"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "учениця",
+      "lemma": "учень"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "учень",
+      "lemma": "учениця"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "фестивалю",
+      "lemma": "фестиваль"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "шахи",
+      "lemma": "шах"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "шматок",
+      "lemma": "шмат"
+    },
+    {
+      "language": "en",
+      "pos": "noun",
+      "form": "шоколадка",
+      "lemma": "шоколад"
+    },
+    {
+      "language": "en",
+      "pos": "particle",
+      "form": "нехай",
+      "lemma": "хай"
+    },
+    {
+      "language": "en",
+      "pos": "prep",
+      "form": "в",
+      "lemma": "у"
+    },
+    {
+      "language": "en",
+      "pos": "prep",
+      "form": "з",
+      "lemma": "зо"
+    },
+    {
+      "language": "en",
+      "pos": "prep",
+      "form": "у",
+      "lemma": "в"
+    },
+    {
+      "language": "en",
+      "pos": "pron",
+      "form": "її",
+      "lemma": "вона"
+    },
+    {
+      "language": "en",
+      "pos": "pron",
+      "form": "їх",
+      "lemma": "вони"
+    },
+    {
+      "language": "en",
+      "pos": "pron",
+      "form": "його",
+      "lemma": "він"
+    },
+    {
+      "language": "en",
+      "pos": "pron",
+      "form": "його",
+      "lemma": "воно"
+    },
+    {
+      "language": "en",
+      "pos": "pron",
+      "form": "нічого",
+      "lemma": "ніщо"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "бачити",
+      "lemma": "побачити"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "братися",
+      "lemma": "взятися"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "братися",
+      "lemma": "узятися"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "будувати",
+      "lemma": "збудувати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "будувати",
+      "lemma": "побудувати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "варити",
+      "lemma": "зварити"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "вибрати",
+      "lemma": "вибирати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "вивчати",
+      "lemma": "вивчити"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "виконувати",
+      "lemma": "виконати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "викреслювати",
+      "lemma": "викреслити"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "випити",
+      "lemma": "випивати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "випити",
+      "lemma": "пити"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "виходити",
+      "lemma": "вийти"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "відкрити",
+      "lemma": "відкривати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "відповідати",
+      "lemma": "відповісти"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "відповісти",
+      "lemma": "відповідати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "відпочивати",
+      "lemma": "відпочити"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "відпочити",
+      "lemma": "відпочивати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "відрізнятися",
+      "lemma": "відрізнитися"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "відходити",
+      "lemma": "відійти"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "відчувати",
+      "lemma": "відчути"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "відчути",
+      "lemma": "відчувати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "вміти",
+      "lemma": "зуміти"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "вміти",
+      "lemma": "уміти"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "вставати",
+      "lemma": "встати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "вставати",
+      "lemma": "уставати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "вчитися",
+      "lemma": "учитися"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "вчити",
+      "lemma": "учити"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "говорити",
+      "lemma": "поговорити"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "годувати",
+      "lemma": "погодувати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "голосувати",
+      "lemma": "проголосувати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "готувати",
+      "lemma": "приготувати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "грати",
+      "lemma": "зіграти"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "гуляти",
+      "lemma": "погуляти"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "дати",
+      "lemma": "давати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "дивитися",
+      "lemma": "подивитися"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "домовитися",
+      "lemma": "домовлятися"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "донести",
+      "lemma": "доносити"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "допомагати",
+      "lemma": "допомогти"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "допомогти",
+      "lemma": "допомагати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "думати",
+      "lemma": "подумати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "є",
+      "lemma": "бути"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "забути",
+      "lemma": "забувати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "заважати",
+      "lemma": "завадити"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "заглядати",
+      "lemma": "заглянути"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "залишити",
+      "lemma": "залишати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "запалити",
+      "lemma": "запалювати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "заплатити",
+      "lemma": "платити"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "заповнити",
+      "lemma": "заповнювати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "заповнювати",
+      "lemma": "заповнити"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "заснути",
+      "lemma": "засинати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "заснути",
+      "lemma": "засипати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "застигати",
+      "lemma": "застигнути"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "захистити",
+      "lemma": "захищати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "збирати",
+      "lemma": "зібрати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "згадати",
+      "lemma": "згадувати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "здаватися",
+      "lemma": "здатися"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "змити",
+      "lemma": "змивати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "знайомитися",
+      "lemma": "познайомитися"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "знайти",
+      "lemma": "знаходити"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "знати",
+      "lemma": "зазнати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "знаходити",
+      "lemma": "знайти"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "зробити",
+      "lemma": "робити"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "зрозуміти",
+      "lemma": "розуміти"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "зустріти",
+      "lemma": "зустрічати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "іти",
+      "lemma": "піти"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "їсти",
+      "lemma": "з'їсти"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "їхати",
+      "lemma": "поїхати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "йти",
+      "lemma": "іти"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "купити",
+      "lemma": "купляти"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "купити",
+      "lemma": "купувати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "купувати",
+      "lemma": "купити"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "куштувати",
+      "lemma": "скуштувати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "лягати",
+      "lemma": "лягти"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "лякати",
+      "lemma": "злякати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "лякати",
+      "lemma": "налякати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "малювати",
+      "lemma": "намалювати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "мити",
+      "lemma": "помити"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "навчатися",
+      "lemma": "навчитися"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "навчитися",
+      "lemma": "вчитися"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "навчитися",
+      "lemma": "навчатися"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "накривати",
+      "lemma": "накрити"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "налити",
+      "lemma": "лити"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "налити",
+      "lemma": "наливати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "намалювати",
+      "lemma": "малювати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "написати",
+      "lemma": "писати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "народитися",
+      "lemma": "народжуватися"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "народитися",
+      "lemma": "родитися"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "носити",
+      "lemma": "поносити"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "об'єднати",
+      "lemma": "об'єднувати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "отримати",
+      "lemma": "отримувати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "отримувати",
+      "lemma": "отримати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "пекти",
+      "lemma": "спекти"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "перевернути",
+      "lemma": "перевертати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "передати",
+      "lemma": "передавати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "писати",
+      "lemma": "написати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "питати",
+      "lemma": "спитати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "підписати",
+      "lemma": "підписувати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "піти",
+      "lemma": "іти"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "піти",
+      "lemma": "йти"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "піти",
+      "lemma": "спіти"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "побачити",
+      "lemma": "бачити"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "повернутися",
+      "lemma": "повертатися"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "поговорити",
+      "lemma": "говорити"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "подивитися",
+      "lemma": "дивитися"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "подобатися",
+      "lemma": "сподобатися"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "поїхати",
+      "lemma": "їхати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "показати",
+      "lemma": "показувати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "покласти",
+      "lemma": "класти"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "покласти",
+      "lemma": "покладати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "помилитися",
+      "lemma": "помилятися"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "помилятися",
+      "lemma": "помилитися"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "помічати",
+      "lemma": "помітити"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "порахувати",
+      "lemma": "рахувати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "посидіти",
+      "lemma": "сидіти"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "поспішати",
+      "lemma": "поспішити"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "поставити",
+      "lemma": "поставляти"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "поставити",
+      "lemma": "ставити"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "почати",
+      "lemma": "починати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "почекати",
+      "lemma": "чекати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "почути",
+      "lemma": "почувати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "почути",
+      "lemma": "чути"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "пояснити",
+      "lemma": "пояснювати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "пояснювати",
+      "lemma": "пояснити"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "привітати",
+      "lemma": "вітати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "приготувати",
+      "lemma": "готувати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "приїжджати",
+      "lemma": "приїхати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "приїхати",
+      "lemma": "приїжджати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "приїхати",
+      "lemma": "приїздити"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "приймати",
+      "lemma": "прийняти"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "приходити",
+      "lemma": "прийти"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "пробувати",
+      "lemma": "спробувати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "проводити",
+      "lemma": "провести"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "продавати",
+      "lemma": "продати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "продовжувати",
+      "lemma": "продовжити"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "пропустити",
+      "lemma": "пропускати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "прочитати",
+      "lemma": "читати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "рахувати",
+      "lemma": "порахувати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "робити",
+      "lemma": "зробити"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "розв'язувати",
+      "lemma": "розв'язати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "роздивитися",
+      "lemma": "роздивлятися"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "розуміти",
+      "lemma": "зрозуміти"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "рухати",
+      "lemma": "рушити"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "сидіти",
+      "lemma": "посидіти"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "сідати",
+      "lemma": "сісти"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "складати",
+      "lemma": "скласти"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "скуштувати",
+      "lemma": "куштувати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "спати",
+      "lemma": "поспати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "сперечатися",
+      "lemma": "посперечатися"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "співати",
+      "lemma": "спіти"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "спілкуватися",
+      "lemma": "поспілкуватися"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "спостерігати",
+      "lemma": "спостерегти"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "спробувати",
+      "lemma": "пробувати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "ставити",
+      "lemma": "поставити"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "стати",
+      "lemma": "ставати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "стрибати",
+      "lemma": "стрибнути"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "тримати",
+      "lemma": "потримати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "уміти",
+      "lemma": "зуміти"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "фарбувати",
+      "lemma": "пофарбувати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "фотографувати",
+      "lemma": "зфотографувати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "фотографувати",
+      "lemma": "сфотографувати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "чекати",
+      "lemma": "зачекати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "чекати",
+      "lemma": "почекати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "чекати",
+      "lemma": "чекнути"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "читати",
+      "lemma": "прочитати"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "чіпати",
+      "lemma": "чіпнути"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "чути",
+      "lemma": "почути"
+    },
+    {
+      "language": "en",
+      "pos": "verb",
+      "form": "шукати",
+      "lemma": "пошукати"
+    }
+  ]
+}

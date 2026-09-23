@@ -23,6 +23,9 @@ const dictionarySettingsStatus = byId("dictionarySettingsStatus");
 const dictionaryReviewSection = byId("dictionaryReviewSection");
 const refreshDictionarySuggestionsButton = byId("refreshDictionarySuggestionsButton");
 const dictionarySuggestionsList = byId("dictionarySuggestionsList");
+const dictionaryReportsSection = byId("dictionaryReportsSection");
+const dictionaryReportsList = byId("dictionaryReportsList");
+const refreshDictionaryReportsButton = byId("refreshDictionaryReportsButton");
 const addStoryButton = byId("addStoryButton");
 const textsList = byId("textsList");
 const textCount = byId("textCount");
@@ -547,11 +550,12 @@ async function loadDictionaryStatus() {
   }
   dictionarySettingsSection.hidden = false;
   dictionaryReviewSection.hidden = !hasPermission("dictionary_approve");
+  dictionaryReportsSection.hidden = !hasPermission("dictionary_approve");
   dictionarySettingsSection.setAttribute("aria-busy", "true");
   try {
     const payload = await api("./api/admin/dictionary/status", { method: "GET" });
     renderDictionaryPairs(Array.isArray(payload.dictionaries) ? payload.dictionaries : [payload.dictionary].filter(Boolean));
-    if (hasPermission("dictionary_approve")) await loadDictionarySuggestions();
+    if (hasPermission("dictionary_approve")) await Promise.all([loadDictionarySuggestions(), loadDictionaryReports()]);
   } catch (error) {
     setStatus(dictionarySettingsStatus, `Could not load dictionary status: ${error.message}`, true);
   } finally {
@@ -584,6 +588,87 @@ async function checkDictionaryUpdate(targetLanguage) {
   } finally {
     dictionarySettingsPending = false;
     renderDictionaryPairs(dictionaryPairState);
+    dictionarySettingsSection.setAttribute("aria-busy", "false");
+  }
+}
+
+function renderDictionaryReports(reports) {
+  dictionaryReportsList.replaceChildren();
+  if (!reports.length) {
+    const empty = document.createElement("p");
+    empty.className = "admin-empty-state";
+    empty.textContent = "No open reports from learners.";
+    dictionaryReportsList.appendChild(empty);
+    return;
+  }
+
+  reports.forEach((report) => {
+    const row = document.createElement("div");
+    row.className = "admin-dictionary-suggestion-row";
+    const copy = document.createElement("p");
+    const word = document.createElement("strong");
+    word.lang = "uk";
+    word.textContent = report.word;
+    const language = DICTIONARY_LANGUAGE_NAMES[report.targetLanguage] || report.targetLanguage;
+    const shown = report.shown.length
+      ? report.shown.map((entry) => `${entry.lemma} — ${entry.translations.join(", ")}`).join("; ")
+      : "no translation";
+    copy.append(
+      word,
+      ` · ${language} · ${report.reports} ${report.reports === 1 ? "report" : "reports"}`,
+      report.storyTitle ? ` · «${report.storyTitle}»` : "",
+      document.createElement("br"),
+      `Learners saw: ${shown}`,
+      document.createElement("br"),
+      `Last reported ${formatDate(report.lastReportedAt)}`
+    );
+
+    const actions = document.createElement("div");
+    actions.className = "admin-dictionary-review-actions";
+    const suggest = document.createElement("button");
+    suggest.type = "button";
+    suggest.className = "admin-secondary-button";
+    suggest.textContent = "Suggest a fix";
+    suggest.addEventListener("click", () => openDictionarySuggestion(report.word));
+    const fixed = document.createElement("button");
+    fixed.type = "button";
+    fixed.className = "admin-primary-button";
+    fixed.textContent = "Mark fixed";
+    fixed.addEventListener("click", () => void resolveDictionaryReport(report.reportId, "fixed"));
+    const dismiss = document.createElement("button");
+    dismiss.type = "button";
+    dismiss.className = "admin-secondary-button";
+    dismiss.textContent = "Dismiss";
+    dismiss.addEventListener("click", () => void resolveDictionaryReport(report.reportId, "dismissed"));
+    actions.append(suggest, fixed, dismiss);
+    row.append(copy, actions);
+    dictionaryReportsList.appendChild(row);
+  });
+}
+
+async function loadDictionaryReports() {
+  if (!hasPermission("dictionary_approve")) return;
+  dictionaryReportsList.textContent = "Loading reports…";
+  try {
+    const payload = await api("./api/admin/dictionary/reports", { method: "GET" });
+    renderDictionaryReports(Array.isArray(payload.reports) ? payload.reports : []);
+  } catch (error) {
+    dictionaryReportsList.textContent = `Could not load reports: ${error.message}`;
+  }
+}
+
+async function resolveDictionaryReport(reportId, status) {
+  dictionarySettingsSection.setAttribute("aria-busy", "true");
+  try {
+    await api(`./api/admin/dictionary/reports/${reportId}/resolve`, {
+      method: "POST",
+      body: JSON.stringify({ status }),
+    });
+    setStatus(dictionarySettingsStatus, status === "fixed" ? "Report marked fixed." : "Report dismissed.");
+    await loadDictionaryReports();
+  } catch (error) {
+    setStatus(dictionarySettingsStatus, `Could not update the report: ${error.message}`, true);
+  } finally {
     dictionarySettingsSection.setAttribute("aria-busy", "false");
   }
 }
@@ -1322,6 +1407,7 @@ speechPreviewText.addEventListener("keydown", (event) => {
 });
 
 refreshDictionarySuggestionsButton.addEventListener("click", () => void loadDictionarySuggestions());
+refreshDictionaryReportsButton.addEventListener("click", () => void loadDictionaryReports());
 checkDictionaryCoverageButton.addEventListener("click", () => void checkDictionaryCoverage());
 closeDictionarySuggestionButton.addEventListener("click", () => dictionarySuggestionDialog.close());
 dictionarySuggestionDialog.addEventListener("click", (event) => {

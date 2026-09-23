@@ -17,6 +17,12 @@ import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 
 import { analyzeDictionaryCoverage } from "../../functions/_shared/dictionary-workflow.js";
+import {
+  collectLemmas,
+  databaseLookup,
+  mostFrequentWords,
+  storyWordFrequency,
+} from "../lib/dictionary-guards.mjs";
 import { bumpRelease, currentVersion, nextVersion } from "../lib/bump-release.mjs";
 import { loadReleaseManifest } from "../lib/release-manifest.mjs";
 import { sqlHash } from "../lib/release-validation.mjs";
@@ -111,13 +117,26 @@ const newForms = [...new Set(
 )].sort((a, b) => a.localeCompare(b, "uk"));
 const stories = JSON.parse(readFileSync(join(root, "data/content-seed.json"), "utf8")).filter((story) => story.active !== false);
 const paragraphs = stories.flatMap((story) => story.paragraphs || []);
+// The guards already failed the build if one of the 300 most used words gained a
+// meaning; the next most used words are listed for the reviewer instead.
+const frequency = storyWordFrequency(stories);
+const attentionWords = mostFrequentWords(frequency, 500);
 const { sqlite, db } = seedDatabase();
 let before;
 let after;
+const attention = [];
 try {
+  const lookup = databaseLookup(db);
   before = await analyzeDictionaryCoverage(db, paragraphs, { targetLanguage: target });
+  const lemmasBefore = await collectLemmas(lookup, attentionWords, [target]);
   sqlite.exec(sql);
   after = await analyzeDictionaryCoverage(db, paragraphs, { targetLanguage: target });
+  const lemmasAfter = await collectLemmas(lookup, attentionWords, [target]);
+  for (const word of attentionWords) {
+    const key = `${target}\u0000${word}`;
+    const added = lemmasAfter.get(key).filter((lemma) => !lemmasBefore.get(key).includes(lemma));
+    if (added.length) attention.push(`«${word}» (${frequency.get(word)} uses): now also ${added.map((lemma) => `«${lemma}»`).join(", ")}`);
+  }
 } finally {
   sqlite.close();
 }
@@ -149,6 +168,10 @@ writeFileSync(summaryPath, `## ${SOURCES[target].name} dictionary update: ${inst
 
 Release **${version}** · migration \`${migrationName}\`
 
+**Needs your attention:** ${attention.length
+    ? `common story words that gain another entry. Check each new meaning is right:\n\n${attention.map((line) => `- ${line}`).join("\n")}`
+    : "none of the 500 most used story words gains a new entry."}
+
 | Rows added | |
 |---|---|
 | Lexemes | ${count("dictionary_lexemes")} |
@@ -162,7 +185,7 @@ Release **${version}** · migration \`${migrationName}\`
 
 **Story words with new or extra entries:** ${list(newForms)}
 
-Validation passed: every existing dictionary row is unchanged, coverage did not drop, foreign keys hold, and the known bad pairings stay absent. New meanings come straight from Wiktionary and are **not reviewed**: skim the words above, and the migration diff, before merging.
+Validation passed: every existing dictionary row is unchanged, coverage did not drop, foreign keys hold, and the dictionary guards found nothing (canary words unchanged, no entry over its form limit, no unreviewed word filed under another entry, no unknown form tags). New meanings come straight from Wiktionary and are otherwise **not reviewed**: check the list under "Needs your attention" before merging.
 
 To publish: merge this branch, then run the **Release production** workflow.
 `);

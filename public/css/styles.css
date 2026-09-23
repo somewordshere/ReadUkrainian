@@ -772,6 +772,32 @@ h1 {
   color: var(--accent);
 }
 
+.selection-translation-report {
+  margin: 0;
+  padding-top: 2px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+.selection-translation-report-button {
+  min-height: 32px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.selection-translation-report-button:disabled {
+  cursor: default;
+  text-decoration: none;
+}
+
 @keyframes selection-speech-in {
   from {
     opacity: 0;

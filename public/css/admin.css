@@ -177,3 +177,4 @@
 .admin-page .admin-voice-toggle input { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); cursor: pointer; }
 .admin-page .admin-voice-toggle input:disabled { cursor: not-allowed; }
 .admin-page .admin-voice-empty { grid-column: 1 / -1; padding: 16px; color: var(--muted); text-align: center; }
+.admin-page .admin-dictionary-reports-note { max-width: 70ch; margin: 0 0 10px; color: var(--muted); font-size: 0.875rem; }

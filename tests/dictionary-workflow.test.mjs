@@ -129,7 +129,8 @@ test("the German Wiktionary and Linguisto seeds form an attributed language pair
   // Floors, not exact values: a prepared dictionary update (prepare-update.mjs)
   // only adds entries, so coverage may rise but must never fall below this.
   assert.equal(coverage.totalUniqueWords, 4091);
-  assert.ok(coverage.coveredUniqueWords >= 2893);
+  // 2893 until 0031 removed «серед» → Mittwoch, which counted as coverage but was wrong.
+  assert.ok(coverage.coveredUniqueWords >= 2892, `covered ${coverage.coveredUniqueWords}`);
   assert.ok(coverage.coveragePercent >= 70.7);
   assert.ok(coverage.missing.length > 0);
   assert.equal(lookup.entries[0].translations[0].text, "Mama");

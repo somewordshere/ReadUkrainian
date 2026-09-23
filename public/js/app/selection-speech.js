@@ -24,6 +24,11 @@ const COPY = {
   translationFailed: "Не вдалося відкрити словник. Спробуйте ще раз.",
   translationMissing: "Не знайшли перекладу для цього слова. Це може бути ім’я або рідкісна форма.",
   translationReady: "Переклад і граматичну інформацію завантажено.",
+  report: "Повідомити про помилку в перекладі",
+  reportSending: "Надсилаємо…",
+  reportThanks: "Дякуємо! Ми перевіримо цей переклад.",
+  reportLimited: "Забагато повідомлень. Спробуйте пізніше.",
+  reportFailed: "Не вдалося надіслати. Натисніть, щоб спробувати ще раз.",
 };
 
 const TARGET_LANGUAGES = new Set(["en", "de"]);
@@ -329,6 +334,47 @@ export function initSelectionSpeech(
     translationResult.appendChild(paragraph);
   }
 
+  // Lets a learner flag a wrong or missing translation; the server records what
+  // the dictionary showed, so nothing but the word is sent.
+  function appendReportControl() {
+    if (!storyId || typeof fetchImpl !== "function") return;
+
+    const report = { text: selectedText, targetLanguage, storyId };
+    const container = document.createElement("p");
+    container.className = "selection-translation-report";
+    const reportButton = document.createElement("button");
+    reportButton.type = "button";
+    reportButton.className = "selection-translation-report-button";
+    reportButton.textContent = COPY.report;
+    reportButton.addEventListener("click", async () => {
+      reportButton.disabled = true;
+      reportButton.textContent = COPY.reportSending;
+      let status = 0;
+      try {
+        const response = await fetchImpl("/api/dictionary/report", {
+          method: "POST",
+          headers: { accept: "application/json", "content-type": "application/json" },
+          body: JSON.stringify(report),
+        });
+        status = response.status;
+      } catch {
+        status = 0;
+      }
+
+      if (status >= 200 && status < 300) {
+        container.replaceChildren(COPY.reportThanks);
+        setStatus(COPY.reportThanks);
+        return;
+      }
+      const message = status === 429 ? COPY.reportLimited : COPY.reportFailed;
+      reportButton.disabled = status === 429;
+      reportButton.textContent = message;
+      setStatus(message);
+    });
+    container.appendChild(reportButton);
+    translationResult.appendChild(container);
+  }
+
   function renderTranslation(payload) {
     translationResult.replaceChildren();
     translationResult.hidden = false;
@@ -346,6 +392,7 @@ export function initSelectionSpeech(
       empty.textContent = COPY.translationMissing;
       translationResult.appendChild(empty);
       appendAttributions(payload);
+      appendReportControl();
       return false;
     }
 
@@ -392,6 +439,7 @@ export function initSelectionSpeech(
 
     translationResult.appendChild(entriesElement);
     appendAttributions(payload);
+    appendReportControl();
     return true;
   }
 

@@ -1,0 +1,14 @@
+{
+  "_comment": "Limits for scripts/lib/dictionary-guards.mjs. formCaps: most distinct word forms one entry may have, by part of speech (the story-scope maximum on 2026-09-23 was pron 18, num 15, adj 14, verb 12, noun 9). canaryDiffWords: how many of the most frequent story words may not gain a new lemma in an update. knownTags: form tags approved after an update introduced them.",
+  "formCaps": {
+    "noun": 20,
+    "adj": 30,
+    "pron": 24,
+    "det": 30,
+    "num": 24,
+    "verb": 60,
+    "default": 12
+  },
+  "canaryDiffWords": 300,
+  "knownTags": []
+}

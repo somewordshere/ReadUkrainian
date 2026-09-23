@@ -95,3 +95,4 @@ This file is tracked in GitHub and linked from the site version footer.
 0.89 - New Ї logo and site icons, a calmer blue on warm reading surfaces, the tapped word highlighted in yellow, and library filters as one-tap status and topic buttons.
 0.90 - Word pronunciation uses a natural Google neural voice and answers much faster.
 0.91 - The admin can listen to every Ukrainian Google voice, keep a shortlist and choose the voice learners hear.
+0.92 - Wrong translations can be reported from the word popup, four misleading dictionary entries are gone, and every dictionary update is now checked automatically before it can go live.
