@@ -7,11 +7,17 @@
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <link rel="icon" href="./icons/favicon-32.png" type="image/png" sizes="32x32" />
     <link rel="stylesheet" href="./css/styles.css" />
+    <link rel="stylesheet" href="./css/theme.css" />
+    <link rel="stylesheet" href="./css/admin.css" />
   </head>
   <body class="admin-page">
     <main class="admin-shell">
       <section class="admin-login" id="loginSection">
         <form id="loginForm" class="admin-login-form" action="./api/admin/login" method="post" aria-label="Admin login">
+          <div class="admin-login-brand">
+            <img src="./icon.svg" alt="" width="56" height="56" />
+            <p>Stories editor</p>
+          </div>
           <label class="admin-login-field">
             <span class="visually-hidden">Email</span>
             <input name="email" type="email" placeholder="Email" autocomplete="username" required />
@@ -27,10 +33,13 @@
 
       <section class="admin-panel" id="adminSection" hidden>
         <header class="admin-topbar">
-          <div>
-            <p class="admin-kicker">Read Ukrainian</p>
-            <h1>Stories editor</h1>
-            <p class="admin-user-summary" id="userSummary"></p>
+          <div class="admin-brand">
+            <img class="admin-brand-mark" src="./icon.svg" alt="" width="48" height="48" />
+            <div>
+              <p class="admin-kicker">Read Ukrainian</p>
+              <h1>Stories editor</h1>
+              <p class="admin-user-summary" id="userSummary"></p>
+            </div>
           </div>
           <button class="admin-logout-button" id="logoutButton" type="button">Log out</button>
         </header>
