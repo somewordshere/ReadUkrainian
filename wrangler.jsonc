@@ -22,7 +22,10 @@
     "directory": "./public",
     "binding": "ASSETS",
     "not_found_handling": "404-page",
-    "run_worker_first": true
+    // Pages and the API need the Worker (www redirect, admin switch, security
+    // headers). Scripts, styles, fonts, icons and audio do not, so they are
+    // served straight from the asset store without a Worker invocation.
+    "run_worker_first": ["/*", "!/css/*", "!/js/*", "!/fonts/*", "!/icons/*", "!/speech/*"]
   },
   "ratelimits": [
     {

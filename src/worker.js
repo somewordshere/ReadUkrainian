@@ -41,6 +41,43 @@ import { error } from "../functions/_shared/http.js";
 
 const CANONICAL_HOSTNAME = "readukrainianapp.com";
 
+// The only inline script is story.html's first-paint stress-switch preference.
+// tests/security-headers.test.mjs recomputes these hashes from public/*.html, so
+// editing an inline script without updating this list fails the tests instead
+// of silently breaking the page.
+export const INLINE_SCRIPT_HASHES = Object.freeze([
+  "sha256-5lOkryhgP3vNizqejEckeiKIVzzDHMcE0dAxXS0AIoY=",
+]);
+
+export const CONTENT_SECURITY_POLICY = [
+  "default-src 'self'",
+  `script-src 'self' ${INLINE_SCRIPT_HASHES.map((hash) => `'${hash}'`).join(" ")}`,
+  "style-src 'self'",
+  // admin.css draws its select arrow as a data: SVG.
+  "img-src 'self' data:",
+  // Pronunciation audio is played from a blob: URL of the fetched MP3.
+  "media-src 'self' blob:",
+  "connect-src 'self'",
+  "font-src 'self'",
+  "object-src 'none'",
+  "base-uri 'none'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+].join("; ");
+
+const SECURITY_HEADERS = Object.freeze({
+  "content-security-policy": CONTENT_SECURITY_POLICY,
+  "strict-transport-security": "max-age=31536000",
+  "referrer-policy": "strict-origin-when-cross-origin",
+  "x-content-type-options": "nosniff",
+  "x-frame-options": "DENY",
+});
+
+const ADMIN_API_HEADERS = Object.freeze({
+  ...SECURITY_HEADERS,
+  "cache-control": "no-store",
+});
+
 const EXACT_API_ROUTES = new Map([
   ["/api/content", { GET: getContent }],
   ["/api/content/story", { GET: getStory }],
@@ -177,17 +214,31 @@ async function handleApiRequest(request, env, pathname, ctx) {
   });
 }
 
-function noStoreResponse(response) {
-  const headers = new Headers(response.headers);
-  headers.set("cache-control", "no-store");
-
-  return new Response(response.body, {
-    status: response.status,
-    statusText: response.statusText,
-    headers,
-  });
+// Asset and redirect responses have immutable headers, so the response is
+// rebuilt around the same body stream rather than edited in place.
+function withHeaders(response, headers) {
+  const updated = new Response(response.body, response);
+  for (const [name, value] of Object.entries(headers)) {
+    updated.headers.set(name, value);
+  }
+  return updated;
 }
 
+async function routeRequest(request, env, ctx, pathname) {
+  if (env.ADMIN_ENABLED !== "true" && isAdminPath(pathname)) {
+    return disabledAdminResponse(pathname);
+  }
+
+  if (pathname.startsWith("/api/")) {
+    return handleApiRequest(request, env, pathname, ctx);
+  }
+
+  return env.ASSETS.fetch(request);
+}
+
+// Static files under /css, /js, /fonts, /icons and /speech are served straight
+// from the asset store (see run_worker_first in wrangler.jsonc); everything that
+// reaches this Worker, pages and API alike, leaves with the security headers.
 export async function handleRequest(request, env, ctx) {
   const url = new URL(request.url);
 
@@ -199,19 +250,11 @@ export async function handleRequest(request, env, ctx) {
   }
 
   const { pathname } = url;
-
-  if (env.ADMIN_ENABLED !== "true" && isAdminPath(pathname)) {
-    return disabledAdminResponse(pathname);
-  }
-
-  if (pathname.startsWith("/api/")) {
-    const response = await handleApiRequest(request, env, pathname, ctx);
-    return pathname.startsWith("/api/admin/")
-      ? noStoreResponse(response)
-      : response;
-  }
-
-  return env.ASSETS.fetch(request);
+  const response = await routeRequest(request, env, ctx, pathname);
+  return withHeaders(
+    response,
+    pathname.startsWith("/api/admin/") ? ADMIN_API_HEADERS : SECURITY_HEADERS
+  );
 }
 
 export default {
