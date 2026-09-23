@@ -1,19 +1,10 @@
 import { lookupDictionaryWord } from "../../_shared/dictionary.js";
-import { error, json, readLimitedJson } from "../../_shared/http.js";
+import { json, noStoreError, readLimitedJson, requireSameOrigin } from "../../_shared/http.js";
 
 const MAX_REQUEST_BYTES = 1024;
 const MAX_WORD_CHARACTERS = 80;
 const SOURCE_LANGUAGE = "uk";
 const NO_STORE_HEADERS = Object.freeze({ "cache-control": "no-store" });
-
-function noStoreError(status, message) {
-  return error(status, message, { headers: NO_STORE_HEADERS });
-}
-
-function isSameOrigin(request) {
-  const origin = request.headers.get("origin");
-  return Boolean(origin) && origin === new URL(request.url).origin;
-}
 
 function validatePayload(payload) {
   if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
@@ -55,9 +46,8 @@ function validatePayload(payload) {
 }
 
 export async function onRequestPost(context) {
-  if (!isSameOrigin(context.request)) {
-    return noStoreError(403, "Same-origin dictionary requests are required.");
-  }
+  const originError = requireSameOrigin(context.request, "Same-origin dictionary requests are required.");
+  if (originError) return originError;
 
   const parsed = await readLimitedJson(context.request, MAX_REQUEST_BYTES);
   if (!parsed.ok) {

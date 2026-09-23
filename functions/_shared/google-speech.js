@@ -12,6 +12,11 @@ export const GOOGLE_AUDIO_CONFIG = Object.freeze({
 // Bump when the request shape changes, so cached and generated audio is rebuilt.
 export const GOOGLE_REQUEST_VERSION = "google-tts-v1";
 
+export function getGoogleApiKey(env) {
+  const key = typeof env.GOOGLE_TTS_API_KEY === "string" ? env.GOOGLE_TTS_API_KEY.trim() : "";
+  return key || null;
+}
+
 export function googleSpeechRequestInit({ key, text, voice, signal }) {
   return {
     method: "POST",

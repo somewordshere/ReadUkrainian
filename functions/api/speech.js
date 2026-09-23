@@ -3,10 +3,19 @@ import {
   GOOGLE_REQUEST_VERSION,
   GOOGLE_TTS_ENDPOINT,
   decodeGoogleAudio,
+  getGoogleApiKey,
   googleSpeechRequestInit,
   isMp3,
 } from "../_shared/google-speech.js";
-import { error } from "../_shared/http.js";
+import {
+  checkRateLimit,
+  declaresTooMuch,
+  decodeJson,
+  hasMediaType,
+  noStoreError,
+  readLimitedBytes,
+  readLimitedJson,
+} from "../_shared/http.js";
 import { getSpeechSetting, resolveLearnerSpeechVoice } from "../_shared/speech-settings.js";
 import {
   DEFAULT_SPEECH_VOICE_ID,
@@ -84,106 +93,33 @@ function parseStoryId(value) {
   return null;
 }
 
-async function readLimitedRequestJson(request) {
-  const contentType = request.headers.get("content-type")?.split(";", 1)[0].trim().toLowerCase();
-  if (contentType !== "application/json") {
-    return { ok: false, status: 415, message: "Content-Type must be application/json." };
-  }
-
-  const declaredLength = Number(request.headers.get("content-length"));
-  if (Number.isFinite(declaredLength) && declaredLength > MAX_REQUEST_BYTES) {
-    return { ok: false, status: 413, message: "Request body is too large." };
-  }
-
-  if (!request.body) {
-    return { ok: false, status: 400, message: "A JSON request body is required." };
-  }
-
-  const bytes = await readLimitedBody(request.body, MAX_REQUEST_BYTES);
-  if (!bytes) {
-    return { ok: false, status: 413, message: "Request body is too large." };
-  }
-
-  try {
-    return {
-      ok: true,
-      value: JSON.parse(new TextDecoder().decode(bytes)),
-    };
-  } catch {
-    return { ok: false, status: 400, message: "Invalid JSON request body." };
-  }
-}
-
-async function readLimitedBody(body, maximumBytes) {
-  if (!body) return null;
-
-  const reader = body.getReader();
-  const chunks = [];
-  let totalBytes = 0;
-
-  try {
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-
-      totalBytes += value.byteLength;
-      if (totalBytes > maximumBytes) {
-        await reader.cancel();
-        return null;
-      }
-      chunks.push(value);
-    }
-  } catch {
-    return null;
-  }
-
-  const bytes = new Uint8Array(totalBytes);
-  let offset = 0;
-  for (const chunk of chunks) {
-    bytes.set(chunk, offset);
-    offset += chunk.byteLength;
-  }
-  return bytes;
-}
-
 async function readProviderAudio(response) {
-  const declaredContentType = response.headers.get("content-type")?.split(";", 1)[0].trim().toLowerCase();
-  const declaredLength = Number(response.headers.get("content-length"));
   if (
     !response.ok ||
-    !AUDIO_CONTENT_TYPES.has(declaredContentType) ||
-    (Number.isFinite(declaredLength) && declaredLength > MAX_PROVIDER_AUDIO_BYTES)
+    !AUDIO_CONTENT_TYPES.has(response.headers.get("content-type")?.split(";", 1)[0].trim().toLowerCase()) ||
+    declaresTooMuch(response.headers, MAX_PROVIDER_AUDIO_BYTES)
   ) {
     return null;
   }
 
-  const bytes = await readLimitedBody(response.body, MAX_PROVIDER_AUDIO_BYTES);
+  const bytes = await readLimitedBytes(response.body, MAX_PROVIDER_AUDIO_BYTES);
   if (!bytes?.byteLength || !isMp3(bytes)) return null;
 
   return { bytes, contentType: SPEECH_CONTENT_TYPE };
 }
 
 async function readGoogleAudio(response) {
-  const contentType = response.headers.get("content-type")?.split(";", 1)[0].trim().toLowerCase();
-  const declaredLength = Number(response.headers.get("content-length"));
   if (
     !response.ok ||
-    contentType !== "application/json" ||
-    (Number.isFinite(declaredLength) && declaredLength > MAX_PROVIDER_JSON_BYTES)
+    !hasMediaType(response.headers, "application/json") ||
+    declaresTooMuch(response.headers, MAX_PROVIDER_JSON_BYTES)
   ) {
     return null;
   }
 
-  const body = await readLimitedBody(response.body, MAX_PROVIDER_JSON_BYTES);
-  if (!body) return null;
-
-  let payload;
-  try {
-    payload = JSON.parse(new TextDecoder().decode(body));
-  } catch {
-    return null;
-  }
-  const bytes = decodeGoogleAudio(payload);
+  const body = await readLimitedBytes(response.body, MAX_PROVIDER_JSON_BYTES);
+  const parsed = body ? decodeJson(body) : { ok: false };
+  const bytes = parsed.ok ? decodeGoogleAudio(parsed.value) : null;
   return bytes ? { bytes, contentType: SPEECH_CONTENT_TYPE } : null;
 }
 
@@ -231,15 +167,6 @@ function getCache(context) {
     return context.cache;
   }
   return globalThis.caches?.default || null;
-}
-
-function noStoreError(status, message, headers = {}) {
-  return error(status, message, {
-    headers: {
-      ...headers,
-      "cache-control": "no-store",
-    },
-  });
 }
 
 function speechAudioResponse(sourceResponse, source, cacheStatus, voiceId) {
@@ -302,17 +229,6 @@ async function reserveDailySpeechQuota(env, characterCount, dailyLimit) {
   return Boolean(row);
 }
 
-async function checkRateLimit(env) {
-  if (!env.SPEECH_RATE_LIMITER || typeof env.SPEECH_RATE_LIMITER.limit !== "function") {
-    return null;
-  }
-
-  const result = await env.SPEECH_RATE_LIMITER.limit({
-    key: "speech:google",
-  });
-  return typeof result?.success === "boolean" ? result.success : null;
-}
-
 function secondsUntilNextUtcDay() {
   const now = new Date();
   const tomorrow = Date.UTC(
@@ -346,11 +262,6 @@ async function fetchWithTimeout(fetchImpl, input, init, timeoutMs, requestSignal
   }
 }
 
-function getGoogleApiKey(env) {
-  const key = typeof env.GOOGLE_TTS_API_KEY === "string" ? env.GOOGLE_TTS_API_KEY.trim() : "";
-  return key || null;
-}
-
 async function fetchGoogleAudio(context, key, canonicalWord, voiceConfig) {
   const fetchImpl = context.fetch || globalThis.fetch;
   if (typeof fetchImpl !== "function") throw new Error("Fetch unavailable.");
@@ -378,7 +289,7 @@ export async function onRequestPost(context) {
     return noStoreError(403, "Same-origin speech requests are required.");
   }
 
-  const parsedBody = await readLimitedRequestJson(context.request);
+  const parsedBody = await readLimitedJson(context.request, MAX_REQUEST_BYTES);
   if (!parsedBody.ok) {
     return noStoreError(parsedBody.status, parsedBody.message);
   }
@@ -491,7 +402,7 @@ export async function onRequestPost(context) {
   }
 
   try {
-    const rateLimitResult = await checkRateLimit(context.env);
+    const rateLimitResult = await checkRateLimit(context.env.SPEECH_RATE_LIMITER, "speech:google");
     if (rateLimitResult === null) {
       return noStoreError(503, "Pronunciation is temporarily unavailable.");
     }
