@@ -32,7 +32,8 @@ function createD1Database() {
   sqlite.exec(`
     INSERT INTO users (id, email, password_hash, role) VALUES
       (1, 'admin@example.com', 'unused', 'admin'),
-      (2, 'editor@example.com', 'unused', 'editor');
+      (2, 'editor@example.com', 'unused', 'editor'),
+      (3, 'publisher@example.com', 'unused', 'publisher');
   `);
 
   function prepare(sql) {
@@ -82,7 +83,7 @@ async function adminContext(db, {
   params = {},
 } = {}) {
   const token = await createSessionToken(SESSION_SECRET, {
-    userId: role === "admin" ? 1 : 2,
+    userId: { admin: 1, editor: 2, publisher: 3 }[role],
     email: `${role}@example.com`,
     role,
   });

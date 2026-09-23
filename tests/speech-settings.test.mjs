@@ -30,6 +30,7 @@ class FakeSpeechSettingsDb {
     this.options = new Map(enabledVoices.map((voiceId) => [voiceId, 1]));
     this.writes = [];
     this.optionWrites = [];
+    this.userRole = "admin";
   }
 
   prepare(sql) {
@@ -42,6 +43,10 @@ class FakeSpeechSettingsDb {
         return this;
       },
       async first() {
+        // requireAdmin reads the signed-in user on every request.
+        if (sql.includes("FROM users")) {
+          return { id: 7, email: "admin@example.com", role: db.userRole, isActive: 1, sessionVersion: 1 };
+        }
         assert.match(sql, /FROM speech_settings/);
         return db.row ? { ...db.row } : null;
       },
@@ -109,6 +114,7 @@ async function createContext({
   fetch = googleCatalogFetch(),
   googleKey = "test-key",
 } = {}) {
+  db.userRole = role;
   const token = await createSessionToken(SESSION_SECRET, {
     userId: 7,
     email: "admin@example.com",
