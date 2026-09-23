@@ -17,3 +17,8 @@ CREATE TABLE IF NOT EXISTS speech_usage_client_daily (
   characters_used INTEGER NOT NULL DEFAULT 0 CHECK (characters_used >= 0),
   PRIMARY KEY (day, client_hash)
 );
+
+-- The daily cap on new dictionary reports counts today's rows on every new
+-- report; without this index that count scanned the whole table.
+CREATE INDEX IF NOT EXISTS idx_dictionary_reports_created
+ON dictionary_reports (created_at);

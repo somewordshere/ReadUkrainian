@@ -1,20 +1,16 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
-import { DatabaseSync } from "node:sqlite";
 import test from "node:test";
 
 import { createSessionToken } from "../functions/_shared/auth.js";
 import { onRequestPost as logout } from "../functions/api/admin/logout.js";
 import { onRequestGet as session } from "../functions/api/admin/session.js";
+import { seedDatabase } from "../scripts/lib/seed-database.mjs";
 
 const SESSION_SECRET = "a sufficiently long admin session secret";
 const ORIGIN = "https://readukrainianapp.com";
 
 function createUsersDatabase() {
-  const sqlite = new DatabaseSync(":memory:");
-  for (const migration of ["0001_schema.sql", "0034_security_hardening.sql"]) {
-    sqlite.exec(readFileSync(new URL(`../migrations/${migration}`, import.meta.url), "utf8"));
-  }
+  const { sqlite } = seedDatabase();
   sqlite.exec(`
     INSERT INTO users (id, email, password_hash, role) VALUES
       (1, 'admin@example.com', 'unused', 'admin'),
