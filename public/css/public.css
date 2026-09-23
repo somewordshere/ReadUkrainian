@@ -246,6 +246,17 @@
 .public-page .story-content { position: relative; }
 .public-page .word-tip { position: absolute; z-index: 15; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; width: max-content; max-width: min(300px, 100%); padding: 12px 14px; border-radius: 12px; background: var(--ink); color: var(--paper); box-shadow: 0 6px 24px #1f232826; }
 .public-page .word-tip[hidden] { display: none; }
+.public-page .word-tip:not([hidden]) { animation: word-tip-fade-in 0.5s ease-out; }
+@keyframes word-tip-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .public-page .word-tip:not([hidden]) { animation-name: word-tip-fade-only; }
+  .public-page .story-word.is-tip-target { animation: none; }
+}
+@keyframes word-tip-fade-only {
+  from { opacity: 0; }
+}
 .public-page .word-tip::before { content: ""; position: absolute; top: -6px; left: calc(var(--tip-arrow-left, 24px) - 6px); width: 12px; height: 12px; border-radius: 2px; background: var(--ink); transform: rotate(45deg); }
 .public-page .word-tip-message { margin: 0; font-size: 0.875rem; line-height: 1.45; }
 .public-page .word-tip-close { min-height: 32px; padding: 0 12px; border: 0; border-radius: 8px; background: #ffffff26; color: var(--paper); font: inherit; font-size: 0.8125rem; font-weight: 600; cursor: pointer; }

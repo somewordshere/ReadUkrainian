@@ -16,6 +16,8 @@ export const TIP_WORDS = Object.freeze([
 const TIP_WORD_SET = new Set(TIP_WORDS);
 const STORAGE_KEY = "readukrainian.word-tip";
 const MIN_FALLBACK_LETTERS = 3;
+// The tip fades in this long after the page opened, so the story is seen first.
+const SHOW_DELAY_MS = 2500;
 
 function normalize(word) {
   return String(word || "").toLocaleLowerCase("uk-UA").replace(/[’ʼ`]/gu, "'");
@@ -63,6 +65,7 @@ function tipDismissed() {
 export function initWordTip({ container, root, tip, message, closeButton }) {
   let target = null;
   let resizeObserver = null;
+  let showTimer = null;
 
   function position() {
     if (!target || tip.hidden) return;
@@ -85,11 +88,24 @@ export function initWordTip({ container, root, tip, message, closeButton }) {
         // The tip simply returns on the next story.
       }
     }
+    clearTimeout(showTimer);
+    showTimer = null;
     tip.hidden = true;
     target?.classList.remove("is-tip-target");
     target = null;
     resizeObserver?.disconnect();
     resizeObserver = null;
+  }
+
+  function reveal() {
+    showTimer = null;
+    target.classList.add("is-tip-target");
+    tip.hidden = false;
+    position();
+    // Stress marks and web fonts change word widths after the story renders.
+    resizeObserver = new ResizeObserver(position);
+    resizeObserver.observe(root);
+    document.fonts?.ready.then(position);
   }
 
   closeButton.addEventListener("click", () => hide({ remember: true }));
@@ -115,16 +131,10 @@ export function initWordTip({ container, root, tip, message, closeButton }) {
       if (index < 0) return;
 
       target = wordElements[index];
-      target.classList.add("is-tip-target");
       message.textContent = speechEnabled
         ? `Торкніться слова «${target.dataset.word}», щоб перекласти або прослухати його.`
         : `Торкніться слова «${target.dataset.word}», щоб перекласти його.`;
-      tip.hidden = false;
-      position();
-      // Stress marks and web fonts change word widths after the story renders.
-      resizeObserver = new ResizeObserver(position);
-      resizeObserver.observe(root);
-      document.fonts?.ready.then(position);
+      showTimer = setTimeout(reveal, Math.max(0, SHOW_DELAY_MS - performance.now()));
     },
     hide,
     position,

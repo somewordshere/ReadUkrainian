@@ -101,3 +101,4 @@ This file is tracked in GitHub and linked from the site version footer.
 0.95 - German translations can no longer be hidden by English-only dictionary entries for the same word.
 0.96 - Choose the voice that reads words aloud, from the voices the site offers.
 0.97 - New readers see a tip pointing at a word they can tap to translate or hear it.
+0.98 - The tip about tapping words now fades in a moment after the story opens.
