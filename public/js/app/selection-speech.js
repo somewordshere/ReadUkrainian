@@ -293,6 +293,17 @@ export function initSelectionSpeech(
     return [...new Set(lines)].slice(0, 3);
   }
 
+  // Attribution links come from the dictionary tables; only https: URLs become
+  // links, so a bad row can never turn into a javascript: link.
+  function safeHttpsUrl(value) {
+    try {
+      const url = new URL(String(value || ""));
+      return url.protocol === "https:" ? url.href : "";
+    } catch {
+      return "";
+    }
+  }
+
   function appendAttributions(payload) {
     const attributions = Array.isArray(payload?.attributions) && payload.attributions.length
       ? payload.attributions
@@ -311,9 +322,11 @@ export function initSelectionSpeech(
     paragraph.append("Джерело: ");
     attributions.forEach((attribution, index) => {
       if (index) paragraph.append(" · ");
-      if (attribution.url) {
+      const sourceUrl = safeHttpsUrl(attribution.url);
+      const licenseUrl = safeHttpsUrl(attribution.licenseUrl);
+      if (sourceUrl) {
         const sourceLink = document.createElement("a");
-        sourceLink.href = attribution.url;
+        sourceLink.href = sourceUrl;
         sourceLink.target = "_blank";
         sourceLink.rel = "noopener noreferrer";
         sourceLink.textContent = attribution.name;
@@ -322,10 +335,10 @@ export function initSelectionSpeech(
         paragraph.append(attribution.name);
       }
 
-      if (attribution.licenseUrl && attribution.licenseName) {
+      if (licenseUrl && attribution.licenseName) {
         paragraph.append(" (");
         const licenseLink = document.createElement("a");
-        licenseLink.href = attribution.licenseUrl;
+        licenseLink.href = licenseUrl;
         licenseLink.target = "_blank";
         licenseLink.rel = "noopener noreferrer";
         licenseLink.textContent = attribution.licenseName;
