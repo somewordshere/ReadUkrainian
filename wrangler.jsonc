@@ -5,7 +5,8 @@
   "compatibility_date": "2026-06-15",
   "vars": {
     "ADMIN_ENABLED": "true",
-    "SPEECH_DAILY_CHARACTER_LIMIT": "4500"
+    "SPEECH_DAILY_CHARACTER_LIMIT": "4500",
+    "SPEECH_CLIENT_DAILY_CHARACTER_LIMIT": "600"
   },
   "routes": [
     {

@@ -34,7 +34,9 @@ function fakeDb(
   {
     quotaAllowed = true,
     quotaThrows = false,
+    clientQuotaAllowed = true,
     queries = [],
+    runs = [],
     voiceId = "uk-UA-Chirp3-HD-Achernar",
     speechEnabled = true,
     voiceSettingThrows = false,
@@ -70,7 +72,17 @@ function fakeDb(
         },
         bind(...bindings) {
           return {
+            async run() {
+              runs.push({ sql, bindings });
+              return { success: true, meta: { changes: 1 } };
+            },
             async first() {
+              if (sql.includes("speech_usage_client_daily")) {
+                if (quotaThrows) throw new Error("D1 quota unavailable");
+                return clientQuotaAllowed && bindings[2] <= bindings[3]
+                  ? { characters_used: bindings[2] }
+                  : null;
+              }
               if (sql.includes("speech_usage_daily")) {
                 if (quotaThrows) throw new Error("D1 quota unavailable");
                 return quotaAllowed && bindings[1] <= bindings[2]
@@ -130,6 +142,7 @@ function createContext({
   googleKey = "test-key",
   quotaAllowed = true,
   quotaThrows = false,
+  clientQuotaAllowed = true,
   voiceId = "uk-UA-Chirp3-HD-Achernar",
   speechEnabled = true,
   voiceSettingThrows = false,
@@ -140,12 +153,15 @@ function createContext({
   const providerCalls = [];
   const rateLimitCalls = [];
   const dbQueries = [];
+  const dbRuns = [];
   const waitUntilPromises = [];
   const env = {
     DB: fakeDb(row, {
       quotaAllowed,
       quotaThrows,
+      clientQuotaAllowed,
       queries: dbQueries,
+      runs: dbRuns,
       voiceId,
       speechEnabled,
       voiceSettingThrows,
@@ -162,6 +178,8 @@ function createContext({
       },
     },
     SPEECH_DAILY_CHARACTER_LIMIT: dailyLimit,
+    SPEECH_CLIENT_DAILY_CHARACTER_LIMIT: "600",
+    SESSION_SECRET: "a sufficiently long speech test secret",
     GOOGLE_TTS_API_KEY: googleKey,
   };
   if (includeRateLimiter) {
@@ -176,6 +194,7 @@ function createContext({
   return {
     assetCalls,
     dbQueries,
+    dbRuns,
     providerCalls,
     rateLimitCalls,
     waitUntilPromises,
@@ -311,7 +330,8 @@ test("generates Google audio on a static and cache miss", async () => {
     harness.dbQueries.filter((query) => query.includes("speech_usage_daily")).length,
     1
   );
-  assert.equal(harness.waitUntilPromises.length, 1);
+  // The provider-cache write and the clean-up of earlier days' client rows.
+  assert.equal(harness.waitUntilPromises.length, 2);
   assert.equal(cacheWrites.length, 1);
   assert.equal(cacheWrites[0].request.method, "GET");
   assert.deepEqual(cacheWrites[0].bytes, [...MP3, 7, 8, 9]);
@@ -394,7 +414,7 @@ test("fails closed when the selected voice cannot be read", async () => {
   assert.equal(harness.providerCalls.length, 0);
 });
 
-test("returns a no-store 404 before story, assets, cache, limits, or provider when speech is disabled", async () => {
+test("returns a no-store 404 before assets, cache, limits, or provider when speech is disabled", async () => {
   const harness = createContext({
     speechEnabled: false,
     row() {
@@ -427,8 +447,10 @@ test("returns a no-store 404 before story, assets, cache, limits, or provider wh
   assert.equal(harness.providerCalls.length, 0);
   assert.equal(harness.rateLimitCalls.length, 0);
   assert.equal(harness.waitUntilPromises.length, 0);
-  assert.equal(harness.dbQueries.length, 1);
-  assert.match(harness.dbQueries[0], /FROM speech_settings/);
+  // The story is read alongside the setting, so even a failing story read
+  // still answers "disabled" rather than an error.
+  assert.equal(harness.dbQueries.length, 2);
+  assert.ok(harness.dbQueries.some((query) => /FROM speech_settings/.test(query)));
   assert.equal(
     harness.dbQueries.some((query) => query.includes("speech_usage_daily")),
     false
@@ -602,4 +624,51 @@ test("does not invoke fallback when static asset storage itself fails", async ()
   });
   assert.equal((await onRequestPost(fetchError.context)).status, 503);
   assert.equal(fetchError.providerCalls.length, 0);
+});
+
+test("one client cannot spend more than its share of the daily budget", async () => {
+  const harness = createContext({
+    staticResponse: new Response("missing", { status: 404 }),
+    clientQuotaAllowed: false,
+  });
+  const response = await onRequestPost(harness.context);
+
+  assert.equal(response.status, 429);
+  assert.equal(response.headers.get("x-speech-limit"), "client");
+  assert.ok(Number(response.headers.get("retry-after")) >= 60);
+  assert.equal(harness.providerCalls.length, 0);
+  // The site-wide budget is never touched for a client that is over its share.
+  assert.equal(harness.dbQueries.some((sql) => sql.includes("speech_usage_daily")), false);
+
+  const clientQuery = harness.dbQueries.find((sql) => sql.includes("INSERT INTO speech_usage_client_daily"));
+  assert.match(clientQuery, /WHERE \?3 <= \?4/);
+});
+
+test("clients are counted by a keyed hash, never by their address", async () => {
+  const harness = createContext({ staticResponse: new Response("missing", { status: 404 }) });
+  await onRequestPost(harness.context);
+  await Promise.all(harness.waitUntilPromises);
+
+  const clientInsert = harness.dbQueries.findIndex((sql) => sql.includes("INSERT INTO speech_usage_client_daily"));
+  assert.ok(clientInsert >= 0);
+  assert.ok(harness.dbRuns.some((run) => run.sql.includes("DELETE FROM speech_usage_client_daily")));
+});
+
+test("a failed Google call gives the reserved characters back", async () => {
+  const harness = createContext({
+    staticResponse: new Response("missing", { status: 404 }),
+    providerFetch: async () => new Response("unavailable", { status: 503 }),
+  });
+  const response = await onRequestPost(harness.context);
+  await Promise.all(harness.waitUntilPromises);
+
+  assert.equal(response.status, 502);
+  const refunds = harness.dbRuns.filter((run) => /SET characters_used = MAX\(0, characters_used -/.test(run.sql));
+  assert.equal(refunds.length, 2);
+  assert.ok(refunds.some((run) => run.sql.includes("speech_usage_daily")));
+  assert.ok(refunds.some((run) => run.sql.includes("speech_usage_client_daily")));
+});
+
+test("pronunciation accepts a word selected with stress marks", () => {
+  assert.equal(canonicalizeSpeechWord("ДО\u0301БРИЙ"), "добрий");
 });
