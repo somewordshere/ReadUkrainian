@@ -15,11 +15,15 @@ function normalizeJoiners(value) {
     .replace(HYPHEN_VARIANTS, "-");
 }
 
+// Stress marks are stripped from the decomposed text: NFC would first merge a
+// grave accent into е or и (ѐ, ѝ), leaving a letter no Ukrainian word pattern
+// matches.
 export function normalizeUkrainianText(value) {
   return normalizeJoiners(
     String(value ?? "")
-      .normalize("NFC")
+      .normalize("NFD")
       .replace(STRESS_MARKS, "")
+      .normalize("NFC")
       .trim()
       .toLocaleLowerCase("uk-UA")
   ).normalize("NFC");

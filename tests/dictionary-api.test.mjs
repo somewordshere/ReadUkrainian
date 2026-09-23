@@ -281,3 +281,12 @@ test("returns a non-cacheable service error when D1 is unavailable", async () =>
     error: "The dictionary is temporarily unavailable.",
   });
 });
+
+test("strips grave as well as acute stress marks, even when NFC merged them", async () => {
+  const { canonicalizeUkrainianWord } = await import("../functions/_shared/ukrainian-word.js");
+  // U+045D is и with a grave accent, precomposed; U+0450 is е with one.
+  assert.equal(canonicalizeUkrainianWord("лѝпа"), "липа");
+  assert.equal(canonicalizeUkrainianWord("сѐло"), "село");
+  assert.equal(canonicalizeUkrainianWord("мо\u0301ва"), "мова");
+  assert.equal(canonicalizeUkrainianWord("й\u0301ти"), "йти");
+});

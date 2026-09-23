@@ -2,12 +2,26 @@ const MAX_QUESTIONS = 20;
 const MAX_PROMPT_CHARACTERS = 500;
 const MAX_ANSWER_CHARACTERS = 200;
 
+// One unreadable row is logged and left out, rather than failing the whole
+// story it belongs to.
 function toQuestionRecord(row) {
+  let wrong = null;
+  try {
+    wrong = JSON.parse(row.wrong_answers_json);
+  } catch {
+    wrong = null;
+  }
+
+  if (!Array.isArray(wrong)) {
+    console.error(JSON.stringify({ message: "question_row_unreadable", questionId: row.id }));
+    return null;
+  }
+
   return {
     id: row.id,
     prompt: row.prompt,
     correct: row.correct_answer,
-    wrong: JSON.parse(row.wrong_answers_json),
+    wrong,
   };
 }
 
@@ -22,7 +36,7 @@ export async function listQuestionsForStory(db, storyId) {
     .bind(storyId)
     .all();
 
-  return (result.results || []).map(toQuestionRecord);
+  return (result.results || []).map(toQuestionRecord).filter(Boolean);
 }
 
 // These run in the same batch after a guarded UPDATE of the story that sets its
