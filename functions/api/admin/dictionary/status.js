@@ -1,11 +1,12 @@
 import { requirePermission } from "../../../_shared/auth.js";
+import { getDatabaseVersion } from "../../../_shared/database-version.js";
 import { json } from "../../../_shared/http.js";
 
 export async function onRequestGet(context) {
   const auth = await requirePermission(context, "dictionary_suggest");
   if (!auth.ok) return auth.response;
 
-  const [pairs, pending] = await Promise.all([
+  const [pairs, pending, database] = await Promise.all([
     context.env.DB.prepare(`
       SELECT
         source_language AS sourceLanguage,
@@ -24,10 +25,15 @@ export async function onRequestGet(context) {
       FROM dictionary_suggestions
       WHERE status = 'pending'
     `).first(),
+    getDatabaseVersion(context.env.DB),
   ]);
 
-  const dictionaries = pairs?.results || [];
+  const dictionaries = (pairs?.results || []).map((pair) => ({
+    ...pair,
+    migration: database?.dictionaries[pair.targetLanguage] || null,
+  }));
   return json({
+    database: database && { latest: database.latest, count: database.count },
     dictionaries,
     // Kept for callers that only know the English pair.
     dictionary: dictionaries.find((pair) => pair.targetLanguage === "en") || null,

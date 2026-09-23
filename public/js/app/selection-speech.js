@@ -191,6 +191,8 @@ export function initSelectionSpeech(
   let enabled = false;
   let speechEnabled = true;
   let storyId = null;
+  // Empty means the site voice; the server ignores a voice that is no longer offered.
+  let voiceId = "";
   let selectedText = "";
   let selectionIssue = "";
   let visibleError = "";
@@ -654,7 +656,9 @@ export function initSelectionSpeech(
           accept: "audio/mpeg",
           "content-type": "application/json",
         },
-        body: JSON.stringify({ storyId, text: selectedText }),
+        body: JSON.stringify(
+          voiceId ? { storyId, text: selectedText, voiceId } : { storyId, text: selectedText }
+        ),
         signal: requestController.signal,
       });
 
@@ -983,6 +987,14 @@ export function initSelectionSpeech(
         dismissOffer({ stop: true });
       }
       updateHint();
+    },
+    setVoice(nextVoiceId) {
+      const normalizedVoiceId = typeof nextVoiceId === "string" ? nextVoiceId : "";
+      if (normalizedVoiceId === voiceId) return;
+
+      voiceId = normalizedVoiceId;
+      // Audio already fetched for the selected word is in the old voice.
+      stopPlayback();
     },
     setSpeechEnabled(nextEnabled) {
       speechEnabled = Boolean(nextEnabled && storyId);

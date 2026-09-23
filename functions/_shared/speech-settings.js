@@ -1,6 +1,8 @@
 import {
   DEFAULT_SPEECH_VOICE_ID,
+  compareSpeechVoices,
   resolveSpeechVoice,
+  speechVoiceGender,
 } from "./speech-voices.js";
 
 const SELECT_SETTING_SQL = `
@@ -63,6 +65,45 @@ export async function listEnabledSpeechVoiceIds(db) {
       .map((row) => resolveSpeechVoice(row.voiceId)?.id)
       .filter(Boolean)
   );
+}
+
+function learnerVoice(voice) {
+  return {
+    id: voice.id,
+    label: voice.family === "Chirp 3 HD" ? voice.label : `${voice.family} ${voice.label}`,
+    gender: speechVoiceGender(voice),
+  };
+}
+
+// What the reader needs: whether pronunciation is on, the site voice, and the
+// voices a learner may pick instead (the site voice first, then the shortlist).
+// A shortlist that cannot load leaves just the site voice.
+export async function getLearnerSpeechOptions(db) {
+  const setting = await getSpeechSetting(db);
+  let enabledIds = new Set();
+  try {
+    enabledIds = await listEnabledSpeechVoiceIds(db);
+  } catch {
+    // Pronunciation still works in the site voice.
+  }
+  enabledIds.delete(setting.voiceId);
+  const others = [...enabledIds].map((id) => resolveSpeechVoice(id)).sort(compareSpeechVoices);
+
+  return {
+    enabled: setting.enabled,
+    voiceId: setting.voiceId,
+    voices: [resolveSpeechVoice(setting.voiceId), ...others].map(learnerVoice),
+  };
+}
+
+// A learner's chosen voice, if it is still allowed; otherwise the site voice.
+export async function resolveLearnerSpeechVoice(db, setting, requestedVoiceId) {
+  const siteVoice = resolveSpeechVoice(setting.voiceId);
+  const requested = resolveSpeechVoice(requestedVoiceId);
+  if (!requested || requested.id === siteVoice?.id) return siteVoice;
+
+  const enabledIds = await listEnabledSpeechVoiceIds(db);
+  return enabledIds.has(requested.id) ? requested : siteVoice;
 }
 
 export async function saveSpeechVoiceOption(db, { voiceId, enabled }, session) {

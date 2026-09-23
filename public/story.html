@@ -22,6 +22,7 @@
     <link rel="modulepreload" href="./js/app/library-utils.mjs" />
     <link rel="modulepreload" href="./js/app/selection-speech.js" />
     <link rel="modulepreload" href="./js/app/story-words.mjs" />
+    <link rel="modulepreload" href="./js/app/voice-picker.js" />
   </head>
   <body class="public-page reader-page">
     <a class="skip-link" href="#storyTitle">Перейти до тексту</a>
@@ -53,6 +54,26 @@
                 <span>Наголоси</span>
                 <span class="switch" aria-hidden="true"></span>
               </button>
+              <div class="voice-picker" id="voicePicker" hidden>
+                <span class="reader-control-label" id="voicePickerLabel">Голос</span>
+                <div class="voice-menu">
+                  <button
+                    class="voice-menu-button"
+                    id="voiceMenuButton"
+                    type="button"
+                    aria-haspopup="listbox"
+                    aria-expanded="false"
+                    aria-controls="voiceMenuList"
+                    aria-labelledby="voicePickerLabel voiceMenuValue"
+                  >
+                    <span id="voiceMenuValue"></span>
+                    <svg class="voice-menu-chevron" viewBox="0 0 12 12" width="12" height="12" aria-hidden="true">
+                      <path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </button>
+                  <ul class="voice-menu-list" id="voiceMenuList" role="listbox" aria-labelledby="voicePickerLabel" tabindex="-1" hidden></ul>
+                </div>
+              </div>
             </div>
           </div>
           <p class="story-speech-hint" id="storySpeechHint" hidden>

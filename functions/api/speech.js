@@ -7,7 +7,7 @@ import {
   isMp3,
 } from "../_shared/google-speech.js";
 import { error } from "../_shared/http.js";
-import { getSpeechSetting } from "../_shared/speech-settings.js";
+import { getSpeechSetting, resolveLearnerSpeechVoice } from "../_shared/speech-settings.js";
 import {
   DEFAULT_SPEECH_VOICE_ID,
   resolveSpeechVoice,
@@ -405,7 +405,18 @@ export async function onRequestPost(context) {
     });
   }
 
-  const voiceConfig = resolveSpeechVoice(speechSetting.voiceId);
+  // The learner's chosen voice counts only while it is on the admin's shortlist;
+  // a stale or unknown choice quietly falls back to the site voice.
+  let voiceConfig;
+  try {
+    voiceConfig = await resolveLearnerSpeechVoice(
+      context.env.DB,
+      speechSetting,
+      parsedBody.value?.voiceId
+    );
+  } catch {
+    voiceConfig = resolveSpeechVoice(speechSetting.voiceId);
+  }
   if (!voiceConfig) {
     return noStoreError(503, "Pronunciation is temporarily unavailable.");
   }

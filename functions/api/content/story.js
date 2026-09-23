@@ -1,5 +1,5 @@
 import { NO_STORE, PUBLISHED_CONTENT_CACHE, error, json } from "../../_shared/http.js";
-import { getSpeechSetting } from "../../_shared/speech-settings.js";
+import { getLearnerSpeechOptions } from "../../_shared/speech-settings.js";
 import { getStoryById, getStoryByLevelAndOrder } from "../../_shared/texts.js";
 
 export async function onRequestGet(context) {
@@ -21,9 +21,8 @@ export async function onRequestGet(context) {
 
   // The speech setting does not depend on the story, so both round-trips are
   // started together. Failing closed keeps reading available when it cannot load.
-  const speechEnabledPromise = getSpeechSetting(context.env.DB).then(
-    (setting) => setting.enabled,
-    () => false
+  const speechPromise = getLearnerSpeechOptions(context.env.DB).catch(
+    () => ({ enabled: false, voiceId: null, voices: [] })
   );
 
   const story = Number.isInteger(storyId) && storyId > 0
@@ -34,10 +33,17 @@ export async function onRequestGet(context) {
     return error(404, "Story not found.", { headers: { "cache-control": NO_STORE } });
   }
 
-  const speechEnabled = await speechEnabledPromise;
+  const speech = await speechPromise;
 
   return json(
-    { story: { ...story, speechEnabled } },
+    {
+      story: {
+        ...story,
+        speechEnabled: speech.enabled,
+        speechVoiceId: speech.voiceId,
+        speechVoices: speech.enabled ? speech.voices : [],
+      },
+    },
     { headers: { "cache-control": PUBLISHED_CONTENT_CACHE } }
   );
 }

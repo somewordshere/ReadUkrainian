@@ -3,7 +3,7 @@ import test from "node:test";
 
 import { onRequestGet } from "../functions/api/content/story.js";
 
-function createDb({ speechRow = null, speechThrows = false } = {}) {
+function createDb({ speechRow = null, speechThrows = false, enabledVoices = [], voicesThrow = false } = {}) {
   const storyRow = {
     id: 42,
     level: "A1",
@@ -36,6 +36,10 @@ function createDb({ speechRow = null, speechThrows = false } = {}) {
           return null;
         },
         async all() {
+          if (sql.includes("FROM speech_voice_options")) {
+            if (voicesThrow) throw new Error("Voice shortlist unavailable.");
+            return { results: enabledVoices.map((voiceId) => ({ voiceId })) };
+          }
           assert.match(sql, /FROM questions/);
           return { results: [] };
         },
@@ -73,4 +77,34 @@ test("story content keeps reading available and defaults speech to disabled", as
     assert.equal(payload.story.storyId, 42);
     assert.equal(payload.story.speechEnabled, false);
   }
+});
+
+test("story content lists the site voice first, then the rest of the shortlist", async () => {
+  const response = await fetchStory(createDb({
+    speechRow: { voiceId: "uk-UA-Chirp3-HD-Charon", enabled: 1, version: 3 },
+    enabledVoices: ["uk-UA-Wavenet-B", "uk-UA-Chirp3-HD-Charon", "uk-UA-Chirp3-HD-Aoede", "not-a-voice"],
+  }));
+  const { story } = await response.json();
+
+  assert.equal(story.speechVoiceId, "uk-UA-Chirp3-HD-Charon");
+  assert.deepEqual(story.speechVoices, [
+    { id: "uk-UA-Chirp3-HD-Charon", label: "Charon", gender: "male" },
+    { id: "uk-UA-Chirp3-HD-Aoede", label: "Aoede", gender: "female" },
+    { id: "uk-UA-Wavenet-B", label: "WaveNet B", gender: "female" },
+  ]);
+});
+
+test("story content keeps the site voice when the shortlist cannot load, and no voices when speech is off", async () => {
+  const shortlistDown = await (await fetchStory(createDb({
+    speechRow: { voiceId: "uk-UA-Chirp3-HD-Achernar", enabled: 1, version: 1 },
+    voicesThrow: true,
+  }))).json();
+  assert.equal(shortlistDown.story.speechEnabled, true);
+  assert.deepEqual(shortlistDown.story.speechVoices.map((voice) => voice.id), ["uk-UA-Chirp3-HD-Achernar"]);
+
+  const speechOff = await (await fetchStory(createDb({
+    speechRow: { voiceId: "uk-UA-Chirp3-HD-Achernar", enabled: 0, version: 1 },
+    enabledVoices: ["uk-UA-Chirp3-HD-Charon"],
+  }))).json();
+  assert.deepEqual(speechOff.story.speechVoices, []);
 });
