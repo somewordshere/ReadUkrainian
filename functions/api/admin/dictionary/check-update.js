@@ -67,7 +67,8 @@ export async function onRequestPost(context) {
   const parsed = await readLimitedJson(context.request, MAX_REQUEST_BYTES);
   if (!parsed.ok) return error(parsed.status, parsed.message);
   const targetLanguage = String(parsed.value?.targetLanguage || "en").toLowerCase();
-  const source = SOURCES[targetLanguage];
+  // Own keys only: "constructor" or "__proto__" must not resolve to a source.
+  const source = Object.hasOwn(SOURCES, targetLanguage) ? SOURCES[targetLanguage] : null;
   if (!source) return error(400, "targetLanguage must be en or de.");
 
   const controller = new AbortController();

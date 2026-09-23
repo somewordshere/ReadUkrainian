@@ -885,3 +885,35 @@ test("a learner can report a wrong translation, sending only the word, language 
     harness.restore();
   }
 });
+
+test("attribution links are only made from https: URLs", async () => {
+  const harness = createHarness({
+    selectionText: "мали",
+    fetchImpl: async () => Response.json({
+      query: { text: "мали", sourceLanguage: "uk", targetLanguage: "en" },
+      entries: [{ lemma: "мати", normalizedLemma: "мати", partOfSpeech: "verb", forms: [], translations: [{ text: "to have" }] }],
+      attributions: [
+        { id: "bad", name: "Bad source", url: "javascript:alert(1)", licenseName: "Bad licence", licenseUrl: "data:text/html,x" },
+        { id: "good", name: "Good source", url: "https://kaikki.org/dictionary/Ukrainian/", licenseName: "CC BY-SA", licenseUrl: "https://example.org/licence" },
+      ],
+    }),
+  });
+  try {
+    showSelection(harness);
+    harness.translateButton.dispatchEvent(new Event("click"));
+    await flushAsyncWork();
+
+    const links = [];
+    const collect = (element) => {
+      if (typeof element?.href === "string") links.push(element.href);
+      (element?.children || []).forEach(collect);
+    };
+    collect(harness.translationResult);
+
+    assert.deepEqual(links, ["https://kaikki.org/dictionary/Ukrainian/", "https://example.org/licence"]);
+    // The unsafe source is still credited, as plain text.
+    assert.match(allText(harness.translationResult), /Bad source/);
+  } finally {
+    harness.restore();
+  }
+});
