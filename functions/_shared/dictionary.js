@@ -125,6 +125,15 @@ export async function lookupDictionaryWord(
       INNER JOIN dictionary_lexemes AS lexeme ON lexeme.id = form.lexeme_id
       WHERE form.source_language = ?1 AND form.normalized_form = ?2
         AND lexeme.review_status = 'approved'
+        -- Only entries with a translation in the asked language compete for the
+        -- limit below; otherwise other languages' entries push them out.
+        AND EXISTS (
+          SELECT 1 FROM dictionary_senses AS sense
+          JOIN dictionary_translations AS translation ON translation.sense_id = sense.id
+          WHERE sense.lexeme_id = lexeme.id
+            AND translation.target_language = ?4
+            AND translation.review_status = 'approved'
+        )
       ORDER BY
         CASE WHEN lexeme.normalized_lemma = ?2 THEN 0 ELSE 1 END,
         lexeme.lemma ASC,
@@ -132,7 +141,7 @@ export async function lookupDictionaryWord(
         form.tags_json ASC
       LIMIT ?3
     `)
-    .bind(sourceLanguage, normalizedWord, MAX_FORM_ROWS)
+    .bind(sourceLanguage, normalizedWord, MAX_FORM_ROWS, targetLanguage)
     .all();
 
   const lexemes = new Map();

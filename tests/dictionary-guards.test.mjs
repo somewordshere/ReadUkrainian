@@ -199,3 +199,23 @@ test("the lookup shows a word once even when an update added it again", async ()
     sqlite.close();
   }
 });
+
+test("other languages' entries cannot push a word's entry out of the lookup", async () => {
+  const { sqlite, lookup } = dictionary();
+  try {
+    // Thirteen English-only entries that also list «мене» and sort before «я».
+    for (let index = 1; index <= 13; index += 1) {
+      const id = `lex_en_${index}`;
+      sqlite.exec(`INSERT INTO dictionary_lexemes (id, source_language, lemma, normalized_lemma, part_of_speech, source_entry_id)
+        VALUES ('${id}', 'uk', 'а${index}', 'а${index}', 'noun', '${id}')`);
+      sqlite.exec(`INSERT INTO dictionary_forms (lexeme_id, source_language, normalized_form, display_form, tags_json)
+        VALUES ('${id}', 'uk', 'мене', 'мене', '["genitive"]')`);
+      sqlite.exec(`INSERT INTO dictionary_senses (id, lexeme_id, sense_order) VALUES ('s_${id}', '${id}', 1)`);
+      sqlite.exec(`INSERT INTO dictionary_translations (sense_id, target_language, translation, translation_order)
+        VALUES ('s_${id}', 'en', 'filler ${index}', 1)`);
+    }
+    assert.deepEqual(await lookup("мене", "de"), ["я"]);
+  } finally {
+    sqlite.close();
+  }
+});

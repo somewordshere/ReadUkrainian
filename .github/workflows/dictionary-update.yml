@@ -30,6 +30,7 @@ on:
       - 'scripts/dictionary/**'
       - 'scripts/lib/dictionary-guards.mjs'
       - 'functions/_shared/ukrainian-word.js'
+      - 'functions/_shared/dictionary.js'
       - 'data/dictionary/**'
       - 'migrations/**'
       - 'data/releases/**'
