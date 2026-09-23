@@ -1,7 +1,16 @@
 const PROGRESS_STORAGE_KEY = "isuk-progress";
-const PROGRESS_WINDOW_KEY = "__isukProgress__";
 const LAST_STORY_STORAGE_KEY = "isuk-last-story";
-const LAST_STORY_WINDOW_KEY = "__isukLastStory__";
+// Older versions also mirrored progress into window.name. Any site can set a
+// tab's window.name (window.open's second argument) and read it after the tab
+// navigates away, so it is neither private nor trustworthy; these keys are only
+// ever removed now.
+const RETIRED_WINDOW_NAME_KEYS = ["__isukProgress__", "__isukLastStory__"];
+// Keys that would reach Object.prototype if merged into a plain object.
+const UNSAFE_KEYS = new Set(["__proto__", "constructor", "prototype"]);
+// A frozen migration table, not content: progress saved before stories had ids
+// was keyed by position, and these are the titles those positions held. It
+// stays in this file because a separate data file would cost every page an
+// extra request before progress can load.
 const LEGACY_STORY_TITLES_BY_LEVEL = {
   "A1": [
     "Розклад занять студента",
@@ -142,6 +151,8 @@ const LEGACY_STORY_TITLES_BY_LEVEL = {
     "Текст 15"
   ]
 };
+Object.values(LEGACY_STORY_TITLES_BY_LEVEL).forEach(Object.freeze);
+Object.freeze(LEGACY_STORY_TITLES_BY_LEVEL);
 
 function getBrowserStorage(storageName) {
   try {
@@ -176,57 +187,63 @@ function writeToStorage(storage, value) {
   }
 }
 
-function readFromWindowName() {
+function forgetWindowNameProgress() {
   try {
-    if (!window.name) {
-      return null;
-    }
+    const parsed = window.name ? JSON.parse(window.name) : null;
+    if (!isPlainRecord(parsed)) return;
+    if (!RETIRED_WINDOW_NAME_KEYS.some((key) => Object.prototype.hasOwnProperty.call(parsed, key))) return;
 
-    const parsed = JSON.parse(window.name);
-    return parsed?.[PROGRESS_WINDOW_KEY] || null;
+    RETIRED_WINDOW_NAME_KEYS.forEach((key) => delete parsed[key]);
+    window.name = Object.keys(parsed).length ? JSON.stringify(parsed) : "";
   } catch (error) {
-    return null;
+    // window.name held something else; it is not ours to change.
   }
 }
 
+function isPlainRecord(value) {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+forgetWindowNameProgress();
+
 function parseProgress(raw) {
   try {
-    return raw ? JSON.parse(raw) : {};
+    const parsed = raw ? JSON.parse(raw) : {};
+    return isPlainRecord(parsed) ? parsed : {};
   } catch (error) {
     return {};
   }
 }
 
+// Stored progress is untrusted input, so the merge builds prototype-less
+// objects and drops keys that would otherwise write to Object.prototype.
 function mergeProgress(...progressSources) {
-  return progressSources.reduce((merged, source) => {
+  const merged = Object.create(null);
+
+  progressSources.forEach((source) => {
     Object.entries(source || {}).forEach(([level, levelProgress]) => {
-      if (!merged[level]) {
-        merged[level] = {};
+      if (UNSAFE_KEYS.has(level) || !isPlainRecord(levelProgress)) {
+        return;
       }
 
-      Object.assign(merged[level], levelProgress);
+      const mergedLevel = ensureLevel(merged, level);
+      Object.entries(levelProgress).forEach(([storyKey, storyProgress]) => {
+        if (!UNSAFE_KEYS.has(storyKey) && isPlainRecord(storyProgress)) {
+          mergedLevel[storyKey] = storyProgress;
+        }
+      });
     });
+  });
 
-    return merged;
-  }, {});
+  return merged;
 }
 
-function writeToWindowName(value) {
-  try {
-    let parsed = {};
-
-    try {
-      parsed = window.name ? JSON.parse(window.name) : {};
-    } catch (error) {
-      parsed = {};
-    }
-
-    parsed[PROGRESS_WINDOW_KEY] = value;
-    window.name = JSON.stringify(parsed);
-    return true;
-  } catch (error) {
-    return false;
-  }
+function emptyStoryProgress() {
+  return {
+    answers: [],
+    completed: false,
+    correctCount: 0
+  };
 }
 
 function getStoryStorageKeyByTitle(title) {
@@ -237,6 +254,16 @@ function getStoryStorageKey(storyId) {
   return `id:${storyId}`;
 }
 
+function ensureLevel(progress, level) {
+  if (!progress[level]) {
+    progress[level] = Object.create(null);
+  }
+
+  return progress[level];
+}
+
+// Moves title-keyed progress onto the story id in memory only; the next write
+// persists it, so reading progress never writes to storage.
 function migrateStoryProgressToId(progress, level, storyId, title) {
   const storyKey = getStoryStorageKey(storyId);
   const titleKey = title ? getStoryStorageKeyByTitle(title) : null;
@@ -248,7 +275,6 @@ function migrateStoryProgressToId(progress, level, storyId, title) {
 
   levelProgress[storyKey] = levelProgress[titleKey];
   delete levelProgress[titleKey];
-  saveProgress(progress);
   return storyKey;
 }
 
@@ -289,16 +315,15 @@ function migrateLegacyProgressKeys(progress) {
 }
 
 // Reading progress is a hot path: the library re-reads it several times per story
-// on every render and keystroke. Merging the three persistence layers is only
-// needed once per page, so the merged state is cached and reused.
+// on every render and keystroke. Merging the persistence layers is only needed
+// once per page, so the merged state is cached and reused.
 let cachedProgress = null;
 
 function readMergedProgress() {
   return migrateLegacyProgressKeys(
     mergeProgress(
       parseProgress(readFromStorage(getBrowserStorage("localStorage"))),
-      parseProgress(readFromStorage(getBrowserStorage("sessionStorage"))),
-      parseProgress(readFromWindowName())
+      parseProgress(readFromStorage(getBrowserStorage("sessionStorage")))
     )
   );
 }
@@ -323,7 +348,6 @@ function persistProgress(progress) {
   const serialized = JSON.stringify(progress);
   writeToStorage(getBrowserStorage("localStorage"), serialized);
   writeToStorage(getBrowserStorage("sessionStorage"), serialized);
-  writeToWindowName(serialized);
 }
 
 function saveProgress(progress) {
@@ -346,18 +370,14 @@ try {
 function getStoryProgress(level, storyId, title) {
   const progress = loadProgress();
   const storyKey = migrateStoryProgressToId(progress, level, storyId, title);
-  return progress?.[level]?.[storyKey] || null;
+  return progress[level]?.[storyKey] || null;
 }
 
 function setStoryProgress(level, storyId, title, storyProgress) {
   const progress = loadProgress();
   const storyKey = migrateStoryProgressToId(progress, level, storyId, title);
 
-  if (!progress[level]) {
-    progress[level] = {};
-  }
-
-  progress[level][storyKey] = storyProgress;
+  ensureLevel(progress, level)[storyKey] = storyProgress;
   saveProgress(progress);
 }
 
@@ -385,19 +405,10 @@ function isStoryBookmarked(level, storyId, title) {
 function setStoryBookmarked(level, storyId, title, bookmarked) {
   const progress = loadProgress();
   const storyKey = migrateStoryProgressToId(progress, level, storyId, title);
+  const levelProgress = ensureLevel(progress, level);
 
-  if (!progress[level]) {
-    progress[level] = {};
-  }
-
-  const existingStoryProgress = progress[level][storyKey] || {
-    answers: [null, null, null, null, null],
-    completed: false,
-    correctCount: 0
-  };
-
-  progress[level][storyKey] = {
-    ...existingStoryProgress,
+  levelProgress[storyKey] = {
+    ...(levelProgress[storyKey] || emptyStoryProgress()),
     bookmarked
   };
 
@@ -415,14 +426,8 @@ function markStoryOpened(level, storyId, title) {
     return;
   }
 
-  if (!progress[level]) {
-    progress[level] = {};
-  }
-
-  progress[level][storyKey] = {
-    answers: [],
-    completed: false,
-    correctCount: 0,
+  ensureLevel(progress, level)[storyKey] = {
+    ...emptyStoryProgress(),
     ...existingStoryProgress,
     opened: true
   };
@@ -433,25 +438,14 @@ function markStoryOpened(level, storyId, title) {
 function parseLastVisitedStory(raw) {
   try {
     const story = raw ? JSON.parse(raw) : null;
-    return story && story.level && (story.storyId || story.sortOrder) ? story : null;
+    return isPlainRecord(story) && story.level && (story.storyId || story.sortOrder) ? story : null;
   } catch (error) {
     return null;
   }
 }
 
 function getLastVisitedStory() {
-  const local = getBrowserStorage("localStorage");
-  const session = getBrowserStorage("sessionStorage");
-  let windowValue = null;
-
-  try {
-    const parsedWindowName = window.name ? JSON.parse(window.name) : {};
-    windowValue = parsedWindowName[LAST_STORY_WINDOW_KEY] || null;
-  } catch (error) {
-    windowValue = null;
-  }
-
-  for (const storage of [local, session]) {
+  for (const storage of [getBrowserStorage("localStorage"), getBrowserStorage("sessionStorage")]) {
     try {
       const story = parseLastVisitedStory(storage?.getItem(LAST_STORY_STORAGE_KEY));
       if (story) {
@@ -462,7 +456,7 @@ function getLastVisitedStory() {
     }
   }
 
-  return parseLastVisitedStory(windowValue);
+  return null;
 }
 
 function setLastVisitedStory(story) {
@@ -470,34 +464,19 @@ function setLastVisitedStory(story) {
     return;
   }
 
-  const normalizedStory = {
+  const serialized = JSON.stringify({
     level: story.level,
     storyId: story.storyId,
     sortOrder: story.sortOrder,
     title: story.title || "",
     visitedAt: new Date().toISOString(),
-  };
-  const serialized = JSON.stringify(normalizedStory);
+  });
 
   for (const storage of [getBrowserStorage("localStorage"), getBrowserStorage("sessionStorage")]) {
     try {
       storage?.setItem(LAST_STORY_STORAGE_KEY, serialized);
     } catch (error) {
-      // The window.name fallback below still preserves the learner's place.
+      // Progress persistence is best-effort when browser storage is restricted.
     }
-  }
-
-  try {
-    let parsedWindowName = {};
-    try {
-      parsedWindowName = window.name ? JSON.parse(window.name) : {};
-    } catch (error) {
-      parsedWindowName = {};
-    }
-
-    parsedWindowName[LAST_STORY_WINDOW_KEY] = serialized;
-    window.name = JSON.stringify(parsedWindowName);
-  } catch (error) {
-    // Progress persistence is best-effort when browser storage is restricted.
   }
 }
