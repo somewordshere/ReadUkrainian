@@ -1,35 +1,37 @@
-export const DEFAULT_SPEECH_VOICE_ID = "achernar";
+// Site voices are Google Cloud Text-to-Speech voice names. Any Ukrainian voice
+// Google offers may be auditioned in the admin; learners only hear the one site
+// voice, which must be on the admin's enabled shortlist (speech_voice_options).
+export const DEFAULT_SPEECH_VOICE_ID = "uk-UA-Chirp3-HD-Achernar";
 
-// Each voice needs a generated static set in public/speech/<id>/ (see
-// scripts/speech/README.md); the Google fallback only covers words added since.
-const SPEECH_VOICES = Object.freeze([
-  Object.freeze({
-    id: "achernar",
-    label: "Achernar",
-    description: "Ukrainian female voice · Google Chirp 3 HD",
-    providerVoice: "uk-UA-Chirp3-HD-Achernar",
-  }),
-]);
-
-const VOICES_BY_ID = new Map(SPEECH_VOICES.map((voice) => [voice.id, voice]));
-const PUBLIC_SPEECH_VOICES = Object.freeze(
-  SPEECH_VOICES.map((voice) =>
-    Object.freeze({
-      id: voice.id,
-      label: voice.label,
-      description: voice.description,
-    })
-  )
-);
+const VOICE_FAMILIES = Object.freeze({
+  "Chirp3-HD": "Chirp 3 HD",
+  Neural2: "Neural2",
+  Wavenet: "WaveNet",
+  Standard: "Standard",
+});
+const VOICE_ID_PATTERN = /^uk-UA-(Chirp3-HD|Neural2|Wavenet|Standard)-([A-Z][A-Za-z]{0,39})$/u;
 
 export function resolveSpeechVoice(voiceId) {
   if (typeof voiceId !== "string") {
     return null;
   }
 
-  return VOICES_BY_ID.get(voiceId) || null;
+  const match = voiceId.match(VOICE_ID_PATTERN);
+  if (!match) {
+    return null;
+  }
+
+  return Object.freeze({
+    id: voiceId,
+    providerVoice: voiceId,
+    label: match[2],
+    family: VOICE_FAMILIES[match[1]],
+  });
 }
 
-export function listPublicSpeechVoices() {
-  return PUBLIC_SPEECH_VOICES;
+// Newest, most natural voices first.
+export function compareSpeechVoices(left, right) {
+  const familyOrder = Object.values(VOICE_FAMILIES);
+  return familyOrder.indexOf(left.family) - familyOrder.indexOf(right.family)
+    || left.label.localeCompare(right.label, "en");
 }

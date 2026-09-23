@@ -12,6 +12,11 @@ const speechVoiceSelect = byId("speechVoiceSelect");
 const speechVoiceDescription = byId("speechVoiceDescription");
 const saveSpeechSettingsButton = byId("saveSpeechSettingsButton");
 const speechSettingsStatus = byId("speechSettingsStatus");
+const speechVoiceLibrary = byId("speechVoiceLibrary");
+const speechVoiceList = byId("speechVoiceList");
+const speechPreviewText = byId("speechPreviewText");
+const speechVoiceLibraryStatus = byId("speechVoiceLibraryStatus");
+const speechVoiceFilterButtons = Array.from(speechVoiceLibrary.querySelectorAll("[data-voice-filter]"));
 const dictionarySettingsSection = byId("dictionarySettingsSection");
 const dictionaryPairs = byId("dictionaryPairs");
 const dictionarySettingsStatus = byId("dictionarySettingsStatus");
@@ -77,6 +82,14 @@ let speechSettingsPending = false;
 let speechSettingsReady = false;
 let savedSpeechVoiceId = "";
 let savedSpeechEnabled = false;
+let speechVoices = [];
+let speechVoiceFilter = "all";
+let pendingVoiceOptionId = "";
+// Preview audio by voice and phrase, so replaying a voice costs no new request.
+const speechPreviewUrls = new Map();
+let speechPreviewAudio = null;
+let speechPreviewVoiceId = "";
+let speechPreviewToken = 0;
 let dictionarySettingsPending = false;
 let dictionaryCoveragePending = false;
 
@@ -148,17 +161,21 @@ function setSpeechSettingsPending(pending) {
   updateSpeechSettingsControls();
 }
 
+const SPEECH_GENDER_LABELS = { female: "Female", male: "Male" };
+
+function describeSpeechVoice(voice) {
+  return [SPEECH_GENDER_LABELS[voice.gender], voice.family].filter(Boolean).join(" · ");
+}
+
+// The site voice can only be one of the enabled voices.
 function populateSpeechVoices(voices, selectedVoiceId) {
   speechVoiceSelect.replaceChildren();
 
-  voices.forEach((voice) => {
-    const voiceId = voice.id || voice.voiceId;
-    if (!voiceId) return;
-
+  voices.filter((voice) => voice.enabled).forEach((voice) => {
     const option = document.createElement("option");
-    option.value = voiceId;
-    option.textContent = voice.label || voice.name || voiceId;
-    option.dataset.description = voice.description || "";
+    option.value = voice.id;
+    option.textContent = voice.label;
+    option.dataset.description = describeSpeechVoice(voice);
     speechVoiceSelect.appendChild(option);
   });
 
@@ -176,6 +193,86 @@ function populateSpeechVoices(voices, selectedVoiceId) {
   updateSpeechVoiceDescription();
 }
 
+function speechVoiceMatchesFilter(voice) {
+  if (speechVoiceFilter === "enabled") return voice.enabled;
+  if (speechVoiceFilter === "female" || speechVoiceFilter === "male") return voice.gender === speechVoiceFilter;
+  return true;
+}
+
+function renderSpeechVoiceLibrary() {
+  speechVoiceLibrary.hidden = !speechVoices.length;
+  speechVoiceFilterButtons.forEach((button) => {
+    button.setAttribute("aria-pressed", String(button.dataset.voiceFilter === speechVoiceFilter));
+  });
+
+  const visibleVoices = speechVoices.filter(speechVoiceMatchesFilter);
+  speechVoiceList.replaceChildren(...visibleVoices.map((voice) => {
+    const row = document.createElement("li");
+    row.className = "admin-voice-row";
+    row.classList.toggle("is-enabled", voice.enabled);
+
+    const playing = speechPreviewVoiceId === voice.id;
+    const play = document.createElement("button");
+    play.type = "button";
+    play.className = "admin-voice-play";
+    play.dataset.voicePreview = voice.id;
+    play.textContent = playing ? "■" : "▶";
+    play.setAttribute("aria-label", `${playing ? "Stop" : "Play"} ${voice.label}`);
+    play.setAttribute("aria-pressed", String(playing));
+
+    const copy = document.createElement("div");
+    copy.className = "admin-voice-copy";
+    const name = document.createElement("strong");
+    name.textContent = voice.label;
+    const meta = document.createElement("span");
+    meta.textContent = describeSpeechVoice(voice);
+    copy.append(name, meta);
+
+    row.append(play, copy);
+
+    // The site voice stays enabled, so it shows a badge instead of a checkbox.
+    if (voice.site) {
+      const pill = document.createElement("span");
+      pill.className = "admin-voice-site";
+      pill.textContent = "Site voice";
+      pill.title = "Choose another site voice before disabling this one.";
+      row.appendChild(pill);
+    } else {
+      const toggle = document.createElement("label");
+      toggle.className = "admin-voice-toggle";
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.checked = voice.enabled;
+      checkbox.dataset.voiceOption = voice.id;
+      checkbox.disabled = Boolean(pendingVoiceOptionId);
+      const toggleLabel = document.createElement("span");
+      toggleLabel.textContent = "Enabled";
+      toggle.append(checkbox, toggleLabel);
+      row.appendChild(toggle);
+    }
+
+    return row;
+  }));
+
+  if (!visibleVoices.length && speechVoices.length) {
+    const empty = document.createElement("li");
+    empty.className = "admin-voice-empty";
+    empty.textContent = "No voices match this filter.";
+    speechVoiceList.appendChild(empty);
+  }
+}
+
+function applySpeechSettingsPayload(payload) {
+  speechVoices = Array.isArray(payload.voices) ? payload.voices : [];
+  const selectedVoiceId = payload.setting?.voiceId || "";
+  populateSpeechVoices(speechVoices, selectedVoiceId);
+  speechEnabledCheckbox.checked = payload.setting?.enabled === true;
+  savedSpeechVoiceId = speechVoiceSelect.value;
+  savedSpeechEnabled = speechEnabledCheckbox.checked;
+  renderSpeechVoiceLibrary();
+  setStatus(speechVoiceLibraryStatus, payload.catalogError || "", Boolean(payload.catalogError));
+}
+
 async function loadSpeechSettings() {
   if (!hasPermission("settings")) {
     speechSettingsForm.hidden = true;
@@ -188,13 +285,7 @@ async function loadSpeechSettings() {
   setStatus(speechSettingsStatus, "Loading audio settings…");
 
   try {
-    const payload = await api("./api/admin/settings/speech", { method: "GET" });
-    const voices = Array.isArray(payload.voices) ? payload.voices : [];
-    const selectedVoiceId = payload.setting?.voiceId || payload.voiceId || "";
-    populateSpeechVoices(voices, selectedVoiceId);
-    speechEnabledCheckbox.checked = payload.setting?.enabled === true;
-    savedSpeechVoiceId = speechVoiceSelect.value;
-    savedSpeechEnabled = speechEnabledCheckbox.checked;
+    applySpeechSettingsPayload(await api("./api/admin/settings/speech", { method: "GET" }));
     speechSettingsReady = true;
     setStatus(speechSettingsStatus, currentSpeechSettingsStatus());
   } catch (error) {
@@ -214,26 +305,107 @@ async function saveSpeechSettings() {
   setStatus(speechSettingsStatus, "Saving audio settings…");
 
   try {
-    const payload = await api("./api/admin/settings/speech", {
+    applySpeechSettingsPayload(await api("./api/admin/settings/speech", {
       method: "PUT",
       body: JSON.stringify({ voiceId: requestedVoiceId, enabled: requestedEnabled }),
-    });
-    const savedVoiceId = payload.setting?.voiceId || payload.voiceId || requestedVoiceId;
-    const savedEnabled = typeof payload.setting?.enabled === "boolean"
-      ? payload.setting.enabled
-      : requestedEnabled;
-    const hasSavedVoice = Array.from(speechVoiceSelect.options)
-      .some((option) => option.value === savedVoiceId);
-    if (hasSavedVoice) speechVoiceSelect.value = savedVoiceId;
-    speechEnabledCheckbox.checked = savedEnabled;
-    savedSpeechVoiceId = speechVoiceSelect.value;
-    savedSpeechEnabled = savedEnabled;
-    updateSpeechVoiceDescription();
+    }));
     setStatus(speechSettingsStatus, currentSpeechSettingsStatus());
   } catch (error) {
     setStatus(speechSettingsStatus, `Could not save audio settings: ${error.message}`, true);
   } finally {
     setSpeechSettingsPending(false);
+  }
+}
+
+async function saveSpeechVoiceOption(voiceId, enabled) {
+  if (pendingVoiceOptionId) return;
+
+  const voice = speechVoices.find((item) => item.id === voiceId);
+  const unsavedVoiceId = speechVoiceSelect.value;
+  pendingVoiceOptionId = voiceId;
+  renderSpeechVoiceLibrary();
+  setStatus(speechVoiceLibraryStatus, `${enabled ? "Enabling" : "Disabling"} ${voice?.label || voiceId}…`);
+
+  try {
+    applySpeechSettingsPayload(await api("./api/admin/settings/speech/voices", {
+      method: "PUT",
+      body: JSON.stringify({ voiceId, enabled }),
+    }));
+    // Keep an unsaved site-voice choice if that voice is still enabled.
+    if (Array.from(speechVoiceSelect.options).some((option) => option.value === unsavedVoiceId)) {
+      speechVoiceSelect.value = unsavedVoiceId;
+      updateSpeechVoiceDescription();
+    }
+    updateSpeechSettingsControls();
+    setStatus(
+      speechVoiceLibraryStatus,
+      `${voice?.label || voiceId} is ${enabled ? "enabled and can be chosen as the site voice" : "disabled"}.`
+    );
+  } catch (error) {
+    setStatus(speechVoiceLibraryStatus, `Could not update ${voice?.label || voiceId}: ${error.message}`, true);
+  } finally {
+    pendingVoiceOptionId = "";
+    renderSpeechVoiceLibrary();
+  }
+}
+
+function stopSpeechPreview() {
+  speechPreviewToken += 1;
+  speechPreviewAudio?.pause();
+  speechPreviewAudio = null;
+  speechPreviewVoiceId = "";
+  renderSpeechVoiceLibrary();
+}
+
+async function playSpeechPreview(voiceId) {
+  if (speechPreviewVoiceId === voiceId) {
+    stopSpeechPreview();
+    return;
+  }
+
+  stopSpeechPreview();
+  const text = speechPreviewText.value.trim();
+  if (!text) {
+    setStatus(speechVoiceLibraryStatus, "Type a test phrase first.", true);
+    return;
+  }
+
+  const token = speechPreviewToken;
+  const voice = speechVoices.find((item) => item.id === voiceId);
+  speechPreviewVoiceId = voiceId;
+  renderSpeechVoiceLibrary();
+
+  try {
+    const cacheKey = `${voiceId}\u0000${text}`;
+    let url = speechPreviewUrls.get(cacheKey);
+    if (!url) {
+      setStatus(speechVoiceLibraryStatus, `Loading ${voice?.label || voiceId}…`);
+      const response = await fetch("./api/admin/settings/speech/preview", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ voiceId, text }),
+      });
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        throw new Error(payload.error || `Request failed with status ${response.status}`);
+      }
+      url = URL.createObjectURL(await response.blob());
+      speechPreviewUrls.set(cacheKey, url);
+    }
+    if (token !== speechPreviewToken) return;
+
+    const audio = new Audio(url);
+    speechPreviewAudio = audio;
+    audio.addEventListener("ended", () => {
+      if (speechPreviewAudio === audio) stopSpeechPreview();
+    });
+    setStatus(speechVoiceLibraryStatus, `Playing ${voice?.label || voiceId}.`);
+    await audio.play();
+  } catch (error) {
+    if (token !== speechPreviewToken) return;
+    stopSpeechPreview();
+    setStatus(speechVoiceLibraryStatus, `Could not play ${voice?.label || voiceId}: ${error.message}`, true);
   }
 }
 
@@ -1129,6 +1301,24 @@ speechEnabledCheckbox.addEventListener("change", () => {
 speechSettingsForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   await saveSpeechSettings();
+});
+speechVoiceList.addEventListener("click", (event) => {
+  const play = event.target.closest("[data-voice-preview]");
+  if (play) void playSpeechPreview(play.dataset.voicePreview);
+});
+speechVoiceList.addEventListener("change", (event) => {
+  const checkbox = event.target.closest("[data-voice-option]");
+  if (checkbox) void saveSpeechVoiceOption(checkbox.dataset.voiceOption, checkbox.checked);
+});
+speechVoiceFilterButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    speechVoiceFilter = button.dataset.voiceFilter;
+    renderSpeechVoiceLibrary();
+  });
+});
+// Enter in the test phrase plays nothing and must not save the settings form.
+speechPreviewText.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") event.preventDefault();
 });
 
 refreshDictionarySuggestionsButton.addEventListener("click", () => void loadDictionarySuggestions());

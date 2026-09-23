@@ -2,6 +2,7 @@
 // build-time generator in scripts/speech/ so both produce identical audio.
 
 export const GOOGLE_TTS_ENDPOINT = "https://texttospeech.googleapis.com/v1/text:synthesize";
+export const GOOGLE_VOICES_ENDPOINT = "https://texttospeech.googleapis.com/v1/voices?languageCode=uk-UA";
 // Learners hear single words; a slightly slower rate keeps every sound audible.
 export const GOOGLE_AUDIO_CONFIG = Object.freeze({
   audioEncoding: "MP3",
@@ -24,6 +25,15 @@ export function googleSpeechRequestInit({ key, text, voice, signal }) {
       voice: { languageCode: "uk-UA", name: voice.providerVoice },
       audioConfig: GOOGLE_AUDIO_CONFIG,
     }),
+    signal,
+  };
+}
+
+export function googleVoicesRequestInit({ key, signal }) {
+  return {
+    method: "GET",
+    headers: { "x-goog-api-key": key },
+    redirect: "manual",
     signal,
   };
 }

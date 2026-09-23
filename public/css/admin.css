@@ -147,3 +147,33 @@
   .admin-page .admin-dictionary-pair { grid-template-columns: minmax(0, 1fr); grid-template-areas: "name" "note" "versions" "actions"; }
   .admin-page .admin-dictionary-pair-actions { justify-content: flex-start; }
 }
+
+/* Voice library: audition every Google voice, keep a shortlist for the site voice. */
+.admin-page .admin-voice-library { grid-column: 1 / -1; display: grid; gap: 12px; padding-top: 18px; border-top: 1px solid var(--line); }
+.admin-page .admin-voice-library[hidden] { display: none; }
+.admin-page .admin-voice-library-heading h3 { margin: 0; font-family: var(--font-reading); font-size: 1.125rem; font-weight: 600; }
+.admin-page .admin-voice-library-heading p { margin: 4px 0 0; color: var(--muted); font-size: 0.875rem; }
+.admin-page .admin-voice-toolbar { display: flex; flex-wrap: wrap; align-items: end; gap: 12px 16px; }
+.admin-page .admin-voice-phrase { display: grid; flex: 1 1 280px; gap: 6px; color: var(--muted); font-size: 0.82rem; font-weight: 700; }
+.admin-page .admin-voice-phrase input { min-height: 44px; padding: 10px 13px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); color: var(--ink); font: inherit; font-size: 1rem; font-weight: 400; }
+.admin-page .admin-voice-phrase input:focus { border-color: var(--accent); outline: 3px solid #2c4f7c26; }
+.admin-page .admin-voice-filter { display: inline-flex; gap: 2px; padding: 3px; border-radius: 10px; background: var(--surface-muted); }
+.admin-page .admin-voice-filter button { min-height: 38px; padding: 0 14px; border: 0; border-radius: 8px; background: transparent; color: var(--muted); font: inherit; font-size: 0.875rem; font-weight: 600; cursor: pointer; }
+.admin-page .admin-voice-filter button:hover { color: var(--ink); }
+.admin-page .admin-voice-filter button[aria-pressed="true"] { background: var(--paper); color: var(--ink); box-shadow: var(--shadow-raised); }
+.admin-page .admin-voice-library .admin-status:empty { display: none; }
+.admin-page .admin-voice-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; }
+.admin-page .admin-voice-row { display: flex; align-items: center; gap: 12px; min-height: 64px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
+.admin-page .admin-voice-row.is-enabled { border-color: transparent; background: var(--accent-soft); }
+.admin-page .admin-voice-play { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 50%; background: var(--surface-muted); color: var(--ink); font-size: 0.875rem; cursor: pointer; }
+.admin-page .admin-voice-row.is-enabled .admin-voice-play { background: var(--paper); }
+.admin-page .admin-voice-play:hover { background: var(--surface-muted-hover); }
+.admin-page .admin-voice-play[aria-pressed="true"] { background: var(--accent); color: #fff; }
+.admin-page .admin-voice-copy { display: grid; flex: 1; min-width: 0; }
+.admin-page .admin-voice-copy strong { overflow: hidden; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.admin-page .admin-voice-copy span { color: var(--muted); font-size: 0.8125rem; }
+.admin-page .admin-voice-site { flex: none; padding: 3px 8px; border-radius: 999px; background: var(--accent); color: #fff; font-size: 0.75rem; font-weight: 600; }
+.admin-page .admin-voice-toggle { flex: none; display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 0.8125rem; font-weight: 600; cursor: pointer; }
+.admin-page .admin-voice-toggle input { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); cursor: pointer; }
+.admin-page .admin-voice-toggle input:disabled { cursor: not-allowed; }
+.admin-page .admin-voice-empty { grid-column: 1 / -1; padding: 16px; color: var(--muted); text-align: center; }
