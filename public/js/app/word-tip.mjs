@@ -17,7 +17,7 @@ const TIP_WORD_SET = new Set(TIP_WORDS);
 const STORAGE_KEY = "readukrainian.word-tip";
 const MIN_FALLBACK_LETTERS = 3;
 // The tip fades in this long after the page opened, so the story is seen first.
-const SHOW_DELAY_MS = 2500;
+const SHOW_DELAY_MS = 1750;
 
 function normalize(word) {
   return String(word || "").toLocaleLowerCase("uk-UA").replace(/[’ʼ`]/gu, "'");
