@@ -207,6 +207,9 @@
 .public-page .switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: var(--paper); box-shadow: 0 1px 2px #1f232840; transition: transform 0.18s ease; }
 .public-page .stress-toggle[aria-checked="true"] .switch { background: var(--accent); }
 .public-page .stress-toggle[aria-checked="true"] .switch::after { transform: translateX(14px); }
+/* Set in story.html's <head> until story.js applies the saved choice. */
+:root[data-stress="off"] .public-page .stress-toggle .switch { background: var(--switch-off); }
+:root[data-stress="off"] .public-page .stress-toggle .switch::after { transform: none; }
 /* Voice menu: a tinted button like the stress switch that opens a paper listbox,
    so the choice looks like the rest of the reader rather than a native select. */
 .public-page .voice-picker { display: flex; align-items: center; gap: 10px; }

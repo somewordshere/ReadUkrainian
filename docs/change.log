@@ -104,3 +104,4 @@ This file is tracked in GitHub and linked from the site version footer.
 0.98 - The tip about tapping words now fades in a moment after the story opens.
 0.99 - The tip about tapping words appears sooner after the story opens.
 1.0 - The questions are more compact and evenly spaced.
+1.1 - The stress-mark switch no longer flickers when the page loads.

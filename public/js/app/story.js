@@ -115,6 +115,8 @@ function setStressMarks(showStress) {
 }
 
 stressToggle.setAttribute("aria-checked", String(getSavedStressPreference()));
+// The switch now reflects the saved choice itself, so drop the first-paint override.
+delete document.documentElement.dataset.stress;
 if (getSavedStressPreference()) {
   // Start now so the map usually arrives with the story instead of after it.
   void loadStressMap();
