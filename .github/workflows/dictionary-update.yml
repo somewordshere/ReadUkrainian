@@ -68,7 +68,9 @@ jobs:
           git switch -c "$branch"
           git add migrations data/releases docs/change.log package.json package-lock.json public/js/app/version.js
           git commit -m "Update the ${LANGUAGE} dictionary to the ${{ steps.revision.outputs.available }} source" -m "$(cat "$RUNNER_TEMP/summary.md")"
-          git push origin "$branch"
+          # Preparing the same source again replaces the earlier branch: it was built
+          # on an older main, so its version and migration numbers may be taken since.
+          git push --force origin "$branch"
           {
             cat "$RUNNER_TEMP/summary.md"
             echo
