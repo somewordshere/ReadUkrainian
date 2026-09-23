@@ -270,13 +270,21 @@
 .public-page .selection-speech-popover :is(button, a):focus-visible { outline-color: #a9bbd3; outline-offset: -4px; }
 
 .public-page .questions-card { position: static; }
-.public-page .questions-title { margin-bottom: 24px; font-size: 1.375rem; line-height: 1.4; scroll-margin-top: 24px; }
-.public-page .question-item { padding: 24px 0; border-bottom: 1px solid var(--line); }
-.public-page .question-number { width: 32px; height: 32px; border-radius: 10px; background: var(--surface-muted); color: var(--ink); font-size: 0.875rem; font-weight: 600; }
-.public-page .question-legend { grid-template-columns: 32px minmax(0, 1fr); }
-.public-page .question-prompt { font-weight: 600; }
-.public-page .question-options { grid-template-columns: 1fr; gap: 8px; }
-.public-page .answer-option { min-height: 48px; align-items: center; padding: 12px; border-color: var(--control-line); border-radius: 10px; }
+.public-page .questions-title { margin-bottom: 16px; font-size: 1.125rem; line-height: 1.4; scroll-margin-top: 24px; }
+.public-page .question-item { gap: 10px; padding: 18px 0; border-bottom: 1px solid var(--line); }
+.public-page .question-item:first-of-type { padding-top: 0; }
+.public-page .question-number { width: 26px; height: 26px; border-radius: 8px; background: var(--surface-muted); color: var(--ink); font-size: 0.75rem; font-weight: 600; }
+/* A fieldset pins its legend to the top border, above the padding; floating it
+   makes it an ordinary grid item so the question sits inside the spacing. */
+.public-page .question-legend { float: left; grid-template-columns: 26px minmax(0, 1fr); gap: 8px; }
+.public-page .question-prompt { font-size: 0.875rem; font-weight: 600; }
+.public-page .question-options { grid-template-columns: 1fr; gap: 6px; }
+.public-page .answer-option { min-height: 38px; align-items: center; gap: 7px; padding: 7px 10px; border-color: var(--control-line); border-radius: 8px; }
+.public-page .answer-option input { width: 15px; height: 15px; margin: 0; }
+.public-page .answer-option span:last-child { font-size: 0.8125rem; }
+.public-page .answer-marker { width: 18px; height: 18px; font-size: 0.625rem; }
+.public-page .answer-feedback { font-size: 0.8125rem; }
+.public-page .answer-feedback:empty { display: none; }
 .public-page .answer-option:not(.is-locked):hover { transform: none; box-shadow: none; background: #faf8f3; }
 .public-page .answer-option:not(.is-locked):active { transform: none; }
 .public-page .answer-option:has(input:focus-visible) { outline: 3px solid var(--accent); outline-offset: 3px; }
