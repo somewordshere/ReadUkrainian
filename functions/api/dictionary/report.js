@@ -49,6 +49,19 @@ function validatePayload(payload) {
   return { ok: true, word, targetLanguage, storyId };
 }
 
+async function findOpenReport(db, word, targetLanguage) {
+  return db
+    .prepare("SELECT id FROM dictionary_reports WHERE normalized_word = ?1 AND target_language = ?2 AND status = 'open'")
+    .bind(word, targetLanguage)
+    .first();
+}
+
+async function countReportsToday(db) {
+  return db
+    .prepare("SELECT COUNT(*) AS count FROM dictionary_reports WHERE created_at >= date('now')")
+    .first();
+}
+
 export async function onRequestPost(context) {
   const { request, env } = context;
   const originError = requireSameOrigin(request, "Same-origin report requests are required.");
@@ -75,19 +88,17 @@ export async function onRequestPost(context) {
       return noStoreError(429, "Too many reports. Please try again later.", { "retry-after": "60" });
     }
 
-    const story = await getStoryById(env.DB, storyId);
+    // The story and any open report for the word are independent reads.
+    const [story, existing] = await Promise.all([
+      getStoryById(env.DB, storyId),
+      findOpenReport(env.DB, word, targetLanguage),
+    ]);
     if (!story?.active || !extractUkrainianWords((story.paragraphs || []).join(" ")).includes(word)) {
       return noStoreError(404, "The word was not found in the published story.");
     }
 
-    const existing = await env.DB
-      .prepare("SELECT id FROM dictionary_reports WHERE normalized_word = ?1 AND target_language = ?2 AND status = 'open'")
-      .bind(word, targetLanguage)
-      .first();
     if (!existing) {
-      const today = await env.DB
-        .prepare("SELECT COUNT(*) AS count FROM dictionary_reports WHERE created_at >= date('now')")
-        .first();
+      const today = await countReportsToday(env.DB);
       if (Number(today?.count) >= MAX_NEW_REPORTS_PER_DAY) {
         return noStoreError(429, "The daily report limit has been reached.", { "retry-after": "3600" });
       }
