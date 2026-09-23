@@ -105,3 +105,4 @@ This file is tracked in GitHub and linked from the site version footer.
 0.99 - The tip about tapping words appears sooner after the story opens.
 1.0 - The questions are more compact and evenly spaced.
 1.01 - The stress-mark switch no longer flickers when the page loads.
+1.02 - Security and speed fixes: safer progress saving and admin sign-in, fairer quiz answer order, faster word lookups.
