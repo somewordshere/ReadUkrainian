@@ -227,6 +227,48 @@ test("editors suggest entries and administrators approve them before learner loo
   assert.equal(lookup.attributions[0].name, "Read Ukrainian reviewed supplement");
 });
 
+test("a suggestion rejected mid-approval never reaches learners", async () => {
+  const db = createD1Database();
+  const created = await createSuggestion(await adminContext(db, {
+    path: "/api/admin/dictionary/suggestions",
+    role: "editor",
+    payload: {
+      word: "космоліт",
+      lemma: "космоліт",
+      partOfSpeech: "noun",
+      tags: ["masculine", "nominative", "singular"],
+      targetLanguage: "en",
+      translation: "spacecraft",
+    },
+  }));
+  const { suggestionId } = await created.json();
+
+  // A second admin rejects it after this approval read the pending row but
+  // before its batch ran.
+  const racingDb = {
+    ...db,
+    async batch(statements) {
+      await db.prepare("UPDATE dictionary_suggestions SET status = 'rejected' WHERE id = ?1").bind(suggestionId).run();
+      return db.batch(statements);
+    },
+  };
+  const approve = await approveSuggestion(await adminContext(racingDb, {
+    path: `/api/admin/dictionary/suggestions/${suggestionId}/approve`,
+    params: { id: String(suggestionId) },
+  }));
+
+  assert.equal(approve.status, 409);
+  assert.equal(await db.prepare("SELECT 1 FROM dictionary_lexemes WHERE id = ?1").bind(`curated-lexeme-${suggestionId}`).first() ?? null, null);
+  const lookup = await lookupDictionaryWord(db, { text: "космоліт", targetLanguage: "en" });
+  assert.equal(lookup.entries.length, 0);
+
+  const again = await approveSuggestion(await adminContext(db, {
+    path: `/api/admin/dictionary/suggestions/${suggestionId}/approve`,
+    params: { id: String(suggestionId) },
+  }));
+  assert.equal(again.status, 409);
+});
+
 test("the refresh action refuses to follow an upstream redirect", async () => {
   const db = createD1Database();
   const previousFetch = globalThis.fetch;
