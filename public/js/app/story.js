@@ -6,6 +6,22 @@ import { applyStress, tokenizeParagraph } from "./story-words.mjs";
 import { initVoicePicker } from "./voice-picker.js";
 import { initWordTip } from "./word-tip.mjs";
 
+// progress.js, data/stories.js and questions.js are classic scripts loaded
+// before this module; their functions are globals. Naming them here makes the
+// dependency visible in one place.
+const {
+  getQuestionsForStory,
+  getStoryProgress,
+  isLevelActive,
+  isStoryActive,
+  isStoryBookmarked,
+  markStoryOpened,
+  prepareQuestions,
+  setLastVisitedStory,
+  setStoryBookmarked,
+  setStoryProgress,
+} = window;
+
 const params = new URLSearchParams(window.location.search);
 const level = params.get("level") || "A1";
 const requestedStoryId = params.get("story") || "";
@@ -95,9 +111,16 @@ function getSavedStressPreference() {
 
 // Stress marks are display-only: each word keeps its plain spelling in
 // data-word, which is what the dictionary and speech requests use.
+// Each render is numbered; one still waiting for the stress map when a newer
+// render starts (the switch was flipped) gives way instead of re-applying marks
+// the learner just turned off.
+let stressRender = 0;
+
 async function renderStressMarks() {
+  const render = ++stressRender;
   const showStress = stressToggle.getAttribute("aria-checked") === "true";
   const stressMap = showStress ? await loadStressMap() : null;
+  if (render !== stressRender) return;
   storyText.querySelectorAll(".story-word").forEach((word) => {
     word.textContent = stressMap ? applyStress(word.dataset.word, stressMap) : word.dataset.word;
   });
@@ -187,6 +210,9 @@ let currentStory = null;
 let currentQuestionCount = 0;
 let contentLevels = [];
 let nextStory = null;
+// Progress is filed under the level the story actually belongs to, which the
+// URL's level parameter may not match (an old link, or a story an editor moved).
+let progressLevel = level;
 
 function getQuestionInputs(questionIndex) {
   return questionInputs.filter(
@@ -335,9 +361,9 @@ function syncProgress(latestResult = "") {
   const correctCount = questionInputs.filter(
     (input) => input.checked && input.dataset.correct === "true"
   ).length;
-  const bookmarked = isStoryBookmarked(level, currentStory.storyId, currentStory.title);
+  const bookmarked = isStoryBookmarked(progressLevel, currentStory.storyId, currentStory.title);
 
-  setStoryProgress(level, currentStory.storyId, currentStory.title, {
+  setStoryProgress(progressLevel, currentStory.storyId, currentStory.title, {
     answers,
     completed: completedCount === currentQuestionCount,
     correctCount,
@@ -356,7 +382,7 @@ function applySavedProgress() {
     return;
   }
 
-  const savedProgress = getStoryProgress(level, currentStory.storyId, currentStory.title);
+  const savedProgress = getStoryProgress(progressLevel, currentStory.storyId, currentStory.title);
 
   if (!savedProgress?.answers?.length) {
     updateQuestionStatus(0, 0);
@@ -384,16 +410,13 @@ function applySavedProgress() {
     lockQuestion(questionIndex);
   });
 
-  const completedCount = savedProgress.answers.filter(
-    (answer) => answer !== null && answer !== undefined
-  ).length;
-  const correctCount = savedProgress.correctCount || 0;
-  updateQuestionStatus(completedCount, correctCount);
-  updateCompletionActions(completedCount, correctCount);
+  // Score what is on screen rather than trusting the saved count: an editor may
+  // have changed the questions since the answers were saved.
+  syncProgress();
 }
 
 function renderBookmarkState() {
-  const bookmarked = isStoryBookmarked(level, currentStory.storyId, currentStory.title);
+  const bookmarked = isStoryBookmarked(progressLevel, currentStory.storyId, currentStory.title);
   const icon = bookmarkButton.querySelector(".bookmark-icon");
 
   bookmarkButton.classList.toggle("is-active", bookmarked);
@@ -565,7 +588,7 @@ restartButton.addEventListener("click", () => {
     return;
   }
 
-  const bookmarked = isStoryBookmarked(level, currentStory.storyId, currentStory.title);
+  const bookmarked = isStoryBookmarked(progressLevel, currentStory.storyId, currentStory.title);
 
   questionInputs.forEach((input) => {
     input.checked = false;
@@ -585,7 +608,7 @@ restartButton.addEventListener("click", () => {
   unlockAllQuestions();
 
   // The learner is still on the text, so a restart keeps it marked as opened.
-  setStoryProgress(level, currentStory.storyId, currentStory.title, {
+  setStoryProgress(progressLevel, currentStory.storyId, currentStory.title, {
     answers: Array.from({ length: currentQuestionCount }, () => null),
     completed: false,
     correctCount: 0,
@@ -616,10 +639,10 @@ bookmarkButton.addEventListener("click", () => {
   }
 
   setStoryBookmarked(
-    level,
+    progressLevel,
     currentStory.storyId,
     currentStory.title,
-    !isStoryBookmarked(level, currentStory.storyId, currentStory.title)
+    !isStoryBookmarked(progressLevel, currentStory.storyId, currentStory.title)
   );
   renderBookmarkState();
 });
@@ -636,6 +659,7 @@ async function initStory() {
     contentLevels = fetchedLevels;
 
     const storyLevelId = story?.level || level;
+    progressLevel = storyLevelId;
     storyAvailable = Boolean(story) && isLevelActive(storyLevelId) && isStoryActive(story);
     storyLevel.textContent = `Рівень ${storyLevelId}`;
     storyTitle.textContent = storyAvailable ? story.title : "Текст недоступний";
@@ -661,7 +685,7 @@ async function initStory() {
       sortOrder: story.sortOrder || legacyOrder,
       title: story.title,
     });
-    markStoryOpened(level, story.storyId, story.title);
+    markStoryOpened(progressLevel, story.storyId, story.title);
 
     (story.paragraphs || []).forEach((paragraph) => {
       storyText.appendChild(createParagraph(paragraph));
