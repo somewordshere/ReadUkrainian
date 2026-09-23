@@ -22,14 +22,6 @@ export function error(status, message, init = {}) {
   return json({ error: message }, { ...init, status });
 }
 
-export async function readJson(request) {
-  try {
-    return await request.json();
-  } catch {
-    return null;
-  }
-}
-
 export function noStoreError(status, message, headers = {}) {
   return error(status, message, { headers: { ...headers, "cache-control": NO_STORE } });
 }

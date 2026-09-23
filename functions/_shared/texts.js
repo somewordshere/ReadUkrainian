@@ -1,6 +1,5 @@
 import {
   buildReplaceQuestionStatements,
-  listQuestionsForStories,
   listQuestionsForStory,
   validateQuestionsPayload,
 } from "./questions.js";
@@ -14,6 +13,14 @@ const TEXT_COLUMNS = `
 const TEXT_SUMMARY_COLUMNS = `
   id, level, display_order, question_index, title, show_word_count, is_enabled
 `;
+
+// Far above any real story (the longest today is 49 title characters and
+// 1,211 characters of text) while keeping one save well inside a D1 row.
+const MAX_TITLE_CHARACTERS = 200;
+const MAX_PARAGRAPHS = 50;
+const MAX_STORY_CHARACTERS = 20_000;
+
+export class RevisionDataError extends Error {}
 
 const ADMIN_TEXT_COLUMNS = `
   ${TEXT_COLUMNS}, draft_json, draft_updated_at, draft_updated_by_user_id,
@@ -53,20 +60,6 @@ export function derivePublicationStatus({ active, hasDraft }) {
   if (active) return "published";
   if (hasDraft) return "draft";
   return "unpublished";
-}
-
-async function withQuestions(db, stories) {
-  if (!stories.length) return stories;
-
-  const questionsByStoryId = await listQuestionsForStories(
-    db,
-    stories.map((story) => story.storyId)
-  );
-
-  return stories.map((story) => ({
-    ...story,
-    questions: questionsByStoryId.get(story.storyId) || [],
-  }));
 }
 
 async function withQuestionsForStory(db, story, includeQuestions) {
@@ -152,16 +145,9 @@ export async function listStorySummaries(db) {
   }));
 }
 
-export async function listTexts(db, { includeDisabled = false, includeQuestions = false } = {}) {
-  const filterSql = includeDisabled ? "" : "WHERE is_enabled = 1";
-  const result = await db.prepare(`
-    SELECT ${TEXT_COLUMNS}
-    FROM texts
-    ${filterSql}
-    ORDER BY level ASC, display_order ASC
-  `).all();
-  const stories = (result.results || []).map(toStoryRecord);
-  return includeQuestions ? withQuestions(db, stories) : stories;
+export async function storyExists(db, storyId) {
+  const row = await db.prepare("SELECT 1 AS found FROM texts WHERE id = ?1 LIMIT 1").bind(storyId).first();
+  return Boolean(row);
 }
 
 export async function listAdminTextSummaries(db) {
@@ -415,7 +401,7 @@ export async function restoreTextRevision(db, storyId, revisionId, actor) {
 
   const snapshot = parseJson(revision.snapshot_json, null);
   const validation = validateTextPayload(snapshot, { allowLevel: true });
-  if (!validation.ok) throw new Error("The selected revision contains invalid story data.");
+  if (!validation.ok) throw new RevisionDataError("The selected revision contains invalid story data.");
 
   const current = await withQuestionsForStory(db, toStoryRecord(row), true);
   const target = validation.value;
@@ -471,12 +457,26 @@ export function validateTextPayload(payload, { allowLevel = false } = {}) {
     return { ok: false, message: "Invalid level." };
   }
 
-  if (!String(payload?.title || "").trim()) {
+  const title = String(payload?.title || "").trim();
+
+  if (!title) {
     return { ok: false, message: "Title is required." };
+  }
+
+  if (title.length > MAX_TITLE_CHARACTERS) {
+    return { ok: false, message: `Title must not exceed ${MAX_TITLE_CHARACTERS} characters.` };
   }
 
   if (paragraphs.length === 0) {
     return { ok: false, message: "At least one paragraph is required." };
+  }
+
+  if (paragraphs.length > MAX_PARAGRAPHS) {
+    return { ok: false, message: `A story may have at most ${MAX_PARAGRAPHS} paragraphs.` };
+  }
+
+  if (paragraphs.join("").length > MAX_STORY_CHARACTERS) {
+    return { ok: false, message: `Story text must not exceed ${MAX_STORY_CHARACTERS} characters.` };
   }
 
   const questionValidation = validateQuestionsPayload(payload?.questions);
@@ -486,7 +486,7 @@ export function validateTextPayload(payload, { allowLevel = false } = {}) {
     ok: true,
     value: {
       level: payload?.level,
-      title: String(payload.title).trim(),
+      title,
       paragraphs,
       questions: questionValidation.value,
       showWordCount: payload?.showWordCount !== false,
