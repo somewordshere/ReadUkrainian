@@ -4,6 +4,7 @@ import test from "node:test";
 import { createSessionToken } from "../functions/_shared/auth.js";
 import { onRequestPost as createStory } from "../functions/api/admin/texts/index.js";
 import { onRequestPut as saveDraft } from "../functions/api/admin/texts/[id].js";
+import { onRequestPost as publishStory } from "../functions/api/admin/texts/publish.js";
 import { onRequestPost as restoreRevision } from "../functions/api/admin/texts/restore.js";
 import { seedDatabase } from "../scripts/lib/seed-database.mjs";
 
@@ -173,4 +174,100 @@ test("restoring reports bad checkpoints but hides database errors", async () => 
   }));
   assert.equal(failed.status, 500);
   assert.doesNotMatch((await failed.json()).error, /D1_ERROR|UNIQUE/);
+});
+
+async function create(db, body = STORY) {
+  const response = await createStory(await editorRequest(db, { path: "/api/admin/texts", method: "POST", body }));
+  assert.equal(response.status, 201);
+  return (await response.json()).story;
+}
+
+async function publish(db, storyId, body) {
+  return publishStory(await editorRequest(db, {
+    path: `/api/admin/texts/${storyId}/publish`,
+    method: "POST",
+    body,
+    params: { id: String(storyId) },
+  }));
+}
+
+test("new and moved stories take the next free position in their level", async () => {
+  const { sqlite, db } = createD1();
+  const maxOrder = (level) => sqlite.prepare("SELECT MAX(display_order) AS max FROM texts WHERE level = ?").get(level).max;
+  const a2Before = maxOrder("A2");
+
+  const first = await create(db);
+  const second = await create(db);
+  assert.equal(second.sortOrder, first.sortOrder + 1);
+
+  const moved = await publish(db, second.storyId, { ...STORY, level: "A2", baseVersion: second.editVersion });
+  assert.equal(moved.status, 200);
+  const movedStory = (await moved.json()).story;
+  assert.equal(movedStory.level, "A2");
+  assert.equal(movedStory.sortOrder, a2Before + 1);
+  assert.equal(movedStory.questionIndex, a2Before + 1);
+});
+
+test("a save based on an old version is refused instead of overwriting newer work", async () => {
+  const { sqlite, db } = createD1();
+  const story = await create(db);
+
+  const firstSave = await saveDraft(await editorRequest(db, {
+    path: `/api/admin/texts/${story.storyId}`,
+    body: { ...STORY, title: "Перша правка", baseVersion: story.editVersion },
+    params: { id: String(story.storyId) },
+  }));
+  assert.equal(firstSave.status, 200);
+  const saved = (await firstSave.json()).story;
+  assert.notEqual(saved.editVersion, story.editVersion);
+
+  const staleSave = await saveDraft(await editorRequest(db, {
+    path: `/api/admin/texts/${story.storyId}`,
+    body: { ...STORY, title: "Застаріла правка", baseVersion: story.editVersion },
+    params: { id: String(story.storyId) },
+  }));
+  assert.equal(staleSave.status, 409);
+  assert.match((await staleSave.json()).error, /changed by someone else/);
+
+  const stalePublish = await publish(db, story.storyId, { ...STORY, title: "Застаріла", baseVersion: story.editVersion });
+  assert.equal(stalePublish.status, 409);
+
+  const row = sqlite.prepare("SELECT draft_json, is_enabled FROM texts WHERE id = ?").get(story.storyId);
+  assert.equal(JSON.parse(row.draft_json).title, "Перша правка");
+  assert.equal(row.is_enabled, 0);
+});
+
+test("a publish that loses a race writes nothing: no checkpoint, text or quiz", async () => {
+  const { sqlite, db } = createD1();
+  const story = await create(db, { ...STORY, questions: [{ prompt: "Хто?", correct: "Я", wrong: ["Ти", "Він", "Вона"] }] });
+  const published = await publish(db, story.storyId, { ...STORY, questions: [{ prompt: "Хто?", correct: "Я", wrong: ["Ти", "Він", "Вона"] }] });
+  assert.equal(published.status, 200);
+
+  const count = (sql) => sqlite.prepare(sql).get(story.storyId).count;
+  const revisionsBefore = count("SELECT COUNT(*) AS count FROM story_revisions WHERE story_id = ?");
+  const questionsBefore = sqlite.prepare("SELECT prompt FROM questions WHERE story_id = ? ORDER BY display_order").all(story.storyId);
+
+  // Another editor saves a draft between this publish reading the story and
+  // writing it.
+  const racingDb = {
+    ...db,
+    async batch(statements) {
+      sqlite.prepare("UPDATE texts SET draft_json = '{}', draft_updated_at = '2099-01-01T00:00:00.000Z' WHERE id = ?").run(story.storyId);
+      return db.batch(statements);
+    },
+  };
+  const lost = await publishStory(await editorRequest(racingDb, {
+    path: `/api/admin/texts/${story.storyId}/publish`,
+    method: "POST",
+    body: { ...STORY, title: "Програна гонка", questions: [] },
+    params: { id: String(story.storyId) },
+  }));
+
+  assert.equal(lost.status, 409);
+  assert.equal(count("SELECT COUNT(*) AS count FROM story_revisions WHERE story_id = ?"), revisionsBefore);
+  assert.deepEqual(
+    sqlite.prepare("SELECT prompt FROM questions WHERE story_id = ? ORDER BY display_order").all(story.storyId).map((row) => ({ ...row })),
+    questionsBefore.map((row) => ({ ...row }))
+  );
+  assert.equal(sqlite.prepare("SELECT title FROM texts WHERE id = ?").get(story.storyId).title, STORY.title);
 });

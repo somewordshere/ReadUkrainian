@@ -1,8 +1,8 @@
 import { requirePermission } from "../../../_shared/auth.js";
 import { analyzeEnabledDictionaryCoverage } from "../../../_shared/dictionary-workflow.js";
 import { error, json } from "../../../_shared/http.js";
-import { publishText, validateTextPayload } from "../../../_shared/texts.js";
-import { readEditorJson } from "./_request.js";
+import { EditConflictError, publishText, validateTextPayload } from "../../../_shared/texts.js";
+import { baseVersionOf, readEditorJson } from "./_request.js";
 
 export async function onRequestPost(context) {
   const auth = await requirePermission(context, "publish");
@@ -37,7 +37,19 @@ export async function onRequestPost(context) {
     }];
   }
 
-  const story = await publishText(context.env.DB, storyId, validation.value, auth.session);
+  let story;
+  try {
+    story = await publishText(
+      context.env.DB,
+      storyId,
+      validation.value,
+      auth.session,
+      baseVersionOf(body.payload)
+    );
+  } catch (publishError) {
+    if (publishError instanceof EditConflictError) return error(409, publishError.message);
+    throw publishError;
+  }
   if (!story) return error(404, "Story not found.");
 
   return json({

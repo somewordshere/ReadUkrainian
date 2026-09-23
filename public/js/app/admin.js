@@ -832,6 +832,12 @@ function getEditorPayload() {
   };
 }
 
+// The server refuses the save if someone else changed the story since this
+// version was loaded, instead of silently overwriting their work.
+function getVersionedPayload() {
+  return { ...getEditorPayload(), baseVersion: currentStory?.editVersion || null };
+}
+
 function editorFingerprint() {
   return JSON.stringify({
     level: editorForm.elements.level.value,
@@ -1225,7 +1231,7 @@ async function saveDraft({ quiet = false } = {}) {
     const storyId = Number(editorForm.dataset.storyId);
     const payload = await api(isCreating ? "./api/admin/texts" : `./api/admin/texts/${storyId}`, {
       method: isCreating ? "POST" : "PUT",
-      body: JSON.stringify(getEditorPayload()),
+      body: JSON.stringify(isCreating ? getEditorPayload() : getVersionedPayload()),
     });
     populateEditor(payload.story);
     cleanStateMessage = `Draft saved ${formatDate(payload.story.draftUpdatedAt)}`;
@@ -1254,7 +1260,7 @@ async function publishStory() {
   try {
     const payload = await api(`./api/admin/texts/${selectedStoryId}/publish`, {
       method: "POST",
-      body: JSON.stringify(getEditorPayload()),
+      body: JSON.stringify(getVersionedPayload()),
     });
     populateEditor(payload.story);
     renderDictionaryCoverage(payload.dictionaryCoverage);

@@ -71,17 +71,33 @@ async function withQuestionsForStory(db, story, includeQuestions) {
   };
 }
 
-async function getNextDisplayOrder(db, level) {
-  const row = await db
-    .prepare(`
-      SELECT COALESCE(MAX(display_order), 0) + 1 AS next_order
-      FROM texts
-      WHERE level = ?1
-    `)
-    .bind(level)
-    .first();
+// The next free position in a level, computed inside the statement that uses
+// it: reading MAX()+1 first and writing it separately let two concurrent saves
+// pick the same position and fail on UNIQUE(level, display_order).
+function nextDisplayOrderSql(levelParameter) {
+  return `(SELECT COALESCE(MAX(display_order), 0) + 1 FROM texts WHERE level = ${levelParameter})`;
+}
 
-  return Number(row?.next_order || 1);
+// Moving a story to another level puts it at the end of that level; staying in
+// its level keeps its position. question_index follows display_order as before.
+function placementSql(levelParameter) {
+  const next = nextDisplayOrderSql(levelParameter);
+  return `display_order = CASE WHEN level = ${levelParameter} THEN display_order ELSE ${next} END,
+          question_index = CASE WHEN level = ${levelParameter} THEN display_order ELSE ${next} END`;
+}
+
+// The version an editor last saw: the draft's save time, or the last published
+// change when there is no draft. Every draft save, publish and restore changes it.
+function editVersionOf(row) {
+  return row.draft_updated_at || row.updated_at;
+}
+
+const EDIT_VERSION_SQL = "COALESCE(draft_updated_at, updated_at)";
+
+export class EditConflictError extends Error {
+  constructor() {
+    super("This story was changed by someone else after you opened it. Reload it to see their changes, then save again.");
+  }
 }
 
 async function getAdminTextRow(db, storyId) {
@@ -113,14 +129,17 @@ function toSnapshot(story) {
   });
 }
 
-function revisionStatement(db, storyId, action, snapshot, actor, now) {
+// Guarded like the UPDATE it precedes: if the story changed after it was read,
+// the checkpoint is not written either.
+function revisionStatement(db, storyId, action, snapshot, actor, now, expectedVersion) {
   return db
     .prepare(`
       INSERT INTO story_revisions
         (story_id, action, snapshot_json, created_by_user_id, created_by_email, created_at)
-      VALUES (?1, ?2, ?3, ?4, ?5, ?6)
+      SELECT ?1, ?2, ?3, ?4, ?5, ?6
+      WHERE EXISTS (SELECT 1 FROM texts WHERE id = ?1 AND ${EDIT_VERSION_SQL} = ?7)
     `)
-    .bind(storyId, action, snapshot, actor.userId, actor.email, now);
+    .bind(storyId, action, snapshot, actor.userId, actor.email, now, expectedVersion);
 }
 
 // The library listing shows titles and progress markers, never body text, so it
@@ -230,6 +249,7 @@ export async function getAdminStoryById(db, storyId) {
     active,
     hasDraft,
     publicationStatus: derivePublicationStatus({ active, hasDraft }),
+    editVersion: editVersionOf(row),
     draftUpdatedAt: row.draft_updated_at,
     draftUpdatedByEmail: row.draft_updated_by_email,
     updatedAt: row.updated_at,
@@ -239,7 +259,6 @@ export async function getAdminStoryById(db, storyId) {
 }
 
 export async function createTextDraft(db, payload, actor) {
-  const sortOrder = await getNextDisplayOrder(db, payload.level);
   const now = new Date().toISOString();
   const insertResult = await db
     .prepare(`
@@ -248,11 +267,11 @@ export async function createTextDraft(db, payload, actor) {
         show_word_count, is_enabled, created_at, updated_at,
         draft_json, draft_updated_at, draft_updated_by_user_id, draft_updated_by_email
       )
-      VALUES (?1, ?2, ?2, ?3, ?4, ?5, 0, ?6, ?6, ?7, ?6, ?8, ?9)
+      SELECT ?1, next_order, next_order, ?2, ?3, ?4, 0, ?5, ?5, ?6, ?5, ?7, ?8
+      FROM (SELECT ${nextDisplayOrderSql("?1")} AS next_order)
     `)
     .bind(
       payload.level,
-      sortOrder,
       payload.title,
       JSON.stringify(payload.paragraphs),
       payload.showWordCount ? 1 : 0,
@@ -266,75 +285,86 @@ export async function createTextDraft(db, payload, actor) {
   return getAdminStoryById(db, insertResult.meta.last_row_id);
 }
 
-export async function saveTextDraft(db, storyId, payload, actor) {
-  const existing = await getAdminTextRow(db, storyId);
-  if (!existing) return null;
-
+// baseVersion is the editVersion the editor loaded; null skips the check (a
+// browser tab opened before this check existed).
+export async function saveTextDraft(db, storyId, payload, actor, baseVersion = null) {
   const now = new Date().toISOString();
-  await db
+  const result = await db
     .prepare(`
       UPDATE texts
       SET draft_json = ?1,
           draft_updated_at = ?2,
           draft_updated_by_user_id = ?3,
           draft_updated_by_email = ?4
-      WHERE id = ?5
+      WHERE id = ?5 AND (?6 IS NULL OR ${EDIT_VERSION_SQL} = ?6)
     `)
-    .bind(toDraftJson(payload), now, actor.userId, actor.email, storyId)
+    .bind(toDraftJson(payload), now, actor.userId, actor.email, storyId, baseVersion)
     .run();
+
+  if (!result.meta.changes) {
+    if (!(await storyExists(db, storyId))) return null;
+    throw new EditConflictError();
+  }
 
   return getAdminStoryById(db, storyId);
 }
 
-export async function publishText(db, storyId, payload, actor) {
+// Runs the batch and reports whether its guarded UPDATE applied; when it did
+// not, every other guarded statement in the batch was a no-op as well.
+async function runGuardedBatch(db, statements, updateIndex) {
+  const results = await db.batch(statements);
+  return Boolean(results[updateIndex]?.meta?.changes);
+}
+
+export async function publishText(db, storyId, payload, actor, baseVersion = null) {
   const row = await getAdminTextRow(db, storyId);
   if (!row) return null;
 
+  const readVersion = editVersionOf(row);
+  if (baseVersion !== null && baseVersion !== readVersion) throw new EditConflictError();
+
   const current = await withQuestionsForStory(db, toStoryRecord(row), true);
-  const sortOrder = payload.level === row.level
-    ? row.display_order
-    : await getNextDisplayOrder(db, payload.level);
   const now = new Date().toISOString();
   const statements = [];
 
   if (row.published_at) {
-    statements.push(revisionStatement(db, storyId, "before_publish", toSnapshot(current), actor, now));
+    statements.push(revisionStatement(db, storyId, "before_publish", toSnapshot(current), actor, now, readVersion));
   }
 
+  const updateIndex = statements.length;
   statements.push(
     db.prepare(`
       UPDATE texts
-      SET level = ?1,
-          display_order = ?2,
-          question_index = ?2,
-          title = ?3,
-          paragraphs_json = ?4,
-          show_word_count = ?5,
+      SET ${placementSql("?1")},
+          level = ?1,
+          title = ?2,
+          paragraphs_json = ?3,
+          show_word_count = ?4,
           is_enabled = 1,
           draft_json = NULL,
           draft_updated_at = NULL,
           draft_updated_by_user_id = NULL,
           draft_updated_by_email = NULL,
-          updated_at = ?6,
-          updated_by_user_id = ?7,
-          updated_by_email = ?8,
-          published_at = ?6
-      WHERE id = ?9
+          updated_at = ?5,
+          updated_by_user_id = ?6,
+          updated_by_email = ?7,
+          published_at = ?5
+      WHERE id = ?8 AND ${EDIT_VERSION_SQL} = ?9
     `).bind(
       payload.level,
-      sortOrder,
       payload.title,
       JSON.stringify(payload.paragraphs),
       payload.showWordCount ? 1 : 0,
       now,
       actor.userId,
       actor.email,
-      storyId
+      storyId,
+      readVersion
     ),
-    ...buildReplaceQuestionStatements(db, storyId, payload.questions || [])
+    ...buildReplaceQuestionStatements(db, storyId, payload.questions || [], now)
   );
 
-  await db.batch(statements);
+  if (!(await runGuardedBatch(db, statements, updateIndex))) throw new EditConflictError();
   return getAdminStoryById(db, storyId);
 }
 
@@ -343,20 +373,22 @@ export async function unpublishText(db, storyId, actor) {
   if (!row) return null;
   if (!row.is_enabled) return getAdminStoryById(db, storyId);
 
+  const readVersion = editVersionOf(row);
   const current = await withQuestionsForStory(db, toStoryRecord(row), true);
   const now = new Date().toISOString();
-  await db.batch([
-    revisionStatement(db, storyId, "before_unpublish", toSnapshot(current), actor, now),
+  const applied = await runGuardedBatch(db, [
+    revisionStatement(db, storyId, "before_unpublish", toSnapshot(current), actor, now, readVersion),
     db.prepare(`
       UPDATE texts
       SET is_enabled = 0,
           updated_at = ?1,
           updated_by_user_id = ?2,
           updated_by_email = ?3
-      WHERE id = ?4
-    `).bind(now, actor.userId, actor.email, storyId),
-  ]);
+      WHERE id = ?4 AND ${EDIT_VERSION_SQL} = ?5
+    `).bind(now, actor.userId, actor.email, storyId, readVersion),
+  ], 1);
 
+  if (!applied) throw new EditConflictError();
   return getAdminStoryById(db, storyId);
 }
 
@@ -403,35 +435,31 @@ export async function restoreTextRevision(db, storyId, revisionId, actor) {
   const validation = validateTextPayload(snapshot, { allowLevel: true });
   if (!validation.ok) throw new RevisionDataError("The selected revision contains invalid story data.");
 
+  const readVersion = editVersionOf(row);
   const current = await withQuestionsForStory(db, toStoryRecord(row), true);
   const target = validation.value;
-  const sortOrder = target.level === row.level
-    ? row.display_order
-    : await getNextDisplayOrder(db, target.level);
   const now = new Date().toISOString();
   const statements = [
-    revisionStatement(db, storyId, "before_restore", toSnapshot(current), actor, now),
+    revisionStatement(db, storyId, "before_restore", toSnapshot(current), actor, now, readVersion),
     db.prepare(`
       UPDATE texts
-      SET level = ?1,
-          display_order = ?2,
-          question_index = ?2,
-          title = ?3,
-          paragraphs_json = ?4,
-          show_word_count = ?5,
-          is_enabled = ?6,
+      SET ${placementSql("?1")},
+          level = ?1,
+          title = ?2,
+          paragraphs_json = ?3,
+          show_word_count = ?4,
+          is_enabled = ?5,
           draft_json = NULL,
           draft_updated_at = NULL,
           draft_updated_by_user_id = NULL,
           draft_updated_by_email = NULL,
-          updated_at = ?7,
-          updated_by_user_id = ?8,
-          updated_by_email = ?9,
-          published_at = CASE WHEN ?6 = 1 THEN ?7 ELSE published_at END
-      WHERE id = ?10
+          updated_at = ?6,
+          updated_by_user_id = ?7,
+          updated_by_email = ?8,
+          published_at = CASE WHEN ?5 = 1 THEN ?6 ELSE published_at END
+      WHERE id = ?9 AND ${EDIT_VERSION_SQL} = ?10
     `).bind(
       target.level,
-      sortOrder,
       target.title,
       JSON.stringify(target.paragraphs),
       target.showWordCount ? 1 : 0,
@@ -439,12 +467,13 @@ export async function restoreTextRevision(db, storyId, revisionId, actor) {
       now,
       actor.userId,
       actor.email,
-      storyId
+      storyId,
+      readVersion
     ),
-    ...buildReplaceQuestionStatements(db, storyId, target.questions || []),
+    ...buildReplaceQuestionStatements(db, storyId, target.questions || [], now),
   ];
 
-  await db.batch(statements);
+  if (!(await runGuardedBatch(db, statements, 1))) throw new EditConflictError();
   return getAdminStoryById(db, storyId);
 }
 
