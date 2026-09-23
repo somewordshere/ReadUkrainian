@@ -168,3 +168,34 @@ test("the update validation rejects a candidate that files я under another pron
     rmSync(directory, { recursive: true, force: true });
   }
 });
+
+test("the lookup shows a word once even when an update added it again", async () => {
+  const { sqlite, lookup } = dictionary();
+  try {
+    // A newer source gives the same word a new entry id; updates only add rows.
+    sqlite.exec(`INSERT INTO dictionary_lexemes (id, source_language, lemma, normalized_lemma, part_of_speech, source_entry_id)
+      VALUES ('lex_ja_new', 'uk', 'я', 'я', 'pron', 'lex_ja_new')`);
+    sqlite.exec(`INSERT INTO dictionary_forms (lexeme_id, source_language, normalized_form, display_form, tags_json)
+      VALUES ('lex_ja_new', 'uk', 'я', 'я', '["nominative"]')`);
+    sqlite.exec("INSERT INTO dictionary_senses (id, lexeme_id, sense_order) VALUES ('s_ja_new', 'lex_ja_new', 1), ('s_ja_new2', 'lex_ja_new', 2)");
+    sqlite.exec(`INSERT INTO dictionary_translations (sense_id, target_language, translation, translation_order)
+      VALUES ('s_ja_new', 'de', 'ich', 1), ('s_ja_new2', 'de', 'ich selbst', 1)`);
+    assert.deepEqual(await lookup("я", "de"), ["я"]);
+    const { lookupDictionaryWord } = await import("../functions/_shared/dictionary.js");
+    const db = { prepare(sql) {
+      const statement = sqlite.prepare(sql);
+      let parameters = [];
+      const query = {
+        bind(...values) { parameters = values; return query; },
+        async first() { return statement.get(...parameters) ?? null; },
+        async all() { return { results: statement.all(...parameters) }; },
+      };
+      return query;
+    } };
+    const result = await lookupDictionaryWord(db, { text: "я", targetLanguage: "de" });
+    assert.equal(result.entries.length, 1);
+    assert.deepEqual(result.entries[0].translations.map((translation) => translation.text), ["ich", "ich selbst"]);
+  } finally {
+    sqlite.close();
+  }
+});
