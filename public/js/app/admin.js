@@ -13,10 +13,7 @@ const speechVoiceDescription = byId("speechVoiceDescription");
 const saveSpeechSettingsButton = byId("saveSpeechSettingsButton");
 const speechSettingsStatus = byId("speechSettingsStatus");
 const dictionarySettingsSection = byId("dictionarySettingsSection");
-const dictionaryCurrentVersion = byId("dictionaryCurrentVersion");
-const dictionaryAvailableVersion = byId("dictionaryAvailableVersion");
-const dictionaryLastChecked = byId("dictionaryLastChecked");
-const checkDictionaryUpdateButton = byId("checkDictionaryUpdateButton");
+const dictionaryPairs = byId("dictionaryPairs");
 const dictionarySettingsStatus = byId("dictionarySettingsStatus");
 const dictionaryReviewSection = byId("dictionaryReviewSection");
 const refreshDictionarySuggestionsButton = byId("refreshDictionarySuggestionsButton");
@@ -240,26 +237,78 @@ async function saveSpeechSettings() {
   }
 }
 
-function renderDictionaryVersion(dictionary) {
-  dictionaryCurrentVersion.textContent = dictionary?.currentRevision || "Unavailable";
-  dictionaryAvailableVersion.textContent = dictionary?.availableRevision || "Not checked";
-  dictionaryLastChecked.textContent = dictionary?.lastCheckedAt
-    ? formatDate(dictionary.lastCheckedAt)
-    : "Never";
+// The GitHub workflow that builds a reviewed update branch for one language.
+const DICTIONARY_UPDATE_WORKFLOW_URL =
+  "https://github.com/somewordshere/ReadUkrainian/actions/workflows/dictionary-update.yml";
+const DICTIONARY_LANGUAGE_NAMES = { en: "English", de: "German" };
+let dictionaryPairState = [];
 
-  const updateAvailable = Boolean(
-    dictionary?.currentRevision
-    && dictionary?.availableRevision
-    && dictionary.availableRevision > dictionary.currentRevision
-  );
-  setStatus(
-    dictionarySettingsStatus,
-    updateAvailable
-      ? `A newer source snapshot (${dictionary.availableRevision}) is available. Reviewed data was not changed.`
-      : dictionary?.availableRevision
-        ? "The installed source snapshot is current."
-        : "Use “Check for update” to compare with Kaikki.org."
-  );
+function dictionaryUpdateAvailable(pair) {
+  return Boolean(pair?.currentRevision && pair?.availableRevision && pair.availableRevision > pair.currentRevision);
+}
+
+function renderDictionaryPairs(pairs) {
+  dictionaryPairState = pairs;
+  dictionaryPairs.replaceChildren();
+  const canCheck = hasPermission("settings");
+
+  pairs.forEach((pair) => {
+    const language = DICTIONARY_LANGUAGE_NAMES[pair.targetLanguage] || pair.targetLanguage;
+    const updateAvailable = dictionaryUpdateAvailable(pair);
+    const row = document.createElement("div");
+    row.className = "admin-dictionary-pair";
+
+    const name = document.createElement("h3");
+    name.textContent = `Ukrainian → ${language}`;
+
+    const versions = document.createElement("dl");
+    versions.className = "admin-dictionary-version";
+    [
+      ["Installed", pair.currentRevision || "Unavailable"],
+      ["Available", pair.availableRevision || "Not checked"],
+      ["Last checked", pair.lastCheckedAt ? formatDate(pair.lastCheckedAt) : "Never"],
+    ].forEach(([label, value]) => {
+      const item = document.createElement("div");
+      const term = document.createElement("dt");
+      const detail = document.createElement("dd");
+      term.textContent = label;
+      detail.textContent = value;
+      item.append(term, detail);
+      versions.appendChild(item);
+    });
+
+    const note = document.createElement("p");
+    note.className = "admin-dictionary-pair-note";
+    note.textContent = updateAvailable
+      ? `A newer source (${pair.availableRevision}) is available. Reviewed entries were not changed.`
+      : pair.availableRevision
+        ? "The installed source is current."
+        : "Not compared with Kaikki.org yet.";
+
+    const actions = document.createElement("div");
+    actions.className = "admin-dictionary-pair-actions";
+    if (canCheck) {
+      const check = document.createElement("button");
+      check.type = "button";
+      check.className = "admin-secondary-button";
+      check.textContent = "Check for update";
+      check.disabled = dictionarySettingsPending;
+      check.addEventListener("click", () => void checkDictionaryUpdate(pair.targetLanguage));
+
+      // Building runs on GitHub, where "Run workflow" asks for the language.
+      const prepare = document.createElement("a");
+      prepare.className = updateAvailable ? "admin-primary-button" : "admin-secondary-button";
+      prepare.href = DICTIONARY_UPDATE_WORKFLOW_URL;
+      prepare.target = "_blank";
+      prepare.rel = "noopener noreferrer";
+      prepare.textContent = "Prepare update";
+      prepare.title = `Opens GitHub: choose Run workflow, then “${pair.targetLanguage}”.`;
+      actions.append(check, prepare);
+    }
+
+    row.append(name, versions, note, actions);
+    dictionaryPairs.appendChild(row);
+  });
 }
 
 function renderDictionarySuggestions(suggestions) {
@@ -326,11 +375,10 @@ async function loadDictionaryStatus() {
   }
   dictionarySettingsSection.hidden = false;
   dictionaryReviewSection.hidden = !hasPermission("dictionary_approve");
-  checkDictionaryUpdateButton.hidden = !hasPermission("settings");
   dictionarySettingsSection.setAttribute("aria-busy", "true");
   try {
     const payload = await api("./api/admin/dictionary/status", { method: "GET" });
-    renderDictionaryVersion(payload.dictionary);
+    renderDictionaryPairs(Array.isArray(payload.dictionaries) ? payload.dictionaries : [payload.dictionary].filter(Boolean));
     if (hasPermission("dictionary_approve")) await loadDictionarySuggestions();
   } catch (error) {
     setStatus(dictionarySettingsStatus, `Could not load dictionary status: ${error.message}`, true);
@@ -339,27 +387,31 @@ async function loadDictionaryStatus() {
   }
 }
 
-async function checkDictionaryUpdate() {
+async function checkDictionaryUpdate(targetLanguage) {
   if (dictionarySettingsPending || !hasPermission("settings")) return;
+  const language = DICTIONARY_LANGUAGE_NAMES[targetLanguage] || targetLanguage;
   dictionarySettingsPending = true;
-  checkDictionaryUpdateButton.disabled = true;
+  renderDictionaryPairs(dictionaryPairState);
   dictionarySettingsSection.setAttribute("aria-busy", "true");
-  setStatus(dictionarySettingsStatus, "Checking the Kaikki.org source version…");
+  setStatus(dictionarySettingsStatus, `Checking the ${language} source version on Kaikki.org…`);
   try {
     const payload = await api("./api/admin/dictionary/check-update", {
       method: "POST",
-      body: "{}",
+      body: JSON.stringify({ targetLanguage }),
     });
-    renderDictionaryVersion({
-      currentRevision: payload.currentRevision,
-      availableRevision: payload.availableRevision,
-      lastCheckedAt: payload.lastCheckedAt,
-    });
+    dictionaryPairState = dictionaryPairState.map((pair) => (
+      pair.targetLanguage === targetLanguage
+        ? { ...pair, currentRevision: payload.currentRevision, availableRevision: payload.availableRevision, lastCheckedAt: payload.lastCheckedAt }
+        : pair
+    ));
+    setStatus(dictionarySettingsStatus, payload.updateAvailable
+      ? `${language}: version ${payload.availableRevision} is available. Use “Prepare update” to build it for review.`
+      : `${language}: the installed source is current.`);
   } catch (error) {
     setStatus(dictionarySettingsStatus, `Could not check for an update: ${error.message}`, true);
   } finally {
     dictionarySettingsPending = false;
-    checkDictionaryUpdateButton.disabled = false;
+    renderDictionaryPairs(dictionaryPairState);
     dictionarySettingsSection.setAttribute("aria-busy", "false");
   }
 }
@@ -1079,7 +1131,6 @@ speechSettingsForm.addEventListener("submit", async (event) => {
   await saveSpeechSettings();
 });
 
-checkDictionaryUpdateButton.addEventListener("click", () => void checkDictionaryUpdate());
 refreshDictionarySuggestionsButton.addEventListener("click", () => void loadDictionarySuggestions());
 checkDictionaryCoverageButton.addEventListener("click", () => void checkDictionaryCoverage());
 closeDictionarySuggestionButton.addEventListener("click", () => dictionarySuggestionDialog.close());

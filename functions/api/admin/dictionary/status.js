@@ -5,7 +5,7 @@ export async function onRequestGet(context) {
   const auth = await requirePermission(context, "dictionary_suggest");
   if (!auth.ok) return auth.response;
 
-  const [pair, pending] = await Promise.all([
+  const [pairs, pending] = await Promise.all([
     context.env.DB.prepare(`
       SELECT
         source_language AS sourceLanguage,
@@ -16,9 +16,9 @@ export async function onRequestGet(context) {
         available_revision AS availableRevision,
         last_checked_at AS lastCheckedAt
       FROM dictionary_language_pairs
-      WHERE source_language = 'uk' AND target_language = 'en'
-      LIMIT 1
-    `).first(),
+      WHERE source_language = 'uk' AND target_language IN ('en', 'de')
+      ORDER BY CASE target_language WHEN 'en' THEN 0 ELSE 1 END
+    `).all(),
     context.env.DB.prepare(`
       SELECT COUNT(*) AS pendingCount
       FROM dictionary_suggestions
@@ -26,8 +26,11 @@ export async function onRequestGet(context) {
     `).first(),
   ]);
 
+  const dictionaries = pairs?.results || [];
   return json({
-    dictionary: pair || null,
+    dictionaries,
+    // Kept for callers that only know the English pair.
+    dictionary: dictionaries.find((pair) => pair.targetLanguage === "en") || null,
     pendingSuggestions: Number(pending?.pendingCount || 0),
   });
 }

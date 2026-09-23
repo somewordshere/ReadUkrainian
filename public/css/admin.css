@@ -133,3 +133,17 @@
 .admin-page :is(.admin-preview-dialog, .admin-dictionary-dialog)::backdrop { background: #1f232880; backdrop-filter: none; }
 .admin-page .admin-preview-toolbar { background: var(--paper); }
 .admin-page :is(.admin-preview-story, .admin-preview-quiz) { font-family: var(--font-reading); }
+
+/* Dictionary: one row per language pair under a shared introduction. */
+.admin-page .admin-dictionary-settings { grid-template-columns: minmax(0, 1fr); }
+.admin-page .admin-dictionary-pairs { display: grid; gap: 10px; }
+.admin-page .admin-dictionary-pair { display: grid; grid-template-columns: minmax(150px, 0.8fr) minmax(300px, 2fr) auto; grid-template-areas: "name versions actions" "note versions actions"; align-items: center; gap: 4px 20px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; }
+.admin-page .admin-dictionary-pair h3 { grid-area: name; margin: 0; font-family: var(--font-reading); font-size: 1.125rem; font-weight: 600; }
+.admin-page .admin-dictionary-pair .admin-dictionary-version { grid-area: versions; }
+.admin-page .admin-dictionary-pair-note { grid-area: note; margin: 0; color: var(--muted); font-size: 0.8125rem; }
+.admin-page .admin-dictionary-pair-actions { grid-area: actions; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+.admin-page .admin-dictionary-pair-actions a { display: inline-flex; align-items: center; padding: 12px 16px; text-decoration: none; }
+@media (max-width: 900px) {
+  .admin-page .admin-dictionary-pair { grid-template-columns: minmax(0, 1fr); grid-template-areas: "name" "note" "versions" "actions"; }
+  .admin-page .admin-dictionary-pair-actions { justify-content: flex-start; }
+}

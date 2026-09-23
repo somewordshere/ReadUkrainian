@@ -60,7 +60,7 @@ test('paragraph revision preserves all IDs, quizzes, drafts, preferences, histor
 });
 
 test('revision stops on editorial drift and resumes after its additive dictionary migration',()=>{
- validateMigrationFiles(release,new URL('../migrations/',import.meta.url));
+ validateMigrationFiles(release,new URL('../migrations/',import.meta.url),{allowLater:true});
  const base=loadReleaseManifest('0.84').migrations.map(m=>m.name);
  assert.deepEqual(pendingMigrations(release,base),release.releaseMigrations);
  assert.deepEqual(pendingMigrations(release,[...base,release.releaseMigrations[0]]),[release.contentMigration]);
