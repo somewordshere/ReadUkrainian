@@ -97,21 +97,8 @@ async function getDictionaryLanguagePair(db, sourceLanguage, targetLanguage) {
   return normalizePairRow(row);
 }
 
-export async function lookupDictionaryWord(
-  db,
-  { text, sourceLanguage = "uk", targetLanguage = "en", storyId = null }
-) {
-  const normalizedWord = canonicalizeUkrainianWord(text);
-  if (!normalizedWord) {
-    throw new TypeError("Select one Ukrainian word, not a phrase.");
-  }
-
-  const pair = await getDictionaryLanguagePair(db, sourceLanguage, targetLanguage);
-  if (!pair) {
-    return { supported: false, normalizedWord, entries: [], attribution: null };
-  }
-
-  const formResult = await db
+async function readMatchingForms(db, sourceLanguage, normalizedWord, targetLanguage) {
+  return db
     .prepare(`
       SELECT
         lexeme.id AS lexemeId,
@@ -143,6 +130,42 @@ export async function lookupDictionaryWord(
     `)
     .bind(sourceLanguage, normalizedWord, MAX_FORM_ROWS, targetLanguage)
     .all();
+}
+
+async function readStoryPreference(db, storyId, normalizedWord, targetLanguage) {
+  return db
+    .prepare(`
+      SELECT sense_id AS senseId
+      FROM story_dictionary_preferences
+      WHERE story_id = ?1 AND normalized_form = ?2 AND target_language = ?3
+      LIMIT 1
+    `)
+    .bind(storyId, normalizedWord, targetLanguage)
+    .first();
+}
+
+export async function lookupDictionaryWord(
+  db,
+  { text, sourceLanguage = "uk", targetLanguage = "en", storyId = null }
+) {
+  const normalizedWord = canonicalizeUkrainianWord(text);
+  if (!normalizedWord) {
+    throw new TypeError("Select one Ukrainian word, not a phrase.");
+  }
+
+  // The language pair, the matching forms and the story's preferred sense do not
+  // depend on each other, so they are read together: one round trip to D1
+  // instead of three before the translations.
+  const hasStory = Number.isSafeInteger(storyId) && storyId > 0;
+  const [pair, formResult, preference] = await Promise.all([
+    getDictionaryLanguagePair(db, sourceLanguage, targetLanguage),
+    readMatchingForms(db, sourceLanguage, normalizedWord, targetLanguage),
+    hasStory ? readStoryPreference(db, storyId, normalizedWord, targetLanguage) : null,
+  ]);
+
+  if (!pair) {
+    return { supported: false, normalizedWord, entries: [], attribution: null };
+  }
 
   const lexemes = new Map();
   for (const row of formResult.results || []) {
@@ -170,16 +193,7 @@ export async function lookupDictionaryWord(
   }
 
   const lexemeIds = [...lexemes.keys()];
-  let preferredSenseId = null;
-  if (Number.isSafeInteger(storyId) && storyId > 0) {
-    const preference = await db.prepare(`
-      SELECT sense_id AS senseId
-      FROM story_dictionary_preferences
-      WHERE story_id = ?1 AND normalized_form = ?2 AND target_language = ?3
-      LIMIT 1
-    `).bind(storyId, normalizedWord, targetLanguage).first();
-    preferredSenseId = preference?.senseId || null;
-  }
+  const preferredSenseId = preference?.senseId || null;
 
   if (lexemeIds.length) {
     const placeholders = lexemeIds.map((_, index) => `?${index + 2}`).join(", ");

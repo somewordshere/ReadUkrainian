@@ -51,6 +51,14 @@
         "limit": 5,
         "period": 60
       }
+    },
+    {
+      "name": "LOOKUP_RATE_LIMITER",
+      "namespace_id": "492020",
+      "simple": {
+        "limit": 120,
+        "period": 60
+      }
     }
   ],
   "d1_databases": [

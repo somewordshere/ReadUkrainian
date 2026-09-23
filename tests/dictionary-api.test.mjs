@@ -290,3 +290,32 @@ test("strips grave as well as acute stress marks, even when NFC merged them", as
   assert.equal(canonicalizeUkrainianWord("мо\u0301ва"), "мова");
   assert.equal(canonicalizeUkrainianWord("й\u0301ти"), "йти");
 });
+
+test("lookups are limited per client, and refused if the limiter is missing", async () => {
+  const db = createDictionaryDb();
+  const keys = [];
+  const withClient = (allow, limiter = true) => {
+    const context = createContext({ db });
+    const request = new Request(context.request, {
+      headers: { ...Object.fromEntries(context.request.headers), "cf-connecting-ip": "2001:db8:1:2:aaaa::7" },
+    });
+    return {
+      request,
+      env: {
+        DB: db,
+        ...(limiter ? { LOOKUP_RATE_LIMITER: { async limit({ key }) { keys.push(key); return { success: allow }; } } } : {}),
+      },
+    };
+  };
+
+  assert.equal((await onRequestPost(withClient(true))).status, 200);
+  const limited = await onRequestPost(withClient(false));
+  assert.equal(limited.status, 429);
+  assert.equal(limited.headers.get("cache-control"), "no-store");
+  assert.equal((await onRequestPost(withClient(true, false))).status, 503);
+  // IPv6 clients are counted by /64, so rotating addresses does not reset the limit.
+  assert.deepEqual([...new Set(keys)], ["dictionary-lookup:2001:0db8:0001:0002::/64"]);
+
+  // Without a client address (the release probe's service binding) there is no limit.
+  assert.equal((await onRequestPost(createContext({ db }))).status, 200);
+});
