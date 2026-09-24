@@ -197,6 +197,7 @@ function createHarness({
       callback();
       return 0;
     },
+    clearTimeout() {},
   });
 
   globalThis.window = windowTarget;
@@ -816,6 +817,111 @@ test("tapping the open word again closes it, and a further tap reopens it", () =
 
     tap(harness, word);
     assert.equal(harness.popover.hidden, false);
+  } finally {
+    harness.restore();
+  }
+});
+
+const BOOK = {
+  query: { text: "книга", sourceLanguage: "uk", targetLanguage: "en" },
+  entries: [{ lemma: "книга", normalizedLemma: "книга", partOfSpeech: "noun", forms: [], translations: [{ text: "book" }] }],
+};
+
+// Holds window.setTimeout callbacks (the harness runs them at once) until the
+// returned function is called.
+function holdTimers() {
+  const pending = [];
+  window.setTimeout = (callback) => pending.push(callback);
+  window.clearTimeout = (id) => {
+    pending[id - 1] = null;
+  };
+  return () => pending.forEach((callback, index) => {
+    pending[index] = null;
+    callback?.();
+  });
+}
+
+function tapReadyHarness(options) {
+  const harness = createHarness(options);
+  harness.controller.setContext({ storyId: 42 });
+  harness.controller.setEnabled(true);
+  harness.selection.isCollapsed = true;
+  return harness;
+}
+
+test("a tapped word's popover opens once, with the translation already in it", async () => {
+  const lookup = deferred();
+  const harness = tapReadyHarness({ fetchImpl: () => lookup.promise });
+  try {
+    const passLoadingDelay = holdTimers();
+    const word = addTappableWord(harness, "книга");
+
+    tap(harness, word);
+    assert.equal(word.classList.contains("is-tapped"), true);
+    assert.equal(harness.popover.hidden, true);
+
+    lookup.resolve(Response.json(BOOK));
+    await flushAsyncWork();
+    assert.equal(harness.popover.hidden, false);
+    assert.match(allText(harness.translationResult), /book/);
+    passLoadingDelay();
+    assert.doesNotMatch(allText(harness.translationResult), /Шукаємо/);
+  } finally {
+    harness.restore();
+  }
+});
+
+test("a slow lookup opens the popover with a loading line, then the translation", async () => {
+  const lookup = deferred();
+  const harness = tapReadyHarness({ fetchImpl: () => lookup.promise });
+  try {
+    const passLoadingDelay = holdTimers();
+    tap(harness, addTappableWord(harness, "книга"));
+    passLoadingDelay();
+    assert.equal(harness.popover.hidden, false);
+    assert.match(allText(harness.translationResult), /Шукаємо/);
+
+    lookup.resolve(Response.json(BOOK));
+    await flushAsyncWork();
+    assert.match(allText(harness.translationResult), /book/);
+    assert.doesNotMatch(allText(harness.translationResult), /Шукаємо/);
+  } finally {
+    harness.restore();
+  }
+});
+
+test("tapping elsewhere before the lookup answers means the popover never opens", async () => {
+  const lookup = deferred();
+  const harness = tapReadyHarness({ fetchImpl: () => lookup.promise });
+  try {
+    const passLoadingDelay = holdTimers();
+    const word = addTappableWord(harness, "книга");
+    tap(harness, word);
+    harness.documentTarget.dispatchEvent(eventOn("pointerdown", new FakeElement()));
+
+    lookup.resolve(Response.json(BOOK));
+    await flushAsyncWork();
+    passLoadingDelay();
+    assert.equal(harness.popover.hidden, true);
+    assert.equal(word.classList.contains("is-tapped"), false);
+  } finally {
+    harness.restore();
+  }
+});
+
+test("tapping a word again opens it at once, without a second lookup", async () => {
+  const harness = tapReadyHarness({ fetchImpl: async () => Response.json(BOOK) });
+  try {
+    const word = addTappableWord(harness, "книга");
+    tap(harness, word);
+    await flushAsyncWork();
+    tap(harness, word);
+    assert.equal(harness.popover.hidden, true);
+
+    tap(harness, word);
+    assert.equal(harness.popover.hidden, false);
+    assert.match(allText(harness.translationResult), /book/);
+    assert.equal(harness.requests.length, 1);
   } finally {
     harness.restore();
   }

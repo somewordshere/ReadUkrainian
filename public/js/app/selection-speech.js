@@ -37,6 +37,10 @@ const TARGET_LANGUAGES = new Set(["en", "de", "pl"]);
 const MAX_AUDIO_BYTES = 8 * 1024 * 1024;
 const MAX_DICTIONARY_RESPONSE_BYTES = 64 * 1024;
 const MAX_SPEECH_CHARACTERS = 80;
+// A lookup usually answers well within this; only a slower one shows the
+// loading line (and, after a tap, opens the popover before the answer).
+const TRANSLATION_LOADING_DELAY_MS = 400;
+const MAX_CACHED_LOOKUPS = 100;
 
 const PART_OF_SPEECH_LABELS = Object.freeze({
   adjective: "прикметник",
@@ -211,6 +215,9 @@ export function initSelectionSpeech(
   let translationState = "idle";
   let translationController = null;
   let translationToken = 0;
+  let translationLoadingTimer = 0;
+  // Answered lookups, so tapping a word again opens it at once.
+  const lookupCache = new Map();
   let targetLanguage = "en";
   // "tap" offers come from tapping a [data-word] element and survive the collapsed
   // selection a tap leaves behind; "selection" offers follow the text selection.
@@ -271,8 +278,15 @@ export function initSelectionSpeech(
     translateLabel.textContent = translationLoading ? COPY.translating : COPY.translate;
   }
 
+  function clearLoadingTimer() {
+    if (!translationLoadingTimer) return;
+    window.clearTimeout(translationLoadingTimer);
+    translationLoadingTimer = 0;
+  }
+
   function clearTranslation({ abort = true } = {}) {
     translationToken += 1;
+    clearLoadingTimer();
     if (abort && translationController) {
       translationController.abort();
     }
@@ -738,22 +752,54 @@ export function initSelectionSpeech(
     }
   }
 
+  // Opens the popover if a tap is still waiting for it, or refits it to what
+  // it now holds.
+  function revealPopover() {
+    if (popover.hidden) {
+      showOffer();
+    } else {
+      updatePopoverContent();
+      positionPopover();
+    }
+  }
+
+  function showTranslation(payload) {
+    translationState = "ready";
+    const found = renderTranslation(payload);
+    revealPopover();
+    setStatus(found ? COPY.translationReady : COPY.translationMissing);
+  }
+
   async function requestTranslation() {
     if (!translationSupported || !selectedText || selectionIssue) return;
 
     clearTranslation();
+    const cacheKey = `${targetLanguage}\u0000${storyId || ""}\u0000${selectedText}`;
+    if (lookupCache.has(cacheKey)) {
+      showTranslation(lookupCache.get(cacheKey));
+      return;
+    }
+
     const token = translationToken + 1;
     translationToken = token;
     translationController = new AbortControllerImpl();
     translationState = "loading";
-    translationResult.hidden = false;
-    const loading = document.createElement("p");
-    loading.className = "selection-translation-empty";
-    loading.textContent = COPY.translationLoading;
-    translationResult.appendChild(loading);
     updatePopoverContent();
-    positionPopover();
     setStatus(COPY.translationLoading);
+    // The answer is usually quick, so the popover waits for it and opens (or
+    // grows) once, instead of showing a loading line and then growing and
+    // moving when the translation lands.
+    translationLoadingTimer = window.setTimeout(() => {
+      translationLoadingTimer = 0;
+      if (token !== translationToken) return;
+
+      translationResult.hidden = false;
+      const loading = document.createElement("p");
+      loading.className = "selection-translation-empty";
+      loading.textContent = COPY.translationLoading;
+      translationResult.replaceChildren(loading);
+      revealPopover();
+    }, TRANSLATION_LOADING_DELAY_MS);
 
     try {
       const response = await fetchImpl("/api/dictionary/lookup", {
@@ -785,15 +831,17 @@ export function initSelectionSpeech(
       const payload = await response.json();
       if (token !== translationToken) return;
 
+      clearLoadingTimer();
       translationController = null;
-      translationState = "ready";
-      const found = renderTranslation(payload);
-      updatePopoverContent();
-      positionPopover();
-      setStatus(found ? COPY.translationReady : COPY.translationMissing);
+      showTranslation(payload);
+      if (lookupCache.size >= MAX_CACHED_LOOKUPS) {
+        lookupCache.delete(lookupCache.keys().next().value);
+      }
+      lookupCache.set(cacheKey, payload);
     } catch (error) {
       if (token !== translationToken) return;
 
+      clearLoadingTimer();
       translationController = null;
       translationState = "error";
       translationResult.replaceChildren();
@@ -803,8 +851,7 @@ export function initSelectionSpeech(
       message.className = "selection-translation-empty";
       message.textContent = errorMessage;
       translationResult.appendChild(message);
-      updatePopoverContent();
-      positionPopover();
+      revealPopover();
       setStatus(errorMessage);
     }
   }
@@ -875,9 +922,12 @@ export function initSelectionSpeech(
     selectedText = text;
     selectionIssue = text.length > MAX_SPEECH_CHARACTERS ? COPY.tooLong : "";
     selectedRange = range;
-    showOffer();
     if (translationSupported && !selectionIssue) {
+      // The highlighted word answers the tap; the popover opens with the
+      // translation (see requestTranslation).
       void requestTranslation();
+    } else {
+      showOffer();
     }
   }
 
@@ -932,7 +982,8 @@ export function initSelectionSpeech(
     // instead of reopening it.
     dismissedTapWord =
       offerSource === "tap" && tappedWord?.contains(event.target) ? tappedWord : null;
-    if (!popover.hidden && !popover.contains(event.target)) {
+    // A tapped word whose popover hasn't opened yet is cancelled the same way.
+    if ((!popover.hidden || tappedWord) && !popover.contains(event.target)) {
       dismissOffer({ stop: true });
     }
   });

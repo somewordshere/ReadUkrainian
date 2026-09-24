@@ -1,5 +1,5 @@
-const SITE_VERSION = "1.05";
-const CHANGELOG_LINE = 111;
+const SITE_VERSION = "1.06";
+const CHANGELOG_LINE = 112;
 const CHANGELOG_URL = `https://github.com/somewordshere/ReadUkrainian/blob/main/docs/change.log#L${CHANGELOG_LINE}`;
 
 function renderSiteVersion() {
