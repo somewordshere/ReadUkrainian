@@ -1,3 +1,4 @@
+import { listTranslationLanguages } from "../../_shared/dictionary.js";
 import { NO_STORE, PUBLISHED_CONTENT_CACHE, error, json } from "../../_shared/http.js";
 import { getLearnerSpeechOptions } from "../../_shared/speech-settings.js";
 import { getStoryById, getStoryByLevelAndOrder } from "../../_shared/texts.js";
@@ -24,6 +25,9 @@ export async function onRequestGet(context) {
   const speechPromise = getLearnerSpeechOptions(context.env.DB).catch(
     () => ({ enabled: false, voiceId: null, voices: [] })
   );
+  // Likewise the dictionaries the reader may offer; English and German have
+  // always been installed.
+  const languagesPromise = listTranslationLanguages(context.env.DB).catch(() => ["de", "en"]);
 
   const story = Number.isInteger(storyId) && storyId > 0
     ? await getStoryById(context.env.DB, storyId, { includeQuestions: true })
@@ -33,7 +37,7 @@ export async function onRequestGet(context) {
     return error(404, "Story not found.", { headers: { "cache-control": NO_STORE } });
   }
 
-  const speech = await speechPromise;
+  const [speech, translationLanguages] = await Promise.all([speechPromise, languagesPromise]);
 
   return json(
     {
@@ -42,6 +46,7 @@ export async function onRequestGet(context) {
         speechEnabled: speech.enabled,
         speechVoiceId: speech.voiceId,
         speechVoices: speech.enabled ? speech.voices : [],
+        translationLanguages,
       },
     },
     { headers: { "cache-control": PUBLISHED_CONTENT_CACHE } }

@@ -3,7 +3,14 @@ import test from "node:test";
 
 import { onRequestGet } from "../functions/api/content/story.js";
 
-function createDb({ speechRow = null, speechThrows = false, enabledVoices = [], voicesThrow = false } = {}) {
+function createDb({
+  speechRow = null,
+  speechThrows = false,
+  enabledVoices = [],
+  voicesThrow = false,
+  languages = ["de", "en"],
+  languagesThrow = false,
+} = {}) {
   const storyRow = {
     id: 42,
     level: "A1",
@@ -36,6 +43,10 @@ function createDb({ speechRow = null, speechThrows = false, enabledVoices = [], 
           return null;
         },
         async all() {
+          if (sql.includes("FROM dictionary_language_pairs")) {
+            if (languagesThrow) throw new Error("Dictionary pairs unavailable.");
+            return { results: languages.map((targetLanguage) => ({ targetLanguage })) };
+          }
           if (sql.includes("FROM speech_voice_options")) {
             if (voicesThrow) throw new Error("Voice shortlist unavailable.");
             return { results: enabledVoices.map((voiceId) => ({ voiceId })) };
@@ -107,6 +118,19 @@ test("story content keeps the site voice when the shortlist cannot load, and no 
     enabledVoices: ["uk-UA-Chirp3-HD-Charon"],
   }))).json();
   assert.deepEqual(speechOff.story.speechVoices, []);
+});
+
+test("story content lists the translation languages the database has installed", async () => {
+  const beforePolish = await (await fetchStory(createDb())).json();
+  assert.deepEqual(beforePolish.story.translationLanguages, ["de", "en"]);
+
+  const withPolish = await (await fetchStory(createDb({ languages: ["de", "en", "pl"] }))).json();
+  assert.deepEqual(withPolish.story.translationLanguages, ["de", "en", "pl"]);
+
+  // Reading and the long-installed dictionaries stay available if the list cannot load.
+  const response = await fetchStory(createDb({ languagesThrow: true }));
+  assert.equal(response.status, 200);
+  assert.deepEqual((await response.json()).story.translationLanguages, ["de", "en"]);
 });
 
 test("an unreadable quiz row is dropped instead of failing the story", async () => {

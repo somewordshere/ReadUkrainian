@@ -157,6 +157,22 @@ function mergeDuplicateEntries(entries) {
   return [...merged.values()];
 }
 
+// The translation languages a migration has installed and enabled. A language
+// arrives with a database update, which can lag the code release that knows it,
+// so the reader offers only these.
+export async function listTranslationLanguages(db, sourceLanguage = "uk") {
+  const result = await db
+    .prepare(`
+      SELECT target_language AS targetLanguage
+      FROM dictionary_language_pairs
+      WHERE source_language = ?1 AND enabled = 1
+      ORDER BY target_language ASC
+    `)
+    .bind(sourceLanguage)
+    .all();
+  return (result.results || []).map((row) => row.targetLanguage);
+}
+
 async function getDictionaryLanguagePair(db, sourceLanguage, targetLanguage) {
   const row = await db
     .prepare(`
