@@ -1,7 +1,7 @@
 # Rebuilding dictionaries from raw extracts
 
 Validated on 2026-09-15 for release 0.84. Kaikki's postprocessed downloads are
-deprecated; obtain English and German **raw** gzip extracts from
+deprecated; obtain English, German and Polish **raw** gzip extracts from
 [the official download page](https://kaikki.org/dictionary/rawdata.html).
 
 Keep downloads and generated full seeds outside `migrations/`, for example under
@@ -58,6 +58,37 @@ Keep historical migrations immutable. All three dictionary generators require an
 explicit unused output filename. For a later dictionary refresh, review the
 meaning/form changes, create a new bounded migration, preserve old referenced
 senses, and use the existing guarded release procedure.
+
+## Shared word forms and the Polish dictionary
+
+Since 1.04 Ukrainian word forms are shared by every translation language. A
+lookup finds an entry through its own forms or through the forms the English
+dictionary records for the same lemma and part of speech (`formEntriesCtes` and
+`FORMS_REFERENCE_LANGUAGE` in `functions/_shared/dictionary.js`). English is the
+reference because it covers every story word and its forms are what the guards
+check; a repair to an English form therefore reaches every language. Other
+languages' own forms still lead only to their own entries. Parts of speech are
+compared and reported spelled out (`adj` and `adjective` are one), and entries
+that otherwise tie keep their source order. Coverage (`analyzeDictionaryCoverage`)
+follows the same forms, so a word counts as covered exactly when a lookup shows it.
+
+Polish Wiktionary lists no Ukrainian inflections, so the Polish seed carries no
+forms at all. Build it from the official Polish extract after English is installed:
+
+```sh
+node scripts/dictionary/extract-raw-ukrainian.mjs --source pl-extract.jsonl.gz --edition pl --revision YYYY-MM-DD --source-url https://kaikki.org/dictionary/downloads/pl/pl-extract.jsonl.gz --output NEW_UK_PL.jsonl
+node scripts/dictionary/build-dictionary-seed.mjs --source NEW_UK_PL.jsonl --revision YYYY-MM-DD --target pl --output NEW_PL.sql
+```
+
+The builder keeps a Polish entry only when the installed English forms of a story
+word lead to its lemma and part of speech. Where Polish Wiktionary names a word's
+part of speech differently (a pronoun «цей», an adjective «два», a particle «не»),
+the entry is filed under English's when both belong to one interchangeable group
+and English has exactly one of them; nouns and names are never interchanged. The
+SQL header lists every such filing. Letter entries are left out, and glosses are
+cleaned: "…wyrażający cel: na" becomes "na (wyrażający cel)", and "zob."
+cross-references are dropped. Release 1.04 installs the 2026-09-20 extract as
+migration 0035: 1,691 entries covering 3,308 of 4,159 A1–A2 story words (79.5%).
 
 ## German review
 

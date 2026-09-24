@@ -8,10 +8,10 @@ import {
  checkCanaries,checkCanaryDiff,checkFormCaps,checkFormCrossings,checkNewTags,collectLemmas,
  databaseLookup,formTags,loadGuardConfig,mostFrequentWords,reportFailures,storyWordFrequency,
 } from '../lib/dictionary-guards.mjs';
-const {values}=parseArgs({options:{en:{type:'string'},de:{type:'string'},output:{type:'string'}}});
+const {values}=parseArgs({options:{en:{type:'string'},de:{type:'string'},pl:{type:'string'},output:{type:'string'}}});
 // Either or both languages: a dictionary update validates only the pair it changes.
-const languages=['en','de'].filter(language=>values[language]);
-if(!languages.length||!values.output)throw new Error('--en SQL and/or --de SQL, and --output NEW_REPORT, are required');
+const languages=['en','de','pl'].filter(language=>values[language]);
+if(!languages.length||!values.output)throw new Error('--en, --de and/or --pl SQL, and --output NEW_REPORT, are required');
 const allStories=JSON.parse(readFileSync(new URL('../../data/content-seed.json',import.meta.url),'utf8'));
 const stories=allStories.filter(s=>['A1','A2'].includes(s.level)&&s.active!==false);
 const guard=loadGuardConfig();

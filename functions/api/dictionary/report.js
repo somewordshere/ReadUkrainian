@@ -15,7 +15,7 @@ import { canonicalizeUkrainianWord, extractUkrainianWords } from "../../_shared/
 
 const MAX_REQUEST_BYTES = 1024;
 const MAX_WORD_CHARACTERS = 80;
-const TARGET_LANGUAGES = new Set(["en", "de"]);
+const TARGET_LANGUAGES = new Set(["en", "de", "pl"]);
 // New words reported per day across the site; repeats only raise a count.
 const MAX_NEW_REPORTS_PER_DAY = 200;
 const NO_STORE_HEADERS = Object.freeze({ "cache-control": "no-store" });
@@ -38,7 +38,7 @@ function validatePayload(payload) {
 
   const targetLanguage = payload.targetLanguage.trim().toLowerCase();
   if (!TARGET_LANGUAGES.has(targetLanguage)) {
-    return { ok: false, message: "targetLanguage must be en or de." };
+    return { ok: false, message: "targetLanguage must be en, de or pl." };
   }
 
   const storyId = Number(payload.storyId);

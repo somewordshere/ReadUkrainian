@@ -5,7 +5,7 @@ name: Prepare dictionary update
 # running "Release production".
 #
 # Runs by itself:
-#   - every Monday, for both languages (the revision check skips the download
+#   - every Monday, for every language (the revision check skips the download
 #     when Kaikki has nothing newer);
 #   - after a push to main that changes the dictionary builder, its guards, the
 #     migrations or the release files, so a pending update is rebuilt on the fixed
@@ -17,9 +17,9 @@ on:
   workflow_dispatch:
     inputs:
       language:
-        description: Dictionary to update (en = Ukrainian → English, de = Ukrainian → German)
+        description: Dictionary to update (en = Ukrainian → English, de = Ukrainian → German, pl = Ukrainian → Polish)
         type: choice
-        options: [en, de]
+        options: [en, de, pl]
         default: en
         required: true
   schedule:
@@ -45,7 +45,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: ${{ fromJSON(github.event_name == 'workflow_dispatch' && format('["{0}"]', inputs.language) || '["en","de"]') }}
+        language: ${{ fromJSON(github.event_name == 'workflow_dispatch' && format('["{0}"]', inputs.language) || '["en","de","pl"]') }}
     concurrency:
       group: dictionary-update-${{ matrix.language }}
       cancel-in-progress: false
@@ -67,10 +67,13 @@ jobs:
       - name: Download the Wiktionary extracts
         if: steps.revision.outputs.update == 'true'
         run: |
-          # English is always needed: German takes its inflected forms from it.
-          curl -fsSL --retry 3 -o "$RUNNER_TEMP/en.jsonl.gz" https://kaikki.org/dictionary/raw-wiktextract-data.jsonl.gz
-          if [ "$LANGUAGE" = de ]; then
-            curl -fsSL --retry 3 -o "$RUNNER_TEMP/de.jsonl.gz" https://kaikki.org/dictionary/downloads/de/de-extract.jsonl.gz
+          # English for English and German (German takes its inflected forms from
+          # it); Polish uses the word forms the installed English dictionary shares.
+          if [ "$LANGUAGE" != pl ]; then
+            curl -fsSL --retry 3 -o "$RUNNER_TEMP/en.jsonl.gz" https://kaikki.org/dictionary/raw-wiktextract-data.jsonl.gz
+          fi
+          if [ "$LANGUAGE" != en ]; then
+            curl -fsSL --retry 3 -o "$RUNNER_TEMP/$LANGUAGE.jsonl.gz" "https://kaikki.org/dictionary/downloads/$LANGUAGE/$LANGUAGE-extract.jsonl.gz"
           fi
           ls -la "$RUNNER_TEMP"/*.jsonl.gz
       - name: Build and validate the update, including the dictionary guards
@@ -79,8 +82,8 @@ jobs:
           node scripts/dictionary/prepare-update.mjs \
             --target "$LANGUAGE" \
             --revision "${{ steps.revision.outputs.available }}" \
-            --en-raw "$RUNNER_TEMP/en.jsonl.gz" \
-            $([ "$LANGUAGE" = de ] && echo --de-raw "$RUNNER_TEMP/de.jsonl.gz") \
+            $([ "$LANGUAGE" != pl ] && echo --en-raw "$RUNNER_TEMP/en.jsonl.gz") \
+            $([ "$LANGUAGE" != en ] && echo "--$LANGUAGE-raw" "$RUNNER_TEMP/$LANGUAGE.jsonl.gz") \
             --work "$RUNNER_TEMP/work" \
             --summary "$RUNNER_TEMP/summary.md"
       - name: Run the full repository check

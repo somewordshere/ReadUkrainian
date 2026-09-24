@@ -13,11 +13,12 @@ const MAX_REQUEST_BYTES = 1024;
 const REQUEST_TIMEOUT_MS = 8000;
 
 // Where each pair's upstream version is published. English Kaikki states the
-// Wiktionary dump date on its Ukrainian page; the German extract has no such
-// page, so the download's Last-Modified date stands in as its version.
+// Wiktionary dump date on its Ukrainian page; the German and Polish extracts have
+// no such page, so the download's Last-Modified date stands in as its version.
 const SOURCES = Object.freeze({
   en: { kind: "page", url: "https://kaikki.org/dictionary/Ukrainian/" },
   de: { kind: "last-modified", url: "https://kaikki.org/dictionary/downloads/de/de-extract.jsonl.gz" },
+  pl: { kind: "last-modified", url: "https://kaikki.org/dictionary/downloads/pl/pl-extract.jsonl.gz" },
 });
 
 async function readLimitedText(response, maximumBytes) {
@@ -69,7 +70,7 @@ export async function onRequestPost(context) {
   const targetLanguage = String(parsed.value?.targetLanguage || "en").toLowerCase();
   // Own keys only: "constructor" or "__proto__" must not resolve to a source.
   const source = Object.hasOwn(SOURCES, targetLanguage) ? SOURCES[targetLanguage] : null;
-  if (!source) return error(400, "targetLanguage must be en or de.");
+  if (!source) return error(400, "targetLanguage must be en, de or pl.");
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);

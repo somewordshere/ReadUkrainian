@@ -455,7 +455,7 @@ async function playSpeechPreview(voiceId) {
 // The GitHub workflow that builds a reviewed update branch for one language.
 const DICTIONARY_UPDATE_WORKFLOW_URL =
   "https://github.com/somewordshere/ReadUkrainian/actions/workflows/dictionary-update.yml";
-const DICTIONARY_LANGUAGE_NAMES = { en: "English", de: "German" };
+const DICTIONARY_LANGUAGE_NAMES = { en: "English", de: "German", pl: "Polish" };
 let dictionaryPairState = [];
 
 function dictionaryUpdateAvailable(pair) {

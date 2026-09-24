@@ -22,6 +22,8 @@ try {
   assert.equal(coverage.coveragePercent, 100);
   const german = await analyzeDictionaryCoverage(db, stories.flatMap((story) => story.paragraphs), { targetLanguage: "de" });
   console.log(JSON.stringify({ stories: stories.length, ...german, missing: process.argv.includes("--missing") ? german.missing : undefined }, null, 2));
+  const polish = await analyzeDictionaryCoverage(db, stories.flatMap((story) => story.paragraphs), { targetLanguage: "pl" });
+  console.log(JSON.stringify({ stories: stories.length, ...polish, missing: process.argv.includes("--missing") ? polish.missing : undefined }, null, 2));
   assert.deepEqual(sqlite.prepare("PRAGMA foreign_key_check").all(), []);
 
   // The whole dictionary, not only the latest update, must pass the guards, so

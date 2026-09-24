@@ -145,6 +145,61 @@ test("the German Wiktionary and Linguisto seeds form an attributed language pair
   assert.equal(linguistoLookup.attributions[0].licenseName, "Creative Commons Attribution");
 });
 
+test("the Polish Wiktionary seed reaches its entries through the English word forms", async () => {
+  const db = createD1Database();
+  const stories = JSON.parse(readFileSync(new URL("../data/content-seed.json", import.meta.url), "utf8"));
+  const paragraphs = stories
+    .filter((story) => ["A1", "A2"].includes(story.level) && story.active !== false)
+    .flatMap((story) => story.paragraphs);
+  const coverage = await analyzeDictionaryCoverage(db, paragraphs, { targetLanguage: "pl" });
+  const shown = async (text) => (await lookupDictionaryWord(db, { text, targetLanguage: "pl" })).entries;
+
+  // Polish Wiktionary has no Ukrainian inflections, so every inflected form here
+  // is reached through the English dictionary's forms. A floor, like German's.
+  assert.ok(coverage.coveredUniqueWords >= 3308, `covered ${coverage.coveredUniqueWords}`);
+  assert.ok(coverage.coveragePercent >= 79.5);
+  assert.ok(coverage.missing.length > 0);
+
+  const book = await shown("книжку");
+  assert.equal(book[0].lemma, "книжка");
+  assert.equal(book[0].translations[0].text, "książka");
+  assert.equal(book[0].translations[0].source.name, "Polish Wiktionary via Kaikki.org");
+  assert.ok(book[0].forms.some((form) => form.grammar.case === "accusative"));
+  assert.equal((await shown("йду"))[0].translations[0].text, "iść");
+  // Filed as a determiner, as English Wiktionary has it, not Polish's pronoun.
+  const thisOne = await shown("цього");
+  assert.deepEqual(thisOne.map((entry) => [entry.lemma, entry.partOfSpeech]), [["цей", "determiner"]]);
+  // The translation first, then what the preposition expresses.
+  assert.match((await shown("на"))[0].translations[0].text, /^na \(/u);
+  // A letter's description is not a translation.
+  assert.ok(!(await shown("я")).some((entry) => entry.partOfSpeech === "character"));
+  const result = await lookupDictionaryWord(db, { text: "книжку", targetLanguage: "pl" });
+  assert.equal(result.attribution.sourceRevision, "2026-09-20");
+});
+
+test("the refresh action versions the Polish source by its extract's Last-Modified date", async () => {
+  const db = createD1Database();
+  const previousFetch = globalThis.fetch;
+  globalThis.fetch = async (url, options = {}) => {
+    assert.equal(url, "https://kaikki.org/dictionary/downloads/pl/pl-extract.jsonl.gz");
+    assert.equal(options.method, "HEAD");
+    return new Response(null, { headers: { "last-modified": "Sun, 04 Oct 2099 02:23:42 GMT" } });
+  };
+  try {
+    const response = await checkUpdate(await adminContext(db, {
+      path: "/api/admin/dictionary/check-update",
+      payload: { targetLanguage: "pl" },
+    }));
+    assert.equal(response.status, 200);
+    const result = await response.json();
+    assert.equal(result.currentRevision, "2026-09-20");
+    assert.equal(result.availableRevision, "2099-10-04");
+    assert.equal(result.updateAvailable, true);
+  } finally {
+    globalThis.fetch = previousFetch;
+  }
+});
+
 test("new text coverage is non-blocking data with an exact missing-word list", async () => {
   const db = createD1Database();
   const response = await checkCoverage(await adminContext(db, {

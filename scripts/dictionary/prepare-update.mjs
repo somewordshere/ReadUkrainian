@@ -1,11 +1,13 @@
 // Prepare a reviewed dictionary update as a complete release candidate.
 //
-//   node scripts/dictionary/prepare-update.mjs --target en|de --revision YYYY-MM-DD \
-//     --en-raw raw-wiktextract-data.jsonl.gz [--de-raw de-extract.jsonl.gz] --work DIR
+//   node scripts/dictionary/prepare-update.mjs --target en|de|pl --revision YYYY-MM-DD \
+//     [--en-raw raw-wiktextract-data.jsonl.gz] [--de-raw de-extract.jsonl.gz] \
+//     [--pl-raw pl-extract.jsonl.gz] --work DIR
 //
-// (--en-extract / --de-extract accept already-filtered Ukrainian JSONL instead.)
-// German also needs the English extract, whose richer inflection tables supply
-// forms. The update only adds rows for words the stories use (--scope story) that
+// (--en-extract / --de-extract / --pl-extract accept already-filtered Ukrainian
+// JSONL instead.) German also needs the English extract, whose richer inflection
+// tables supply forms; Polish needs only its own, since its entries use the word
+// forms the installed English dictionary shares. The update only adds rows for words the stories use (--scope story) that
 // no earlier migration already added (--since), so reviewed entries are never
 // replaced. On success it writes the next migration, the release manifest and
 // version bump, and a Markdown summary for the reviewer (--summary, default
@@ -30,7 +32,8 @@ import { seedDatabase } from "../lib/seed-database.mjs";
 
 const SOURCES = {
   en: { edition: "en", url: "https://kaikki.org/dictionary/raw-wiktextract-data.jsonl.gz", name: "English" },
-  de: { edition: "de", url: "https://kaikki.org/dictionary/downloads/de/de-extract.jsonl.gz", name: "German" },
+  de: { edition: "de", url: "https://kaikki.org/dictionary/downloads/de/de-extract.jsonl.gz", name: "German", formsFrom: "en" },
+  pl: { edition: "pl", url: "https://kaikki.org/dictionary/downloads/pl/pl-extract.jsonl.gz", name: "Polish" },
 };
 
 const { values } = parseArgs({
@@ -39,14 +42,16 @@ const { values } = parseArgs({
     revision: { type: "string" },
     "en-raw": { type: "string" },
     "de-raw": { type: "string" },
+    "pl-raw": { type: "string" },
     "en-extract": { type: "string" },
     "de-extract": { type: "string" },
+    "pl-extract": { type: "string" },
     work: { type: "string" },
     summary: { type: "string" },
   },
 });
 const target = values.target;
-if (!SOURCES[target]) throw new Error("--target must be en or de");
+if (!SOURCES[target]) throw new Error("--target must be en, de or pl");
 if (!/^\d{4}-\d{2}-\d{2}$/.test(values.revision || "")) throw new Error("--revision YYYY-MM-DD is required");
 if (!values.work) throw new Error("--work DIR is required");
 
@@ -92,8 +97,8 @@ function extract(edition) {
   }
   return output;
 }
-const englishExtract = extract("en");
-const targetExtract = target === "de" ? extract("de") : englishExtract;
+const targetExtract = extract(target);
+const formsExtract = SOURCES[target].formsFrom ? extract(SOURCES[target].formsFrom) : null;
 
 // 2. Story-scope rows that no earlier migration already added.
 const since = readdirSync(migrationsDir).filter((file) => file.endsWith(".sql")).sort()
@@ -101,7 +106,7 @@ const since = readdirSync(migrationsDir).filter((file) => file.endsWith(".sql"))
 const candidate = join(work, `candidate-${target}-${values.revision}-${Date.now()}.sql`);
 run("scripts/dictionary/build-dictionary-seed.mjs", [
   "--source", targetExtract, "--revision", values.revision, "--target", target, "--scope", "story",
-  ...(target === "de" ? ["--forms-source", englishExtract] : []),
+  ...(formsExtract ? ["--forms-source", formsExtract] : []),
   ...since, "--output", candidate,
 ]);
 const sql = readFileSync(candidate, "utf8");
