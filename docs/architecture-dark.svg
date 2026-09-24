@@ -1,0 +1,152 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 875" width="1000" height="875" role="img" aria-labelledby="title desc">
+  <title id="title">How Read Ukrainian fits together</title>
+  <desc id="desc">Learners load scripts, styles, fonts and audio straight from Cloudflare's static files, and pages and word lookups from a Cloudflare Worker. Editors use the admin, which also talks to the Worker. The Worker uses a D1 database, an edge cache, rate limiters and secrets, and calls Google Text-to-Speech within a daily and monthly budget. Code is pushed to the GitHub repository, whose workflows check it, release it to Cloudflare and verify the live site. A dictionary workflow runs weekly or from the admin, downloads Kaikki.org data and opens a pull request.</desc>
+  <style>
+    .bg { fill: #1e2126; }
+    .zone { fill: #191c20; stroke: #32363d; }
+    .zone-cf { fill: #1f2b3b; }
+    .box { fill: #23272d; stroke: #474b53; stroke-width: 1; }
+    .box-flow { fill: #23272d; stroke: #f0b541; stroke-width: 1.6; }
+    .zl { font: 700 11.5px "Segoe UI", -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif; letter-spacing: 0.08em; fill: #92b3de; }
+    .t { font: 600 15px Georgia, "Times New Roman", serif; fill: #ece8e1; }
+    .t-sm { font: 600 13.5px Georgia, "Times New Roman", serif; fill: #ece8e1; }
+    .s { font: 12px "Segoe UI", -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif; fill: #a8a298; }
+    .edge { fill: none; stroke: #a8a298; stroke-width: 1.4; }
+    .edge-flow { fill: none; stroke: #f0b541; stroke-width: 1.8; stroke-dasharray: 6 4; }
+    .el { font: 600 11.5px "Segoe UI", -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif; fill: #a8a298; }
+    .el-flow { font: 600 11.5px "Segoe UI", -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif; fill: #f0b541; }
+    .head { fill: #a8a298; }
+    .head-flow { fill: #f0b541; }
+  </style>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path class="head" d="M0,0 L10,5 L0,10 z"/>
+    </marker>
+    <marker id="arrow-flow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path class="head-flow" d="M0,0 L10,5 L0,10 z"/>
+    </marker>
+  </defs>
+  <rect class="bg" x="0" y="0" width="1000" height="875" rx="16"/>
+
+  <!-- People -->
+  <rect class="zone" x="16" y="20" width="196" height="235" rx="14"/>
+  <text class="zl" x="30" y="42">PEOPLE</text>
+  <rect class="box" x="28" y="55" width="172" height="80" rx="10"/>
+  <text class="t" x="42" y="83">Learners</text>
+  <text class="s" x="42" y="103">browser or phone</text>
+  <text class="s" x="42" y="119">read, listen, look up</text>
+  <rect class="box" x="28" y="160" width="172" height="80" rx="10"/>
+  <text class="t" x="42" y="188">Editors</text>
+  <text class="s" x="42" y="208">stories · voices</text>
+  <text class="s" x="42" y="224">dictionary · reports</text>
+
+  <!-- Cloudflare -->
+  <rect class="zone zone-cf" x="290" y="20" width="380" height="455" rx="14"/>
+  <text class="zl" x="304" y="42">CLOUDFLARE · THE LIVE SITE</text>
+  <rect class="box" x="305" y="55" width="350" height="72" rx="10"/>
+  <text class="t" x="320" y="80">Static files</text>
+  <text class="s" x="320" y="100">pages, scripts, styles, fonts and saved audio;</text>
+  <text class="s" x="320" y="116">everything but pages skips the Worker</text>
+  <rect class="box" x="305" y="145" width="350" height="90" rx="10"/>
+  <text class="t" x="320" y="172">Worker</text>
+  <text class="s" x="320" y="193">runs readukrainianapp.com: adds security headers</text>
+  <text class="s" x="320" y="210">to each page and answers the site's API requests</text>
+  <rect class="box" x="305" y="255" width="170" height="80" rx="10"/>
+  <text class="t" x="320" y="282">D1 database</text>
+  <text class="s" x="320" y="302">stories, questions,</text>
+  <text class="s" x="320" y="318">dictionary, settings</text>
+  <rect class="box" x="485" y="255" width="170" height="80" rx="10"/>
+  <text class="t" x="500" y="282">Edge cache</text>
+  <text class="s" x="500" y="302">generated audio and</text>
+  <text class="s" x="500" y="318">the voice list</text>
+  <rect class="box" x="305" y="350" width="170" height="110" rx="10"/>
+  <text class="t" x="320" y="377">Rate limiters</text>
+  <text class="s" x="320" y="397">per-minute caps on</text>
+  <text class="s" x="320" y="413">new audio, lookups,</text>
+  <text class="s" x="320" y="429">reports and admin</text>
+  <text class="s" x="320" y="445">sign-in attempts</text>
+  <rect class="box" x="485" y="350" width="170" height="110" rx="10"/>
+  <text class="t" x="500" y="377">Secrets</text>
+  <text class="s" x="500" y="397">Google key, session</text>
+  <text class="s" x="500" y="413">secret, never in code</text>
+
+  <!-- Outside services -->
+  <text class="zl" x="722" y="42">OUTSIDE SERVICES</text>
+  <rect class="box" x="720" y="145" width="260" height="125" rx="10"/>
+  <text class="t" x="735" y="173">Google Text-to-Speech</text>
+  <text class="s" x="735" y="194">makes the audio for words that</text>
+  <text class="s" x="735" y="211">aren't saved or cached yet</text>
+  <text class="s" x="735" y="233">within a daily and monthly</text>
+  <text class="s" x="735" y="250">character budget</text>
+  <rect class="box-flow" x="720" y="756" width="260" height="64" rx="10"/>
+  <text class="t" x="735" y="784">Kaikki.org</text>
+  <text class="s" x="735" y="804">Wiktionary dictionary data</text>
+
+  <!-- GitHub -->
+  <rect class="zone" x="290" y="505" width="380" height="330" rx="14"/>
+  <text class="zl" x="304" y="527">GITHUB · CODE AND AUTOMATION</text>
+  <rect class="box" x="305" y="540" width="125" height="280" rx="10"/>
+  <text class="t" x="319" y="568">Repository</text>
+  <text class="s" x="319" y="590">somewordshere/</text>
+  <text class="s" x="319" y="606">ReadUkrainian</text>
+  <text class="s" x="319" y="630">all the code and</text>
+  <text class="s" x="319" y="646">its full history</text>
+  <text class="s" x="319" y="670">main = what's</text>
+  <text class="s" x="319" y="686">released or next</text>
+  <rect class="box" x="445" y="540" width="210" height="62" rx="10"/>
+  <text class="t-sm" x="459" y="561">Checks</text>
+  <text class="s" x="459" y="579">tests and dictionary guards</text>
+  <text class="s" x="459" y="594">on every push</text>
+  <rect class="box" x="445" y="612" width="210" height="62" rx="10"/>
+  <text class="t-sm" x="459" y="633">Release production</text>
+  <text class="s" x="459" y="651">the only way code goes live</text>
+  <text class="s" x="459" y="666">started by hand</text>
+  <rect class="box" x="445" y="684" width="210" height="62" rx="10"/>
+  <text class="t-sm" x="459" y="705">Verify production</text>
+  <text class="s" x="459" y="723">re-checks the live site</text>
+  <text class="s" x="459" y="738">daily, and after releases</text>
+  <rect class="box-flow" x="445" y="756" width="210" height="64" rx="10"/>
+  <text class="t-sm" x="459" y="777">Prepare dictionary update</text>
+  <text class="s" x="459" y="795">weekly, or from the admin;</text>
+  <text class="s" x="459" y="810">opens a PR to review</text>
+
+  <!-- Development -->
+  <rect class="zone" x="16" y="505" width="196" height="235" rx="14"/>
+  <text class="zl" x="30" y="527">DEVELOPMENT</text>
+  <rect class="box" x="28" y="540" width="172" height="80" rx="10"/>
+  <text class="t" x="42" y="567">Working copy</text>
+  <text class="s" x="42" y="587">code and tests</text>
+  <text class="s" x="42" y="603">Wrangler CLI</text>
+  <rect class="box" x="28" y="635" width="172" height="85" rx="10"/>
+  <text class="t" x="42" y="662">Build scripts</text>
+  <text class="s" x="42" y="682">stress marks,</text>
+  <text class="s" x="42" y="698">saved word audio</text>
+
+  <!-- Edges: requests and data -->
+  <path class="edge" d="M200 80 H303" marker-end="url(#arrow)"/>
+  <text class="el" x="252" y="72" text-anchor="middle">files</text>
+  <path class="edge" d="M200 115 H232 V180 H303" marker-end="url(#arrow)"/>
+  <text class="el" x="268" y="172" text-anchor="middle">pages, taps</text>
+  <path class="edge" d="M200 205 H303" marker-end="url(#arrow)"/>
+  <text class="el" x="252" y="197" text-anchor="middle">admin</text>
+  <path class="edge" d="M480 145 V129" marker-end="url(#arrow)"/>
+  <text class="el" x="488" y="140">pages</text>
+  <path class="edge" d="M390 235 V253" marker-end="url(#arrow)"/>
+  <path class="edge" d="M570 235 V253" marker-end="url(#arrow)"/>
+  <path class="edge" d="M655 190 H718" marker-end="url(#arrow)"/>
+  <path class="edge" d="M200 580 H303" marker-end="url(#arrow)"/>
+  <text class="el" x="252" y="572" text-anchor="middle">git push</text>
+  <path class="edge" d="M430 571 H443" marker-end="url(#arrow)"/>
+  <path class="edge" d="M430 643 H443" marker-end="url(#arrow)"/>
+  <path class="edge" d="M430 715 H443" marker-end="url(#arrow)"/>
+  <path class="edge" d="M655 643 H695 V420 H672" marker-end="url(#arrow)"/>
+  <text class="el" x="703" y="470">deploys the code</text>
+  <text class="el" x="703" y="486">and database changes</text>
+
+  <!-- Edges: the dictionary update -->
+  <path class="edge-flow" d="M28 215 H8 V858 H555 V822" marker-end="url(#arrow-flow)"/>
+  <text class="el-flow" x="120" y="851">"Prepare update" in the admin starts the job</text>
+  <path class="edge-flow" d="M718 788 H657" marker-end="url(#arrow-flow)"/>
+  <text class="el-flow" x="688" y="780" text-anchor="middle">download</text>
+  <path class="edge-flow" d="M445 800 H432" marker-end="url(#arrow-flow)"/>
+</svg>
