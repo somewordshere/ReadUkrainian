@@ -35,6 +35,7 @@ function fakeDb(
     quotaAllowed = true,
     quotaThrows = false,
     clientQuotaAllowed = true,
+    monthUsed = 0,
     queries = [],
     runs = [],
     voiceId = "uk-UA-Chirp3-HD-Achernar",
@@ -77,6 +78,10 @@ function fakeDb(
               return { success: true, meta: { changes: 1 } };
             },
             async first() {
+              // The usage read that explains a refusal.
+              if (sql.includes("AS month")) {
+                return { today: 0, month: monthUsed };
+              }
               if (sql.includes("speech_usage_client_daily")) {
                 if (quotaThrows) throw new Error("D1 quota unavailable");
                 return clientQuotaAllowed && bindings[2] <= bindings[3]
@@ -85,7 +90,8 @@ function fakeDb(
               }
               if (sql.includes("speech_usage_daily")) {
                 if (quotaThrows) throw new Error("D1 quota unavailable");
-                return quotaAllowed && bindings[1] <= bindings[2]
+                // Bindings: day, characters, daily limit, monthly limit, month range.
+                return quotaAllowed && bindings[1] <= bindings[2] && monthUsed + bindings[1] <= bindings[3]
                   ? { characters_used: bindings[1] }
                   : null;
               }
@@ -137,6 +143,8 @@ function createContext({
   providerFetch,
   cache = null,
   dailyLimit = "4500",
+  monthlyLimit = "900000",
+  monthUsed = 0,
   rateLimitSuccess = true,
   includeRateLimiter = true,
   googleKey = "test-key",
@@ -160,6 +168,7 @@ function createContext({
       quotaAllowed,
       quotaThrows,
       clientQuotaAllowed,
+      monthUsed,
       queries: dbQueries,
       runs: dbRuns,
       voiceId,
@@ -178,6 +187,7 @@ function createContext({
       },
     },
     SPEECH_DAILY_CHARACTER_LIMIT: dailyLimit,
+    SPEECH_MONTHLY_CHARACTER_LIMIT: monthlyLimit,
     SPEECH_CLIENT_DAILY_CHARACTER_LIMIT: "600",
     SESSION_SECRET: "a sufficiently long speech test secret",
     GOOGLE_TTS_API_KEY: googleKey,
@@ -671,4 +681,29 @@ test("a failed Google call gives the reserved characters back", async () => {
 
 test("pronunciation accepts a word selected with stress marks", () => {
   assert.equal(canonicalizeSpeechWord("ДО\u0301БРИЙ"), "добрий");
+});
+
+test("the monthly limit stops live Google calls until next month", async () => {
+  const harness = createContext({
+    staticResponse: new Response("missing", { status: 404 }),
+    monthlyLimit: "1000",
+    monthUsed: 998,
+  });
+  const response = await onRequestPost(harness.context);
+
+  assert.equal(response.status, 429);
+  assert.equal(response.headers.get("x-speech-limit"), "monthly");
+  assert.ok(Number(response.headers.get("retry-after")) >= 60);
+  assert.equal(harness.providerCalls.length, 0);
+  // The client's share was handed back, since nothing was spoken.
+  await Promise.all(harness.waitUntilPromises);
+  assert.ok(harness.dbRuns.some((run) => run.sql.includes("UPDATE speech_usage_client_daily")));
+});
+
+test("pronunciation fails closed without a monthly limit", async () => {
+  for (const monthlyLimit of ["", "0", "lots"]) {
+    const harness = createContext({ staticResponse: new Response("missing", { status: 404 }), monthlyLimit });
+    assert.equal((await onRequestPost(harness.context)).status, 503);
+    assert.equal(harness.providerCalls.length, 0);
+  }
 });

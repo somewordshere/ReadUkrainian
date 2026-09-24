@@ -16,6 +16,13 @@ import {
   runInBackground,
 } from "../../../_shared/http.js";
 import {
+  readSpeechBudgetUsage,
+  releaseSpeechBudget,
+  reserveSpeechBudget,
+  speechBudgetLimits,
+  speechBudgetPeriod,
+} from "../../../_shared/speech-budget.js";
+import {
   getSpeechSetting,
   listEnabledSpeechVoiceIds,
   saveSpeechSetting,
@@ -107,8 +114,22 @@ async function fetchVoiceCatalog(context) {
   return catalog;
 }
 
+// How much of the day's and month's Google budget is spent, for the admin.
+async function readBudget(context) {
+  const limits = speechBudgetLimits(context.env);
+  if (!limits) return null;
+  const usage = await readSpeechBudgetUsage(context.env.DB, speechBudgetPeriod());
+  return {
+    today: { used: usage.today, limit: limits.daily },
+    month: { used: usage.month, limit: limits.monthly },
+  };
+}
+
 async function buildResponse(context, setting) {
-  const enabledIds = await listEnabledSpeechVoiceIds(context.env.DB);
+  const [enabledIds, budget] = await Promise.all([
+    listEnabledSpeechVoiceIds(context.env.DB),
+    readBudget(context).catch(() => null),
+  ]);
   enabledIds.add(setting.voiceId);
 
   let catalog = [];
@@ -135,7 +156,7 @@ async function buildResponse(context, setting) {
       site: voice.id === setting.voiceId,
     }));
 
-  return { setting, voices, catalogError };
+  return { setting, voices, catalogError, budget };
 }
 
 async function readAdminJson(context) {
@@ -243,6 +264,23 @@ export async function onPreviewPost(context) {
     return noStoreError(503, "GOOGLE_TTS_API_KEY is not configured.");
   }
 
+  // Previews are paid Google calls too, so they draw on the same budget as
+  // learners' pronunciation and can never push the site past it.
+  const limits = speechBudgetLimits(context.env);
+  if (!limits) {
+    return noStoreError(503, "The speech budget is not configured.");
+  }
+  const period = speechBudgetPeriod();
+  const refusedLimit = await reserveSpeechBudget(context.env.DB, period, text.length, limits);
+  if (refusedLimit) {
+    return noStoreError(
+      429,
+      refusedLimit === "monthly"
+        ? "This month's speech budget is used up, so previews are paused until next month."
+        : "Today's speech budget is used up, so previews are paused until tomorrow (UTC)."
+    );
+  }
+
   let bytes = null;
   try {
     const response = await googleFetch(context, GOOGLE_TTS_ENDPOINT, googleSpeechRequestInit({ key, text, voice }));
@@ -252,6 +290,7 @@ export async function onPreviewPost(context) {
   }
 
   if (!bytes) {
+    await runInBackground(context, releaseSpeechBudget(context.env.DB, period, text.length).catch(() => undefined));
     return noStoreError(502, "Google could not speak this text.");
   }
 

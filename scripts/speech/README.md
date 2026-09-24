@@ -49,6 +49,17 @@ plays; only words added after the last generation fail.
 
 4. Commit `public/speech/<voice-id>/` (MP3s and `manifest.json`) and release as usual.
 
+## Budget
+
+The site itself cannot overspend: every Google call the Worker makes (learners'
+pronunciation and admin voice previews) reserves its characters first against
+`SPEECH_DAILY_CHARACTER_LIMIT` (4,500 a UTC day) and
+`SPEECH_MONTHLY_CHARACTER_LIMIT` (900,000 a UTC month) in `wrangler.jsonc`, and
+stops at either. Google's free allowance is 1,000,000 characters a month for
+Chirp 3 HD and Neural2 voices. This generator runs outside the Worker, so it
+refuses a run that would send more than 100,000 characters unless you pass a
+higher `--max-characters`; the gap between the two numbers is its share.
+
 `--stress` sends the stress marks from `public/js/data/stress-map.json`. Switching
 it on or off, or changing the voice, regenerates everything, because the request
 sent to Google changes.

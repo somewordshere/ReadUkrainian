@@ -6,6 +6,11 @@
   "vars": {
     "ADMIN_ENABLED": "true",
     "SPEECH_DAILY_CHARACTER_LIMIT": "4500",
+    // Hard ceiling on Google Text-to-Speech per UTC month, for pronunciation and
+    // admin previews together. Google's free allowance for Chirp 3 HD and Neural2
+    // voices is 1,000,000 characters a month; the gap leaves room for the MP3
+    // generator (scripts/speech), which runs outside the Worker.
+    "SPEECH_MONTHLY_CHARACTER_LIMIT": "900000",
     "SPEECH_CLIENT_DAILY_CHARACTER_LIMIT": "600"
   },
   "routes": [

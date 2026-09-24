@@ -40,6 +40,11 @@ const DEV_VARS_PATH = resolve(PROJECT_ROOT, ".dev.vars");
 const MANIFEST_SCHEMA_VERSION = 3;
 // Comfortably under Google's per-minute Text-to-Speech quota.
 const DEFAULT_REQUESTS_PER_MINUTE = 200;
+// This script calls Google outside the Worker's speech budget. A full run is
+// about 28,000 characters; the Worker's monthly limit (900,000) leaves 100,000
+// of Google's 1,000,000 free characters for runs like this, so one run may not
+// exceed that without an explicit --max-characters.
+const DEFAULT_MAX_CHARACTERS = 100_000;
 const SYNTHESIS_CONCURRENCY = 4;
 const MAX_ATTEMPTS = 6;
 const MIN_AUDIO_BYTES = 512;
@@ -64,6 +69,8 @@ Options:
   --stress                       Send stress marks from public/js/data/stress-map.json.
   --requests-per-minute NUMBER   Google request pace (default: ${DEFAULT_REQUESTS_PER_MINUTE}).
   --concurrency NUMBER           Concurrent production story requests (default: 8).
+  --max-characters NUMBER        Refuse to send more than this to Google in one run
+                                 (default: ${DEFAULT_MAX_CHARACTERS}).
   --help                         Show this help.
 
 GOOGLE_TTS_API_KEY comes from the environment or .dev.vars.
@@ -94,6 +101,7 @@ function parseArgs(argv) {
     stress: false,
     requestsPerMinute: DEFAULT_REQUESTS_PER_MINUTE,
     concurrency: 8,
+    maxCharacters: DEFAULT_MAX_CHARACTERS,
   };
 
   for (let index = 0; index < argv.length; index += 1) {
@@ -148,6 +156,9 @@ function parseArgs(argv) {
         break;
       case "--concurrency":
         options.concurrency = parsePositiveInteger(nextValue(), "--concurrency");
+        break;
+      case "--max-characters":
+        options.maxCharacters = parsePositiveInteger(nextValue(), "--max-characters");
         break;
       case "--help":
       case "-h":
@@ -494,6 +505,8 @@ async function publishAssets(options, collection, plan, sourceDigest) {
       `about ${formatDuration((pending.length * 60_000) / options.requestsPerMinute)}.\n`
   );
 
+  assertWithinCharacterBudget(characters, options);
+
   if (pending.length) {
     const synthesize = createSynthesizer(await loadGoogleApiKey(), options.requestsPerMinute);
     const startedAt = Date.now();
@@ -558,10 +571,24 @@ async function publishAssets(options, collection, plan, sourceDigest) {
   return { manifest, removed };
 }
 
+function assertWithinCharacterBudget(characters, options) {
+  if (characters > options.maxCharacters) {
+    throw new Error(
+      `This run would send ${characters} characters to Google, more than --max-characters ` +
+        `(${options.maxCharacters}). Check the plan, then pass a higher --max-characters if it is intended.`
+    );
+  }
+}
+
 async function renderSamples(options) {
   const voice = resolveSpeechVoice(options.voiceId);
-  const synthesize = createSynthesizer(await loadGoogleApiKey(), options.requestsPerMinute);
   const stressMap = await loadStressMap();
+  const texts = options.sample.flatMap((word) => {
+    const stressed = applyStress(word, stressMap);
+    return stressed === word ? [word] : [word, stressed];
+  });
+  assertWithinCharacterBudget(texts.reduce((total, text) => total + text.length, 0), options);
+  const synthesize = createSynthesizer(await loadGoogleApiKey(), options.requestsPerMinute);
   const sampleDir = resolve(options.buildDir, "samples");
   await mkdir(sampleDir, { recursive: true });
 

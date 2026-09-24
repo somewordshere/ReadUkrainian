@@ -24,6 +24,14 @@ import {
   DEFAULT_SPEECH_VOICE_ID,
   resolveSpeechVoice,
 } from "../_shared/speech-voices.js";
+import {
+  parseCharacterLimit,
+  releaseSpeechBudget,
+  reserveSpeechBudget,
+  speechBudgetLimits,
+  speechBudgetPeriod,
+  speechBudgetRetryAfter,
+} from "../_shared/speech-budget.js";
 import { getStoryById } from "../_shared/texts.js";
 import { canonicalizeUkrainianWord, extractUkrainianWords } from "../_shared/ukrainian-word.js";
 
@@ -163,14 +171,6 @@ function bufferedAudioResponse(audio) {
   });
 }
 
-function parseCharacterLimit(value) {
-  const rawLimit = String(value ?? "").trim();
-  if (!/^\d+$/.test(rawLimit)) return null;
-
-  const limit = Number(rawLimit);
-  return Number.isSafeInteger(limit) && limit > 0 ? limit : null;
-}
-
 // A keyed hash of the client's address for today. The key keeps the table from
 // being reversed into addresses by hashing all of IPv4, and the day in the
 // input means yesterday's rows cannot be linked to today's.
@@ -221,17 +221,6 @@ function releaseClientSpeechQuota(env, day, client, characterCount) {
     .run();
 }
 
-function releaseDailySpeechQuota(env, day, characterCount) {
-  return env.DB
-    .prepare(`
-      UPDATE speech_usage_daily
-      SET characters_used = MAX(0, characters_used - ?2), updated_at = CURRENT_TIMESTAMP
-      WHERE day = ?1
-    `)
-    .bind(day, characterCount)
-    .run();
-}
-
 // Only today's client rows are ever needed.
 function forgetEarlierSpeechClients(env, day) {
   return env.DB
@@ -247,34 +236,6 @@ function inBackground(context, promise) {
       error: backgroundError instanceof Error ? backgroundError.message : String(backgroundError),
     }));
   }));
-}
-
-async function reserveDailySpeechQuota(env, day, characterCount, dailyLimit) {
-  const row = await env.DB
-    .prepare(`
-      INSERT INTO speech_usage_daily (day, characters_used, updated_at)
-      SELECT ?1, ?2, CURRENT_TIMESTAMP
-      WHERE ?2 <= ?3
-      ON CONFLICT(day) DO UPDATE SET
-        characters_used = speech_usage_daily.characters_used + excluded.characters_used,
-        updated_at = CURRENT_TIMESTAMP
-      WHERE speech_usage_daily.characters_used + excluded.characters_used <= ?3
-      RETURNING characters_used
-    `)
-    .bind(day, characterCount, dailyLimit)
-    .first();
-
-  return Boolean(row);
-}
-
-function secondsUntilNextUtcDay() {
-  const now = new Date();
-  const tomorrow = Date.UTC(
-    now.getUTCFullYear(),
-    now.getUTCMonth(),
-    now.getUTCDate() + 1
-  );
-  return Math.max(60, Math.ceil((tomorrow - now.getTime()) / 1000));
 }
 
 async function fetchWithTimeout(fetchImpl, input, init, timeoutMs, requestSignal) {
@@ -435,10 +396,10 @@ export async function onRequestPost(context) {
     }
   }
 
-  const dailyLimit = parseCharacterLimit(context.env.SPEECH_DAILY_CHARACTER_LIMIT);
+  const limits = speechBudgetLimits(context.env);
   const clientLimit = parseCharacterLimit(context.env.SPEECH_CLIENT_DAILY_CHARACTER_LIMIT);
   const apiKey = getGoogleApiKey(context.env);
-  if (!dailyLimit || !clientLimit || !apiKey || !context.env.SESSION_SECRET) {
+  if (!limits || !clientLimit || !apiKey || !context.env.SESSION_SECRET) {
     return noStoreError(503, "Pronunciation is temporarily unavailable.");
   }
 
@@ -458,7 +419,8 @@ export async function onRequestPost(context) {
     return noStoreError(503, "Pronunciation is temporarily unavailable.");
   }
 
-  const day = new Date().toISOString().slice(0, 10);
+  const period = speechBudgetPeriod();
+  const { day } = period;
   const characters = canonicalWord.length;
   let client;
   try {
@@ -476,20 +438,22 @@ export async function onRequestPost(context) {
     );
     if (!clientQuotaAvailable) {
       return noStoreError(429, "Your daily pronunciation limit has been reached.", {
-        "retry-after": String(secondsUntilNextUtcDay()),
+        "retry-after": speechBudgetRetryAfter(period, "daily"),
         "x-speech-limit": "client",
       });
     }
 
-    const quotaAvailable = await reserveDailySpeechQuota(context.env, day, characters, dailyLimit);
-    if (!quotaAvailable) {
+    const refusedLimit = await reserveSpeechBudget(context.env.DB, period, characters, limits);
+    if (refusedLimit) {
       await inBackground(context, releaseClientSpeechQuota(context.env, day, client, characters));
       return noStoreError(
         429,
-        "The daily pronunciation limit has been reached.",
+        refusedLimit === "monthly"
+          ? "This month's pronunciation limit has been reached."
+          : "The daily pronunciation limit has been reached.",
         {
-          "retry-after": String(secondsUntilNextUtcDay()),
-          "x-speech-limit": "daily",
+          "retry-after": speechBudgetRetryAfter(period, refusedLimit),
+          "x-speech-limit": refusedLimit,
         }
       );
     }
@@ -513,7 +477,7 @@ export async function onRequestPost(context) {
     }));
     // Nothing was spoken, so a Google outage must not use up the day's budget.
     await inBackground(context, Promise.all([
-      releaseDailySpeechQuota(context.env, day, characters),
+      releaseSpeechBudget(context.env.DB, period, characters),
       releaseClientSpeechQuota(context.env, day, client, characters),
     ]));
     return noStoreError(502, "Pronunciation generation failed.");
