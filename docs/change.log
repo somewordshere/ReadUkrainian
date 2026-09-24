@@ -110,3 +110,4 @@ This file is tracked in GitHub and linked from the site version footer.
 1.04 - Tap a word for its Polish translation. Word lookups now list a word's main meaning first and name every part of speech in Ukrainian.
 1.05 - Updated the English dictionary to the 2026-09-02 Wiktionary source. Tapping «я», «у», «в» or «і» now shows the word before the alphabet letter.
 1.06 - Tapping a word opens its translation in one go, instead of opening small and then jumping as the translation loads.
+1.07 - Removed the duplicate English and German dictionary entries the last two dictionary updates added; dictionary updates now take about a minute.

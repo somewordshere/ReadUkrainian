@@ -69,11 +69,17 @@ jobs:
         run: |
           # English for English and German (German takes its inflected forms from
           # it); Polish uses the word forms the installed English dictionary shares.
+          # English and German come from Kaikki's processed Ukrainian files (tens of
+          # MB, not the multi-GB dumps): their meaning IDs are what the entry IDs are
+          # built from, so an update adds only what changed.
           if [ "$LANGUAGE" != pl ]; then
-            curl -fsSL --retry 3 -o "$RUNNER_TEMP/en.jsonl.gz" https://kaikki.org/dictionary/raw-wiktextract-data.jsonl.gz
+            curl -fsSL --retry 3 -o "$RUNNER_TEMP/en.jsonl.gz" https://kaikki.org/dictionary/Ukrainian/kaikki.org-dictionary-Ukrainian.jsonl.gz
           fi
-          if [ "$LANGUAGE" != en ]; then
-            curl -fsSL --retry 3 -o "$RUNNER_TEMP/$LANGUAGE.jsonl.gz" "https://kaikki.org/dictionary/downloads/$LANGUAGE/$LANGUAGE-extract.jsonl.gz"
+          if [ "$LANGUAGE" = de ]; then
+            curl -fsSL --retry 3 -o "$RUNNER_TEMP/de.jsonl.gz" https://kaikki.org/dewiktionary/Ukrainisch/kaikki.org-dictionary-Ukrainisch.jsonl.gz
+          fi
+          if [ "$LANGUAGE" = pl ]; then
+            curl -fsSL --retry 3 -o "$RUNNER_TEMP/pl.jsonl.gz" https://kaikki.org/dictionary/downloads/pl/pl-extract.jsonl.gz
           fi
           ls -la "$RUNNER_TEMP"/*.jsonl.gz
       - name: Build and validate the update, including the dictionary guards

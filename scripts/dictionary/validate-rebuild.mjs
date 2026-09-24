@@ -5,7 +5,7 @@ import {parseArgs} from 'node:util';
 import {seedDatabase} from '../lib/seed-database.mjs';
 import {analyzeDictionaryCoverage} from '../../functions/_shared/dictionary-workflow.js';
 import {
- checkCanaries,checkCanaryDiff,checkFormCaps,checkFormCrossings,checkNewTags,collectLemmas,
+ checkCanaries,checkCanaryDiff,checkDuplicateEntries,checkFormCaps,checkFormCrossings,checkNewTags,collectLemmas,
  databaseLookup,formTags,loadGuardConfig,mostFrequentWords,reportFailures,storyWordFrequency,
 } from '../lib/dictionary-guards.mjs';
 const {values}=parseArgs({options:{en:{type:'string'},de:{type:'string'},pl:{type:'string'},output:{type:'string'}}});
@@ -49,6 +49,7 @@ try{
   ...checkCanaryDiff(lemmasBefore,await collectLemmas(lookup,canaryWords,languages),{frequency}),
   ...await checkCanaries(lookup,guard.canaries,{languages,frequency}),
   ...checkFormCaps(sqlite,guard.formCaps,{languages}),
+  ...checkDuplicateEntries(sqlite,guard.duplicateEntryCaps,{languages}),
   ...checkFormCrossings(sqlite,guard.approvedForms,{languages,frequency}),
  ];
  report.guards={canaryDiffWords:canaryWords.length,canaries:guard.canaries.length,failures};

@@ -11,7 +11,7 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 
 import { lookupDictionaryWord } from "../functions/_shared/dictionary.js";
-import { loadStoryWordFrequency, mostFrequentWords } from "../scripts/lib/dictionary-guards.mjs";
+import { duplicateEntryCounts, loadStoryWordFrequency, mostFrequentWords } from "../scripts/lib/dictionary-guards.mjs";
 import { seedDatabase } from "../scripts/lib/seed-database.mjs";
 
 const ROOT = fileURLToPath(new URL("../", import.meta.url));
@@ -170,6 +170,33 @@ test("2026-09-24: a letter of the alphabet comes after every word (tapping «я�
   } finally {
     sqlite.close();
   }
+});
+
+test("2026-09-24: 0037 and 0038 remove the entries 0033 and 0036 added a second time under raw-dump IDs", () => {
+  const counts = (options) => {
+    const { sqlite } = seedDatabase(options);
+    try {
+      return {
+        duplicates: duplicateEntryCounts(sqlite),
+        rawEnglishOrGerman: sqlite.prepare(`SELECT COUNT(*) AS n FROM dictionary_lexemes AS lexeme
+          WHERE lexeme.source_entry_id LIKE 'raw:%' AND EXISTS (SELECT 1 FROM dictionary_senses AS sense
+            JOIN dictionary_translations AS translation ON translation.sense_id = sense.id
+            WHERE sense.lexeme_id = lexeme.id AND translation.target_language IN ('en', 'de'))`).get().n,
+      };
+    } finally {
+      sqlite.close();
+    }
+  };
+  const beforeGermanUpdate = counts({ before: "0033" });
+  const broken = counts({ before: "0037" });
+  const repaired = counts({ before: "0039" });
+  assert.equal(beforeGermanUpdate.rawEnglishOrGerman, 0);
+  assert.ok(broken.rawEnglishOrGerman > 3000);
+  assert.equal(repaired.rawEnglishOrGerman, 0);
+  // German is back where it was; English keeps only the homonyms its real update adds.
+  assert.equal(repaired.duplicates.de, beforeGermanUpdate.duplicates.de);
+  assert.ok(repaired.duplicates.en - beforeGermanUpdate.duplicates.en <= 29, JSON.stringify(repaired.duplicates));
+  assert.ok(broken.duplicates.en > 2000 && broken.duplicates.de > 400);
 });
 
 test("2026-09-23: preparing the same dictionary source twice replaces its branch instead of failing", () => {

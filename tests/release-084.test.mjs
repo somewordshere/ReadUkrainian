@@ -71,7 +71,11 @@ test('raw extraction and ID-less builds are reproducible and refuse overwrites',
  const dir=fs.mkdtempSync(join(tmpdir(),'raw-dictionary-')),source=join(dir,'raw.gz'),filtered=join(dir,'uk.jsonl');
  fs.writeFileSync(source,gzipSync([{lang_code:'en',word:'skip',pos:'noun'},...Array.from({length:3},()=>({lang:'Ukrainian',lang_code:'uk',word:'мама',pos:'noun',senses:[{glosses:['mother']}],forms:[{form:'мами',tags:['genitive','singular']}]}))].map(e=>JSON.stringify(e)).join('\n')));
  const run=(script,args)=>spawnSync(process.execPath,['scripts/dictionary/'+script,...args],{encoding:'utf8'});
- const args=['--source',source,'--edition','en','--revision','2026-09-02','--source-url','https://kaikki.org/dictionary/raw-wiktextract-data.jsonl.gz','--output',filtered];
+ // Since 2026-09-24 only Polish may come from a source without meaning IDs: an
+ // English or German one re-added every entry under a new ID (0033, 0036).
+ const englishArgs=['--source',source,'--edition','en','--revision','2026-09-02','--source-url','https://kaikki.org/dictionary/raw-wiktextract-data.jsonl.gz','--output',join(dir,'en.jsonl')];
+ assert.match(run('extract-raw-ukrainian.mjs',englishArgs).stderr,/Meaning without an ID/);
+ const args=['--source',source,'--edition','pl','--revision','2026-09-02','--source-url','https://kaikki.org/dictionary/downloads/pl/pl-extract.jsonl.gz','--output',filtered];
  assert.equal(run('extract-raw-ukrainian.mjs',args).status,0);const saved=fs.readFileSync(filtered,'utf8');assert.equal(saved.trim().split('\n').length,3);
  assert.notEqual(run('extract-raw-ukrainian.mjs',args).status,0);assert.equal(fs.readFileSync(filtered,'utf8'),saved);
  const build=['--source',filtered,'--revision','2026-09-02','--scope','all'];

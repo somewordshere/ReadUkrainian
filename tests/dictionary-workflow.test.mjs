@@ -177,6 +177,31 @@ test("the Polish Wiktionary seed reaches its entries through the English word fo
   assert.equal(result.attribution.sourceRevision, "2026-09-20");
 });
 
+test("the refresh action reads the German dump date from Kaikki's German page", async () => {
+  const db = createD1Database();
+  const previousFetch = globalThis.fetch;
+  globalThis.fetch = async (url, options = {}) => {
+    assert.equal(url, "https://kaikki.org/dewiktionary/Ukrainisch/");
+    assert.equal(options.redirect, "manual");
+    return new Response(
+      "This dictionary is based on structured data extracted on 2099-10-04 from the dewiktionary dump dated 2099-10-01 using wiktextract.",
+      { headers: { "content-type": "text/html; charset=utf-8" } }
+    );
+  };
+  try {
+    const response = await checkUpdate(await adminContext(db, {
+      path: "/api/admin/dictionary/check-update",
+      payload: { targetLanguage: "de" },
+    }));
+    assert.equal(response.status, 200);
+    const result = await response.json();
+    assert.equal(result.availableRevision, "2099-10-01");
+    assert.equal(result.updateAvailable, true);
+  } finally {
+    globalThis.fetch = previousFetch;
+  }
+});
+
 test("the refresh action versions the Polish source by its extract's Last-Modified date", async () => {
   const db = createD1Database();
   const previousFetch = globalThis.fetch;

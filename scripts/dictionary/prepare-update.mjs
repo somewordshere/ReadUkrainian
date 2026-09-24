@@ -1,7 +1,8 @@
 // Prepare a reviewed dictionary update as a complete release candidate.
 //
 //   node scripts/dictionary/prepare-update.mjs --target en|de|pl --revision YYYY-MM-DD \
-//     [--en-raw raw-wiktextract-data.jsonl.gz] [--de-raw de-extract.jsonl.gz] \
+//     [--en-raw kaikki.org-dictionary-Ukrainian.jsonl.gz] \
+//     [--de-raw kaikki.org-dictionary-Ukrainisch.jsonl.gz] \
 //     [--pl-raw pl-extract.jsonl.gz] --work DIR
 //
 // (--en-extract / --de-extract / --pl-extract accept already-filtered Ukrainian
@@ -30,9 +31,13 @@ import { loadReleaseManifest } from "../lib/release-manifest.mjs";
 import { sqlHash } from "../lib/release-validation.mjs";
 import { seedDatabase } from "../lib/seed-database.mjs";
 
+// English and German: Kaikki's processed Ukrainian files, whose meaning IDs the
+// installed entries' IDs are built from. The raw dumps have none, so every entry
+// would get a new ID and be added again (0033 and 0036 did; 0037 and 0038 repair them).
+// Polish has only ever come from its raw extract, so its IDs are consistent.
 const SOURCES = {
-  en: { edition: "en", url: "https://kaikki.org/dictionary/raw-wiktextract-data.jsonl.gz", name: "English" },
-  de: { edition: "de", url: "https://kaikki.org/dictionary/downloads/de/de-extract.jsonl.gz", name: "German", formsFrom: "en" },
+  en: { edition: "en", url: "https://kaikki.org/dictionary/Ukrainian/kaikki.org-dictionary-Ukrainian.jsonl.gz", name: "English" },
+  de: { edition: "de", url: "https://kaikki.org/dewiktionary/Ukrainisch/kaikki.org-dictionary-Ukrainisch.jsonl.gz", name: "German", formsFrom: "en" },
   pl: { edition: "pl", url: "https://kaikki.org/dictionary/downloads/pl/pl-extract.jsonl.gz", name: "Polish" },
 };
 
@@ -82,7 +87,7 @@ if (installed && values.revision <= installed) {
   process.exit(0);
 }
 
-// 1. Ukrainian entries only, streamed out of the multi-gigabyte downloads.
+// 1. Ukrainian entries only, streamed out of the downloads.
 function extract(edition) {
   const given = values[`${edition}-extract`];
   if (given) return resolve(given);

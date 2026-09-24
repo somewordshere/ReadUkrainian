@@ -2,7 +2,7 @@
 // for the three places that run them:
 //   - scripts/dictionary/validate-rebuild.mjs: every update candidate (all checks);
 //   - scripts/check-dictionary-coverage.mjs: the whole dictionary on every commit
-//     and release (canaries, form caps, form-is-another-lemma);
+//     and release (canaries, form caps, duplicate entries, form-is-another-lemma);
 //   - scripts/check-live-dictionary.mjs: the live site after releases and daily
 //     (canaries).
 // Each failure names the word, what went wrong, how often stories use the word,
@@ -25,6 +25,7 @@ export function loadGuardConfig() {
   return {
     canaries: readJson("canaries.json").words,
     formCaps: guards.formCaps,
+    duplicateEntryCaps: guards.duplicateEntryCaps,
     canaryDiffWords: guards.canaryDiffWords,
     knownTags: guards.knownTags || [],
     approvedForms: new Set(approved.pairs.map(crossingKey)),
@@ -138,6 +139,25 @@ export function checkFormCaps(sqlite, formCaps, { languages = GUARD_LANGUAGES } 
     }
   }
   return failures;
+}
+
+// 4. An update must not add again the entries a language already has. A source
+// whose entry IDs changed (a raw dump instead of Kaikki's processed file, as in
+// 0033 and 0036) re-adds every entry under a new ID; lookups merge the copies, so
+// nothing else shows it.
+export function duplicateEntryCounts(sqlite, { languages = GUARD_LANGUAGES } = {}) {
+  return Object.fromEntries(languages.map((language) => [language, sqlite.prepare(`
+    SELECT COUNT(*) AS words FROM (
+      SELECT 1 FROM (${visibleLexemes(language)}) GROUP BY lemma, pos HAVING COUNT(*) > 1
+    )
+  `).get().words]));
+}
+
+export function checkDuplicateEntries(sqlite, caps, { languages = GUARD_LANGUAGES } = {}) {
+  const counts = duplicateEntryCounts(sqlite, { languages });
+  return languages
+    .filter((language) => counts[language] > caps[language])
+    .map((language) => `${language}: ${counts[language]} words have more than one entry with the same part of speech; the limit is ${caps[language]}. A dictionary built from a source without Kaikki's meaning IDs adds every entry again under a new ID. If the new entries are real homonyms, raise duplicateEntryCaps.${language} in data/dictionary/guards.json.`);
 }
 
 export function crossingKey({ language, pos, form, lemma }) {

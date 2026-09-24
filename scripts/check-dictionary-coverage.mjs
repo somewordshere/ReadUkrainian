@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { seedDatabase } from "./lib/seed-database.mjs";
 import {
   checkCanaries,
+  checkDuplicateEntries,
   checkFormCaps,
   checkFormCrossings,
   databaseLookup,
@@ -32,6 +33,7 @@ try {
   const frequency = storyWordFrequency(allStories);
   reportFailures("Dictionary canaries", await checkCanaries(databaseLookup(db), guard.canaries, { frequency }));
   reportFailures("Dictionary form limits", checkFormCaps(sqlite, guard.formCaps));
+  reportFailures("Duplicate dictionary entries", checkDuplicateEntries(sqlite, guard.duplicateEntryCaps));
   reportFailures("Unreviewed dictionary forms", checkFormCrossings(sqlite, guard.approvedForms, { frequency }));
-  console.log(`Dictionary guards passed: ${guard.canaries.length} canary words, form limits, ${guard.approvedForms.size} reviewed form pairs.`);
+  console.log(`Dictionary guards passed: ${guard.canaries.length} canary words, form limits, duplicate entries, ${guard.approvedForms.size} reviewed form pairs.`);
 } finally { sqlite.close(); }

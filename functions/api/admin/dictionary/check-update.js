@@ -12,12 +12,12 @@ const MAX_SOURCE_PAGE_BYTES = 256 * 1024;
 const MAX_REQUEST_BYTES = 1024;
 const REQUEST_TIMEOUT_MS = 8000;
 
-// Where each pair's upstream version is published. English Kaikki states the
-// Wiktionary dump date on its Ukrainian page; the German and Polish extracts have
-// no such page, so the download's Last-Modified date stands in as its version.
+// Where each pair's upstream version is published. The English and German Kaikki
+// pages state their Wiktionary dump date; the Polish extract has no such page, so
+// the download's Last-Modified date stands in as its version.
 const SOURCES = Object.freeze({
-  en: { kind: "page", url: "https://kaikki.org/dictionary/Ukrainian/" },
-  de: { kind: "last-modified", url: "https://kaikki.org/dictionary/downloads/de/de-extract.jsonl.gz" },
+  en: { kind: "page", url: "https://kaikki.org/dictionary/Ukrainian/", pattern: /enwiktionary dump dated\s+(\d{4}-\d{2}-\d{2})/iu },
+  de: { kind: "page", url: "https://kaikki.org/dewiktionary/Ukrainisch/", pattern: /dewiktionary dump dated\s+(\d{4}-\d{2}-\d{2})/iu },
   pl: { kind: "last-modified", url: "https://kaikki.org/dictionary/downloads/pl/pl-extract.jsonl.gz" },
 });
 
@@ -55,7 +55,7 @@ async function fetchAvailableRevision(source, signal) {
     throw new Error("Upstream returned an unexpected content type.");
   }
   const page = await readLimitedText(response, MAX_SOURCE_PAGE_BYTES);
-  return page.match(/enwiktionary dump dated\s+(\d{4}-\d{2}-\d{2})/iu)?.[1] || null;
+  return page.match(source.pattern)?.[1] || null;
 }
 
 export async function onRequestPost(context) {

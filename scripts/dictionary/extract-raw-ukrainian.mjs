@@ -1,4 +1,4 @@
-// Filter a complete raw Wiktextract download without holding it in memory.
+// Filter a Wiktextract download to its Ukrainian entries without holding it in memory.
 import { createReadStream, createWriteStream } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
@@ -23,6 +23,9 @@ streams.push(async function* filter(input){
     let entry;try{entry=JSON.parse(line);}catch{throw new Error(`Invalid JSON at source line ${lines}: ${line.slice(0,80)}`);}
     if(entry.lang_code!=='uk')return;
     if(typeof entry.word!=='string'||typeof entry.pos!=='string')throw new Error(`Incomplete Ukrainian entry at line ${lines}`);
+    // English and German entry IDs are built from Kaikki's meaning IDs. A source
+    // without them (a raw dump) would re-add every entry under a new ID.
+    if(values.edition!=='pl'&&(entry.senses||[]).some(sense=>typeof sense?.id!=='string'))throw new Error(`Meaning without an ID at source line ${lines} («${entry.word}»): ${values.edition} updates must use Kaikki's processed Ukrainian file, not a raw dump`);
     const serialized=JSON.stringify(entry)+'\n';outputHash.update(serialized);entries++;yield serialized;
   }
   for await(const chunk of input){
