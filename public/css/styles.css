@@ -1440,8 +1440,15 @@ h1 {
   line-height: 1.35;
 }
 
-.admin-speech-settings-status {
+.admin-speech-settings-status,
+.admin-speech-budget {
   grid-column: 1 / -1;
+}
+
+.admin-speech-budget {
+  margin: -8px 0 0;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
 }
 
 .admin-dictionary-settings {

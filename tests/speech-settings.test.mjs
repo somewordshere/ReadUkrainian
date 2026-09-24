@@ -31,6 +31,9 @@ class FakeSpeechSettingsDb {
     this.writes = [];
     this.optionWrites = [];
     this.userRole = "admin";
+    // Google speech characters spent today (this fake has a single day).
+    this.budgetUsed = 0;
+    this.budgetRefunds = [];
   }
 
   prepare(sql) {
@@ -47,6 +50,15 @@ class FakeSpeechSettingsDb {
         if (sql.includes("FROM users")) {
           return { id: 7, email: "admin@example.com", role: db.userRole, isActive: 1, sessionVersion: 1 };
         }
+        if (sql.includes("AS month")) {
+          return { today: db.budgetUsed, month: db.budgetUsed };
+        }
+        if (sql.includes("INSERT INTO speech_usage_daily")) {
+          const [, characters, dailyLimit, monthlyLimit] = parameters;
+          if (db.budgetUsed + characters > Math.min(dailyLimit, monthlyLimit)) return null;
+          db.budgetUsed += characters;
+          return { characters_used: db.budgetUsed };
+        }
         assert.match(sql, /FROM speech_settings/);
         return db.row ? { ...db.row } : null;
       },
@@ -59,6 +71,11 @@ class FakeSpeechSettingsDb {
         };
       },
       async run() {
+        if (sql.includes("UPDATE speech_usage_daily")) {
+          db.budgetRefunds.push(parameters[1]);
+          db.budgetUsed = Math.max(0, db.budgetUsed - parameters[1]);
+          return { success: true };
+        }
         if (sql.includes("INSERT INTO speech_voice_options")) {
           const [voiceId, enabled, updatedByEmail] = parameters;
           db.optionWrites.push([voiceId, enabled, updatedByEmail]);
@@ -136,7 +153,13 @@ async function createContext({
       headers,
       body: payload === undefined ? undefined : JSON.stringify(payload),
     }),
-    env: { DB: db, SESSION_SECRET, GOOGLE_TTS_API_KEY: googleKey },
+    env: {
+      DB: db,
+      SESSION_SECRET,
+      GOOGLE_TTS_API_KEY: googleKey,
+      SPEECH_DAILY_CHARACTER_LIMIT: "4500",
+      SPEECH_MONTHLY_CHARACTER_LIMIT: "900000",
+    },
     fetch,
   };
 }
@@ -362,4 +385,38 @@ test("Google's voice list is fetched once and then served from the edge cache", 
   }
 
   assert.equal(calls.filter(([url]) => url.includes("/voices")).length, 1);
+});
+
+test("previews draw on the site's speech budget and stop when it is spent", async () => {
+  const db = new FakeSpeechSettingsDb();
+  const preview = async (text, fetchImpl = googleCatalogFetch()) =>
+    onPreviewPost(await createContext({ db, method: "POST", payload: { voiceId: PUCK, text }, fetch: fetchImpl }));
+
+  assert.equal((await preview("Привіт")).status, 200);
+  assert.equal(db.budgetUsed, "Привіт".length);
+
+  // A failed Google call gives its characters back.
+  const failed = await preview("Добрий день", async () => new Response("no", { status: 500 }));
+  assert.equal(failed.status, 502);
+  assert.deepEqual(db.budgetRefunds, ["Добрий день".length]);
+  assert.equal(db.budgetUsed, "Привіт".length);
+
+  // With the day's budget spent, Google is not called at all.
+  db.budgetUsed = 4500;
+  const calls = [];
+  const refused = await preview("Привіт", googleCatalogFetch(calls));
+  assert.equal(refused.status, 429);
+  assert.match((await refused.json()).error, /budget is used up/);
+  assert.equal(calls.length, 0);
+});
+
+test("the settings response reports the budget spent today and this month", async () => {
+  const db = new FakeSpeechSettingsDb();
+  db.budgetUsed = 1234;
+  const body = await (await onRequestGet(await createContext({ db }))).json();
+
+  assert.deepEqual(body.budget, {
+    today: { used: 1234, limit: 4500 },
+    month: { used: 1234, limit: 900000 },
+  });
 });

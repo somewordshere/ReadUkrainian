@@ -15,6 +15,7 @@ const COPY = {
   oneWord: "Виділіть лише одне слово без пробілів.",
   rateLimited: "Забагато запитів на озвучення. Спробуйте ще раз за хвилину.",
   dailyLimit: "Безкоштовний денний ліміт озвучення вичерпано. Спробуйте знову завтра.",
+  monthlyLimit: "Безкоштовний ліміт озвучення на цей місяць вичерпано. Переклад слів працює й далі.",
   playAgain: "Аудіо готове. Натисніть «Прослухати» ще раз, щоб відтворити його.",
   playReady: "Аудіо готове — відтворити",
   tooLong: "Виберіть коротше слово — не більше 80 символів.",
@@ -719,9 +720,11 @@ export function initSelectionSpeech(
       playbackState = "idle";
       const errorMessage =
         error?.status === 429
-          ? error?.limit === "daily" || error?.limit === "client"
-            ? COPY.dailyLimit
-            : COPY.rateLimited
+          ? error?.limit === "monthly"
+            ? COPY.monthlyLimit
+            : error?.limit === "daily" || error?.limit === "client"
+              ? COPY.dailyLimit
+              : COPY.rateLimited
           : error?.status === 404
             ? COPY.unavailableWord
           : error?.status === 422

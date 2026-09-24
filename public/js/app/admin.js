@@ -13,6 +13,7 @@ const speechVoiceSelect = byId("speechVoiceSelect");
 const speechVoiceDescription = byId("speechVoiceDescription");
 const saveSpeechSettingsButton = byId("saveSpeechSettingsButton");
 const speechSettingsStatus = byId("speechSettingsStatus");
+const speechBudgetStatus = byId("speechBudgetStatus");
 const speechVoiceLibrary = byId("speechVoiceLibrary");
 const speechVoiceList = byId("speechVoiceList");
 const speechPreviewText = byId("speechPreviewText");
@@ -288,7 +289,23 @@ function renderSpeechVoiceLibrary() {
   }
 }
 
+// The site's Google speech spend against its hard limits (learner
+// pronunciation and these previews together; UTC day and month).
+function renderSpeechBudget(budget) {
+  if (!budget?.today || !budget?.month) {
+    speechBudgetStatus.textContent = "";
+    return;
+  }
+  const count = (value) => Number(value).toLocaleString("en-US");
+  const monthShare = Math.round((budget.month.used / budget.month.limit) * 100);
+  speechBudgetStatus.textContent =
+    `Google speech used: ${count(budget.today.used)} of ${count(budget.today.limit)} characters today, ` +
+    `${count(budget.month.used)} of ${count(budget.month.limit)} this month (${monthShare}%). ` +
+    "Pronunciation and previews stop at either limit.";
+}
+
 function applySpeechSettingsPayload(payload) {
+  renderSpeechBudget(payload.budget);
   speechVoices = Array.isArray(payload.voices) ? payload.voices : [];
   const selectedVoiceId = payload.setting?.voiceId || "";
   populateSpeechVoices(speechVoices, selectedVoiceId);

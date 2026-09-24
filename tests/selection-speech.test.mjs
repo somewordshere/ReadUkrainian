@@ -917,3 +917,22 @@ test("attribution links are only made from https: URLs", async () => {
     harness.restore();
   }
 });
+
+test("shows the monthly-limit message for a monthly 429, without promising tomorrow", async () => {
+  const harness = createHarness({
+    fetchImpl: async () => new Response("limited", {
+      status: 429,
+      headers: { "x-speech-limit": "monthly" },
+    }),
+  });
+  try {
+    showSelection(harness);
+    harness.button.dispatchEvent(new Event("click"));
+    await flushAsyncWork();
+
+    assert.match(harness.status.textContent, /ліміт озвучення на цей місяць/);
+    assert.doesNotMatch(harness.status.textContent, /завтра/);
+  } finally {
+    harness.restore();
+  }
+});
