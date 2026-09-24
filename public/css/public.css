@@ -171,8 +171,8 @@
 .public-page .bookmark-button.is-active { background: var(--accent-soft); color: var(--accent); }
 
 .public-page.reader-page .page-shell { max-width: 1120px; padding-top: 24px; }
-/* Product rule: questions always occupy the right column, at every breakpoint.
-   Narrow screens scroll horizontally rather than stacking the quiz below. */
+/* Product rule: questions occupy the right column on tablets and desktops, and
+   follow the story text on phones (see the 640px breakpoint below). */
 .public-page .story-layout {
   grid-template-columns: minmax(300px, 1.55fr) minmax(300px, 1fr);
   gap: 24px;
@@ -181,7 +181,6 @@
 }
 .public-page .story-card { grid-column: 1; }
 .public-page .questions-card { grid-column: 2; }
-.public-page .reader-layout-hint { display: none; }
 .public-page .back-link { min-height: 44px; padding: 8px 0; border: 0; border-radius: 0; background: none; color: var(--accent); box-shadow: none; font-size: 0.9375rem; }
 .public-page .back-link:hover { text-decoration: underline; }
 .public-page :is(.story-card, .questions-card) { min-width: 0; padding: 32px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); box-shadow: none; }
@@ -337,15 +336,9 @@
   .public-page .text-button { min-height: 0; }
   .public-page .text-title { min-height: 0; }
   .public-page :is(.story-card, .questions-card) { padding: 20px; }
-  .public-page .story-layout { gap: 16px; }
-  .public-page .reader-layout-hint {
-    display: block;
-    grid-column: 1 / -1;
-    width: calc(100vw - 56px);
-    margin: 0;
-    color: var(--muted);
-    font-size: 0.8125rem;
-  }
+  /* Phones read top to bottom: the questions come after the story. */
+  .public-page .story-layout { grid-template-columns: minmax(0, 1fr); gap: 16px; overflow-x: visible; }
+  .public-page .questions-card { grid-column: 1; }
   .public-page .reader-toolbar { gap: 4px; }
   .public-page .story-heading-actions { flex-wrap: wrap; }
   /* Keeps the language and stress controls on one row in the narrow reader card;
