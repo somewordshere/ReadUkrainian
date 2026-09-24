@@ -219,6 +219,9 @@ async function readMatchingForms(db, sourceLanguage, normalizedWord, targetLangu
             AND translation.review_status = 'approved'
         )
       ORDER BY
+        -- A letter of the alphabet comes after every word: in a story «я», «у»
+        -- or «в» is the word, not the letter.
+        CASE WHEN lexeme.part_of_speech = 'character' THEN 1 ELSE 0 END,
         CASE WHEN lexeme.normalized_lemma = ?2 THEN 0 ELSE 1 END,
         lexeme.lemma ASC,
         ${canonicalPartOfSpeechSql("lexeme.part_of_speech")} ASC,
