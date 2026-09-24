@@ -75,17 +75,33 @@ function getSavedTranslationLanguage() {
   }
 }
 
-function setTranslationLanguage(language) {
+let translationLanguage = "en";
+
+function setTranslationLanguage(language, { remember = true } = {}) {
   const nextLanguage = TRANSLATION_LANGUAGES.includes(language) ? language : "en";
+  translationLanguage = nextLanguage;
   translationLanguageButtons.forEach((button) => {
     button.setAttribute("aria-pressed", String(button.dataset.language === nextLanguage));
   });
   selectionSpeech.setTargetLanguage(nextLanguage);
+  if (!remember) return;
   try {
     window.localStorage.setItem(TRANSLATION_LANGUAGE_STORAGE_KEY, nextLanguage);
   } catch {
     // Translation still works when storage is unavailable.
   }
+}
+
+// Offer only the languages the server has a dictionary for: a new one arrives
+// with a database update, which can come after the code. A story from the
+// bundled fallback carries no list. A saved choice that is not offered yet is
+// kept for when it is.
+function offerTranslationLanguages(languages) {
+  const offered = Array.isArray(languages) ? languages : ["en", "de"];
+  translationLanguageButtons.forEach((button) => {
+    button.hidden = !offered.includes(button.dataset.language);
+  });
+  if (!offered.includes(translationLanguage)) setTranslationLanguage("en", { remember: false });
 }
 
 translationLanguageButtons.forEach((button) => {
@@ -714,6 +730,7 @@ async function initStory() {
       storyMeta.appendChild(countElement);
     }
 
+    offerTranslationLanguages(story.translationLanguages);
     selectionSpeech.setContext({ storyId: story.storyId });
     selectionSpeech.setEnabled(true);
     selectionSpeech.setSpeechEnabled(story.speechEnabled === true);
