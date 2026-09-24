@@ -152,6 +152,26 @@ test("2026-09-23: German «у» keeps «в» however many English-only entries �
   }
 });
 
+test("2026-09-24: a letter of the alphabet comes after every word (tapping «я» shows \"I\" first)", async () => {
+  // The ordering put the 'character' entry first because it sorts before
+  // "pronoun", so «я», «у», «в», «і», «а»… opened on "The thirty-third letter".
+  const { sqlite, db } = seedDatabase();
+  try {
+    assert.deepEqual((await shown(db, "я", "en")).map((entry) => entry.partOfSpeech), ["pronoun", "character"]);
+    assert.deepEqual(lemmas(await shown(db, "у", "de")), ["в", "у"]);
+    for (const language of ["en", "de"]) {
+      for (const word of loadStoryWordFrequency().keys()) {
+        const kinds = (await shown(db, word, language)).map((entry) => entry.partOfSpeech);
+        const firstLetter = kinds.indexOf("character");
+        if (firstLetter < 0) continue;
+        assert.ok(kinds.slice(firstLetter).every((kind) => kind === "character"), `${language}: «${word}» shows a letter before a word: ${kinds.join(", ")}`);
+      }
+    }
+  } finally {
+    sqlite.close();
+  }
+});
+
 test("2026-09-23: preparing the same dictionary source twice replaces its branch instead of failing", () => {
   // The second "Prepare update" for one Kaikki revision failed at git push because
   // the first run's branch existed, built on an older main.
