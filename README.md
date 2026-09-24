@@ -2,30 +2,34 @@
 
 [Read Ukrainian](https://readukrainianapp.com) is a reading-practice website for learners who want to build confidence with Ukrainian through short stories, pronunciation support, and comprehension quizzes.
 
-See [project status](docs/project-status.md) for verified work, remaining gaps, and the dictionary repair's deployment status.
+The current version is 1.02; every release is listed in the [change log](docs/change.log). See [project status](docs/project-status.md) for verified work, remaining gaps, and the dictionary repair's deployment status.
 
-## How the website works
+## What readers can do
 
-Readers choose a story from the library at A1 or A2 level. B1 is planned and remains hidden until it has real content. They can search and filter the collection, read a story, and complete a short multiple-choice quiz. Quiz results, completed stories, and bookmarks are saved in the browser, so readers can return later and continue where they stopped.
+The library holds 127 stories: 24 at A1 and 103 at A2. B1 is planned and stays hidden until it has real content. The interface is in Ukrainian on purpose, so readers stay immersed in the language; translations are offered in English and German.
 
-Stories and questions are loaded from the website's content database. A bundled copy of the learning content acts as a fallback if the content service is temporarily unavailable, keeping the core reading experience reliable.
+**Find a story**
 
-On a story page, readers can select one Ukrainian word to see an English or German translation and Ukrainian grammar. They can also choose **Прослухати** to hear its pronunciation when audio is enabled. Dictionary lookups and generated audio are handled by the server.
+- Browse the library by level, with word counts and progress shown on each story
+- Search by title, topic or level, and filter by topic, bookmarks, or finished and unfinished stories
+- Pick up where you left off with *Продовжити навчання*
 
-## Website features
+**Read**
 
-- Ukrainian stories organized by A1 and A2 level
-- Search and filters for level, topic, bookmarks, and reading progress
-- Story word counts and a focused reading layout
-- Multiple-choice comprehension quizzes with immediate feedback
-- Saved quiz results and completed-story status
-- Options to restart a story or continue to the next one
-- Bookmarks and a continue-reading experience
-- One-word Ukrainian pronunciation with clear AI-voice disclosure
-- Server-side, one-word Ukrainian → English and Ukrainian → German dictionaries
-- Responsive layouts for desktop and mobile devices
-- Keyboard-friendly controls, visible focus states, accessible quiz choices, and reduced-motion support
-- Resilient fallback content when live content cannot be loaded
+- A focused reading layout set in Literata, sized for desktop and phone
+- Stress marks (*наголоси*) on story words, which can be switched off
+- Tap or select a word to see its English or German translation and its Ukrainian grammar
+- Hear the word with **Прослухати**, in the site's voice or another voice from the editors' shortlist, with a clear note that the voice is AI-generated
+- Report a wrong translation straight from the word, for the editors to review
+- A tip for first-time readers that points at a word they can tap
+
+**Check understanding**
+
+- Five multiple-choice questions per story, with immediate feedback and answer order shuffled fairly
+- Review mistakes, restart the quiz, or continue to the next story
+- Quiz results, finished stories and bookmarks are saved in the browser, so no account is needed
+
+Keyboard-friendly controls, visible focus states, accessible quiz choices and reduced-motion support are built in throughout. If the content service is temporarily unavailable, a bundled copy of the stories keeps reading working.
 
 ## Content management
 
@@ -36,10 +40,25 @@ The website includes a private publishing workspace for the content team. Depend
 - preview unpublished changes
 - publish or unpublish stories
 - review and restore previous revisions
-- choose the pronunciation voice used across the website
-- review dictionary suggestions and check dictionary coverage before publishing
+- audition the Google voices, shortlist the ones readers may choose from, and set the site's default voice
+- see how much of the daily and monthly pronunciation budget has been used
+- review learner reports about translations, and dictionary suggestions
+- check dictionary coverage before publishing, and start a dictionary update
 
-Drafts remain private until a publisher explicitly releases them, keeping work in progress separate from the public story library.
+Drafts remain private until a publisher explicitly releases them, keeping work in progress separate from the public story library. Published stories reach readers within about a minute, without a code release.
+
+## How it's built
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/architecture-dark.svg">
+  <img alt="Architecture diagram: learners and editors use the site on Cloudflare, where a Worker serves pages and the API from a D1 database and edge cache and calls Google Text-to-Speech; GitHub workflows check, release and verify the code, and a weekly workflow prepares dictionary updates from Kaikki.org." src="docs/architecture-light.svg" width="1000">
+</picture>
+
+- **Cloudflare Worker.** One Worker serves every page with its security headers and answers the site's API: stories, dictionary lookups, pronunciation and the admin. Scripts, styles, fonts and saved audio come straight from Cloudflare's static storage without running the Worker.
+- **D1 database.** Stories, questions, the Ukrainian → English and Ukrainian → German dictionaries, learner reports, editor accounts and settings. Schema and data changes arrive as numbered migrations in [`migrations/`](migrations).
+- **Pronunciation.** Google Cloud Text-to-Speech (Chirp 3 HD voices) generates a word the first time it is needed; the edge cache serves it after that. Per-minute rate limits and a daily and monthly character budget keep usage within Google's free tier.
+- **Dictionary.** Built from Wiktionary data published by Kaikki.org. Every build passes the dictionary guards (canary words, form limits and approved forms) before it can be released.
+- **Releases.** GitHub Actions run the tests and dictionary guards on every push. *Release production* is the only way code goes live: it is started by hand, saves recovery information, applies pending migrations, deploys, and verifies the live site. *Verify production* re-checks the live site every morning, and *Prepare dictionary update* checks Kaikki.org every Monday and opens a pull request when newer data is available.
 
 ## Dictionary data
 
