@@ -108,3 +108,4 @@ This file is tracked in GitHub and linked from the site version footer.
 1.02 - Security and speed fixes: safer progress saving and admin sign-in, fairer quiz answer order, faster word lookups.
 1.03 - On phones, the questions now come after the story instead of beside it.
 1.04 - Tap a word for its Polish translation. Word lookups now list a word's main meaning first and name every part of speech in Ukrainian.
+1.05 - Updated the English dictionary to the 2026-09-02 Wiktionary source.
