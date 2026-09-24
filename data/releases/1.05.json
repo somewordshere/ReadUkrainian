@@ -1,7 +1,8 @@
 {
   "version": "1.05",
-  "summary": "Dictionary release: English source 2026-08-05 -> 2026-09-02, applied by 0036_dictionary_uk_en_update_2026_09_02.sql. Story content is unchanged, so the reviewed content baseline carries over.",
+  "summary": "Dictionary release: English source 2026-08-05 -> 2026-09-02, applied by 0036_dictionary_uk_en_update_2026_09_02.sql. Production was deployed as 1.04 without the release workflow, so 0035_dictionary_uk_pl_seed.sql is still pending and is applied first. Story content is unchanged, so the reviewed content baseline carries over.",
   "releaseMigrations": [
+    "0035_dictionary_uk_pl_seed.sql",
     "0036_dictionary_uk_en_update_2026_09_02.sql"
   ],
   "contentMigration": "0029_a1_020_024_revision.sql",
