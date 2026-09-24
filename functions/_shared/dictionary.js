@@ -4,6 +4,86 @@ const MAX_LEXEMES = 12;
 const MAX_FORM_ROWS = 48;
 const MAX_TRANSLATIONS_PER_LEXEME = 12;
 
+// Ukrainian word forms are shared by every translation language. The English
+// dictionary must cover every story word and its forms are what the dictionary
+// guards check, so its forms are the reference: an entry in any language is found
+// through them when it has the same lemma and part of speech. A new language then
+// needs only lemmas and translations, and a repair to a form reaches every
+// language at once. Entries keep their own forms too, which lead only to them.
+export const FORMS_REFERENCE_LANGUAGE = "en";
+
+// Kaikki abbreviates parts of speech (adj, adv…); the curated entries and the
+// suggestion form spell them out, as the reader's labels do. Lookups compare and
+// report the spelled-out name, so both kinds of entry for a word meet.
+const PART_OF_SPEECH_NAMES = Object.freeze({
+  adj: "adjective",
+  adv: "adverb",
+  conj: "conjunction",
+  det: "determiner",
+  intj: "interjection",
+  num: "numeral",
+  prep: "preposition",
+  pron: "pronoun",
+  "proper-noun": "name",
+});
+
+export function canonicalPartOfSpeech(value) {
+  return Object.hasOwn(PART_OF_SPEECH_NAMES, value) ? PART_OF_SPEECH_NAMES[value] : value;
+}
+
+function canonicalPartOfSpeechSql(column) {
+  const cases = Object.entries(PART_OF_SPEECH_NAMES).map(([short, name]) => `WHEN '${short}' THEN '${name}'`);
+  return `(CASE ${column} ${cases.join(" ")} ELSE ${column} END)`;
+}
+
+// Two common table expressions for a WITH clause. word_analyses: the forms that
+// match (normalizedForm, displayForm, tagsJson) and the approved entry that
+// records each. form_entries: every entry those forms lead to (lexemeId plus the
+// form's columns), whatever language it translates into; callers keep the
+// entries that have a translation in theirs. `shared` is 0 when the entry records
+// the form itself and 1 when it is reached through the reference forms, so an
+// entry's own reading of a word can be listed first.
+export function formEntriesCtes({ sourceLanguage, formCondition }) {
+  return `
+    word_analyses AS (
+      SELECT
+        form.normalized_form AS normalizedForm,
+        form.display_form AS displayForm,
+        form.tags_json AS tagsJson,
+        owner.id AS ownerId,
+        owner.normalized_lemma AS normalizedLemma,
+        owner.part_of_speech AS partOfSpeech
+      FROM dictionary_forms AS form
+      INNER JOIN dictionary_lexemes AS owner ON owner.id = form.lexeme_id
+      WHERE form.source_language = ${sourceLanguage}
+        AND form.normalized_form ${formCondition}
+        AND owner.review_status = 'approved'
+    ),
+    form_entries AS (
+      SELECT lexemeId, normalizedForm, MIN(displayForm) AS displayForm, tagsJson, MIN(shared) AS shared
+      FROM (
+        SELECT ownerId AS lexemeId, normalizedForm, displayForm, tagsJson, 0 AS shared
+        FROM word_analyses
+        UNION ALL
+        SELECT lexeme.id, analysis.normalizedForm, analysis.displayForm, analysis.tagsJson, 1
+        FROM word_analyses AS analysis
+        INNER JOIN dictionary_lexemes AS lexeme
+          ON lexeme.source_language = ${sourceLanguage}
+          AND lexeme.normalized_lemma = analysis.normalizedLemma
+          AND ${canonicalPartOfSpeechSql("lexeme.part_of_speech")} = ${canonicalPartOfSpeechSql("analysis.partOfSpeech")}
+        WHERE lexeme.id <> analysis.ownerId
+          AND EXISTS (
+            SELECT 1 FROM dictionary_senses AS sense
+            INNER JOIN dictionary_translations AS translation ON translation.sense_id = sense.id
+            WHERE sense.lexeme_id = analysis.ownerId
+              AND translation.target_language = '${FORMS_REFERENCE_LANGUAGE}'
+              AND translation.review_status = 'approved'
+          )
+      )
+      GROUP BY lexemeId, normalizedForm, tagsJson
+    )`;
+}
+
 const GRAMMAR_FEATURES = Object.freeze({
   case: ["nominative", "genitive", "dative", "accusative", "instrumental", "locative", "vocative"],
   number: ["singular", "plural"],
@@ -52,7 +132,8 @@ function normalizePairRow(row) {
 
 // Dictionary updates only add rows, and a newer Wiktionary source gives the same
 // word a new entry id, so one word can arrive as several identical entries.
-// Show each lemma and part of speech once, with its translations and forms merged.
+// Show each lemma and part of speech once, with its translations and forms merged
+// (the part of speech is already canonical, so "adj" and "adjective" meet here).
 function mergeDuplicateEntries(entries) {
   const merged = new Map();
   for (const entry of entries) {
@@ -100,18 +181,18 @@ async function getDictionaryLanguagePair(db, sourceLanguage, targetLanguage) {
 async function readMatchingForms(db, sourceLanguage, normalizedWord, targetLanguage) {
   return db
     .prepare(`
+      WITH ${formEntriesCtes({ sourceLanguage: "?1", formCondition: "= ?2" })}
       SELECT
         lexeme.id AS lexemeId,
         lexeme.lemma,
         lexeme.normalized_lemma AS normalizedLemma,
         lexeme.part_of_speech AS partOfSpeech,
         lexeme.source_id AS sourceId,
-        form.display_form AS displayForm,
-        form.tags_json AS tagsJson
-      FROM dictionary_forms AS form
-      INNER JOIN dictionary_lexemes AS lexeme ON lexeme.id = form.lexeme_id
-      WHERE form.source_language = ?1 AND form.normalized_form = ?2
-        AND lexeme.review_status = 'approved'
+        entry.displayForm,
+        entry.tagsJson
+      FROM form_entries AS entry
+      INNER JOIN dictionary_lexemes AS lexeme ON lexeme.id = entry.lexemeId
+      WHERE lexeme.review_status = 'approved'
         -- Only entries with a translation in the asked language compete for the
         -- limit below; otherwise other languages' entries push them out.
         AND EXISTS (
@@ -124,8 +205,12 @@ async function readMatchingForms(db, sourceLanguage, normalizedWord, targetLangu
       ORDER BY
         CASE WHEN lexeme.normalized_lemma = ?2 THEN 0 ELSE 1 END,
         lexeme.lemma ASC,
-        lexeme.part_of_speech ASC,
-        form.tags_json ASC
+        ${canonicalPartOfSpeechSql("lexeme.part_of_speech")} ASC,
+        entry.shared ASC,
+        entry.tagsJson ASC,
+        -- Entries for the same word otherwise tie; keep the source's order
+        -- («бути» "być" before its use as a future-tense auxiliary).
+        lexeme.rowid ASC
       LIMIT ?3
     `)
     .bind(sourceLanguage, normalizedWord, MAX_FORM_ROWS, targetLanguage)
@@ -175,7 +260,7 @@ export async function lookupDictionaryWord(
       id: row.lexemeId,
       lemma: row.lemma,
       normalizedLemma: row.normalizedLemma,
-      partOfSpeech: row.partOfSpeech,
+      partOfSpeech: canonicalPartOfSpeech(row.partOfSpeech),
       sourceId: row.sourceId,
       forms: [],
       translations: [],

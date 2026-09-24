@@ -34,4 +34,4 @@ reportFailures("Live dictionary canaries",await checkCanaries(
   async(word,language)=>(await lookup(word,language)).entries.map((entry)=>entry.normalizedLemma||entry.lemma),
   canaries,
 ));
-console.log(`${canaries.length} canary words verified live in English and German.`);
+console.log(`${canaries.length} canary words verified live in English, German and Polish.`);

@@ -13,7 +13,7 @@ import { lookupDictionaryWord } from "../../functions/_shared/dictionary.js";
 import { extractCanonicalSpeechWords } from "../speech/normalization.mjs";
 
 const DATA = new URL("../../data/dictionary/", import.meta.url);
-export const GUARD_LANGUAGES = Object.freeze(["en", "de"]);
+export const GUARD_LANGUAGES = Object.freeze(["en", "de", "pl"]);
 
 function readJson(name) {
   return JSON.parse(readFileSync(new URL(name, DATA), "utf8"));

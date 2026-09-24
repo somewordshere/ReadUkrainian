@@ -10,7 +10,7 @@ import { StringDecoder } from 'node:string_decoder';
 
 const { values } = parseArgs({options:Object.fromEntries(['source','output','edition','revision','source-url'].map(k=>[k,{type:'string'}]))});
 for (const key of ['source','output','edition','revision','source-url']) if (!values[key]) throw new Error(`--${key} is required`);
-if (!['en','de'].includes(values.edition) || !/^\d{4}-\d{2}-\d{2}$/.test(values.revision)) throw new Error('Expected edition en|de and a YYYY-MM-DD source revision');
+if (!['en','de','pl'].includes(values.edition) || !/^\d{4}-\d{2}-\d{2}$/.test(values.revision)) throw new Error('Expected edition en|de|pl and a YYYY-MM-DD source revision');
 const inputHash=createHash('sha256'),outputHash=createHash('sha256');
 let lines=0,entries=0;
 const hashInput=new Transform({transform(chunk,encoding,callback){inputHash.update(chunk);callback(null,chunk);}});

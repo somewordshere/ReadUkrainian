@@ -2,24 +2,24 @@
 // GITHUB_OUTPUT format, so a workflow can skip the multi-gigabyte download when
 // nothing is newer.
 //
-//   node scripts/dictionary/source-revision.mjs --target en|de
+//   node scripts/dictionary/source-revision.mjs --target en|de|pl
 //
 // Same version signals as the admin check (functions/api/admin/dictionary/
-// check-update.js): the English Kaikki page states its dump date; the German
-// extract is versioned by its Last-Modified date.
+// check-update.js): the English Kaikki page states its dump date; the German and
+// Polish extracts are versioned by their Last-Modified date.
 import { readFileSync, readdirSync } from "node:fs";
 import { parseArgs } from "node:util";
 
 const { values } = parseArgs({ options: { target: { type: "string" } } });
 const target = values.target;
-if (!["en", "de"].includes(target)) throw new Error("--target must be en or de");
+if (!["en", "de", "pl"].includes(target)) throw new Error("--target must be en, de or pl");
 
 async function availableRevision() {
-  if (target === "de") {
-    const response = await fetch("https://kaikki.org/dictionary/downloads/de/de-extract.jsonl.gz", { method: "HEAD" });
+  if (target !== "en") {
+    const response = await fetch(`https://kaikki.org/dictionary/downloads/${target}/${target}-extract.jsonl.gz`, { method: "HEAD" });
     if (!response.ok) throw new Error(`Kaikki returned HTTP ${response.status}`);
     const date = new Date(response.headers.get("last-modified"));
-    if (Number.isNaN(date.getTime())) throw new Error("The German extract has no Last-Modified date");
+    if (Number.isNaN(date.getTime())) throw new Error(`The ${target} extract has no Last-Modified date`);
     return date.toISOString().slice(0, 10);
   }
   const response = await fetch("https://kaikki.org/dictionary/Ukrainian/", { headers: { accept: "text/html" } });

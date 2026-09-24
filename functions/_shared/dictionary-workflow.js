@@ -1,3 +1,4 @@
+import { formEntriesCtes } from "./dictionary.js";
 import {
   canonicalizeUkrainianWord,
   extractUkrainianWords,
@@ -78,18 +79,19 @@ export async function analyzeDictionaryCoverage(
   // Chunks are independent queries, so they go out together.
   const chunkResults = await Promise.all(chunk(words, QUERY_CHUNK_SIZE).map(async (wordChunk) => {
     const placeholders = wordChunk.map((_, index) => `?${index + 2}`).join(", ");
+    // The forms a lookup follows (lookupDictionaryWord), so a word counts as
+    // covered exactly when tapping it shows a translation.
     return db
       .prepare(`
-        SELECT DISTINCT form.normalized_form AS normalizedForm
-        FROM dictionary_forms AS form
-        INNER JOIN dictionary_lexemes AS lexeme ON lexeme.id = form.lexeme_id
+        WITH ${formEntriesCtes({ sourceLanguage: "'uk'", formCondition: `IN (${placeholders})` })}
+        SELECT DISTINCT entry.normalizedForm
+        FROM form_entries AS entry
+        INNER JOIN dictionary_lexemes AS lexeme ON lexeme.id = entry.lexemeId
         INNER JOIN dictionary_senses AS sense ON sense.lexeme_id = lexeme.id
         INNER JOIN dictionary_translations AS translation ON translation.sense_id = sense.id
         WHERE translation.target_language = ?1
           AND translation.review_status = 'approved'
           AND lexeme.review_status = 'approved'
-          AND form.source_language = 'uk'
-          AND form.normalized_form IN (${placeholders})
       `)
       .bind(targetLanguage, ...wordChunk)
       .all();

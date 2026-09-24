@@ -43,6 +43,7 @@ const nextStoryLink = document.getElementById("nextStoryLink");
 const translationLanguageButtons = document.querySelectorAll("#translationLanguageSwitch [data-language]");
 const stressToggle = document.getElementById("stressToggle");
 const TRANSLATION_LANGUAGE_STORAGE_KEY = "readukrainian.translation-language";
+const TRANSLATION_LANGUAGES = ["en", "de", "pl"];
 const selectionSpeech = initSelectionSpeech({
   root: storyText,
   hint: document.getElementById("storySpeechHint"),
@@ -68,14 +69,14 @@ const wordTip = initWordTip({
 function getSavedTranslationLanguage() {
   try {
     const savedLanguage = window.localStorage.getItem(TRANSLATION_LANGUAGE_STORAGE_KEY);
-    return savedLanguage === "de" ? "de" : "en";
+    return TRANSLATION_LANGUAGES.includes(savedLanguage) ? savedLanguage : "en";
   } catch {
     return "en";
   }
 }
 
 function setTranslationLanguage(language) {
-  const nextLanguage = language === "de" ? "de" : "en";
+  const nextLanguage = TRANSLATION_LANGUAGES.includes(language) ? language : "en";
   translationLanguageButtons.forEach((button) => {
     button.setAttribute("aria-pressed", String(button.dataset.language === nextLanguage));
   });

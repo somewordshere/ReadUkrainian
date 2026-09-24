@@ -32,7 +32,7 @@ const COPY = {
   reportFailed: "Не вдалося надіслати. Натисніть, щоб спробувати ще раз.",
 };
 
-const TARGET_LANGUAGES = new Set(["en", "de"]);
+const TARGET_LANGUAGES = new Set(["en", "de", "pl"]);
 
 const MAX_AUDIO_BYTES = 8 * 1024 * 1024;
 const MAX_DICTIONARY_RESPONSE_BYTES = 64 * 1024;
