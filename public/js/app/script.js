@@ -258,13 +258,19 @@ function filtersAreActive() {
   return Boolean(filters.query) || filters.topic !== "all" || filters.status !== "all";
 }
 
+// A2 is always open; the last-visited level (A1 for a new reader) opens too.
+function resetExpandedLevels() {
+  expandedLevels.clear();
+  expandedLevels.add("A2");
+  expandedLevels.add(getLastVisitedStory()?.level || "A1");
+}
+
 function clearFilters() {
   filters.query = "";
   filters.topic = "all";
   filters.status = "all";
   storySearch.value = "";
-  expandedLevels.clear();
-  expandedLevels.add(getLastVisitedStory()?.level || "A1");
+  resetExpandedLevels();
   renderLibrary();
   storySearch.focus();
 }
@@ -323,8 +329,7 @@ async function initLevels() {
 
   try {
     levels = await fetchContentIndex();
-    expandedLevels.clear();
-    expandedLevels.add(getLastVisitedStory()?.level || "A1");
+    resetExpandedLevels();
     libraryTools.hidden = false;
     renderContinueCard();
     renderLibrary();
