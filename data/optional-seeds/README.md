@@ -9,7 +9,7 @@ from production is one routine deploy away from shipping by accident.
 ## dictionary_linguisto_uk_de.sql
 
 Ukrainian→German translations from the Linguisto dictionary (release 2018-04-12,
-Creative Commons Attribution). Committed in `799f938` as in-flight work and never
+Creative Commons Attribution). Committed in `07b8c0d` as in-flight work and never
 applied to production, so these translations are absent from the live site.
 
 `tests/dictionary-workflow.test.mjs` loads it explicitly, which is why the German

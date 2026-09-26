@@ -100,7 +100,7 @@ and [commits and release evidence](release-0.83.md).
 ## Dictionary repair
 
 **Implemented and applied to production on 2026-09-06.** Source and documentation
-are preserved in pushed commit `7499e35`, merged into main with the A1 release.
+are preserved in pushed commit `f944867`, merged into main with the A1 release.
 Future builds must use the corrected generator. Migration 0022 is recorded in production D1.
 
 Three confirmed imported inflection-table errors attached forms of common words

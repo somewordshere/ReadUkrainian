@@ -47,7 +47,7 @@ not an exhaustive translation-accuracy assessment.
 
 The [manual production workflow](https://github.com/somewordshere/ReadUkrainian/actions/runs/35104828324)
 passed after explicit approval to publish 0.85. It deployed merge commit
-`386ef1f281ebc5ef03ee168c49f8e015bdfdf629`, Worker version
+`ad3ec88bb819fdae96ae6d009a0bf052798fd968`, Worker version
 `e73dd8fb-43ab-4bbf-82d1-f1fb9f444033`, and applied migrations 0028 and 0029.
 All **127 live stories and 635 complete questions** matched the repository;
 **74 dictionary probes** passed, including the three repaired associations.

@@ -59,7 +59,7 @@ coverage does not measure exhaustive translation accuracy. B1 remains deferred.
 
 - [Production workflow 35013603070](https://github.com/somewordshere/ReadUkrainian/actions/runs/35013603070)
   passed on 2026-09-15. Deployed commit:
-  `f04f83512b4dc0756d6f9c512d51c805433d2dcf`; Worker version:
+  `5ddee6f29f1b18fb1724cc92c4eb8f338976454c`; Worker version:
   `3a4860ee-a40c-4559-aee5-c2599ddd3aa6`.
 - All **127 live stories and 635 complete questions** matched the release;
   **56 English/German dictionary probes** passed, including the three previously

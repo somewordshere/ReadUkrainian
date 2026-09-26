@@ -24,11 +24,11 @@ Verified on **2026-09-08**. [Production](https://readukrainianapp.com) serves
 
 | Commit | Result |
 |---|---|
-| `7499e35` | Dictionary exclusions, migration 0022, regression tests, audit caveats and reconciled status |
-| `802541d` | A1 batch, safe seed/refresh generation, guarded migrations, recovery helpers, automatic checks and manual release |
-| `df9f064` | [PR #5](https://github.com/somewordshere/ReadUkrainian/pull/5) merged to main |
-| `d166b69` | Verification through an authenticated temporary Cloudflare preview |
-| `79393d7` | [PR #6](https://github.com/somewordshere/ReadUkrainian/pull/6) merged; successfully released commit |
+| `f944867` | Dictionary exclusions, migration 0022, regression tests, audit caveats and reconciled status |
+| `859be68` | A1 batch, safe seed/refresh generation, guarded migrations, recovery helpers, automatic checks and manual release |
+| `c4b1624` | [PR #5](https://github.com/somewordshere/ReadUkrainian/pull/5) merged to main |
+| `08e1de8` | Verification through an authenticated temporary Cloudflare preview |
+| `1cb197d` | [PR #6](https://github.com/somewordshere/ReadUkrainian/pull/6) merged; successfully released commit |
 
 The [first run](https://github.com/somewordshere/ReadUkrainian/actions/runs/34172898527)
 applied both migrations and deployed 0.83. Its final direct GitHub HTTP checks
