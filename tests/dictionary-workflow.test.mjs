@@ -174,7 +174,9 @@ test("the Polish Wiktionary seed reaches its entries through the English word fo
   // A letter's description is not a translation.
   assert.ok(!(await shown("я")).some((entry) => entry.partOfSpeech === "character"));
   const result = await lookupDictionaryWord(db, { text: "книжку", targetLanguage: "pl" });
-  assert.equal(result.attribution.sourceRevision, "2026-09-20");
+  // A floor, not the date: a dictionary update moves the installed revision.
+  assert.match(result.attribution.sourceRevision, /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/);
+  assert.ok(result.attribution.sourceRevision >= "2026-09-20");
 });
 
 test("the refresh action reads the German dump date from Kaikki's German page", async () => {
@@ -210,6 +212,11 @@ test("the refresh action versions the Polish source by its extract's Last-Modifi
     assert.equal(options.method, "HEAD");
     return new Response(null, { headers: { "last-modified": "Sun, 04 Oct 2099 02:23:42 GMT" } });
   };
+  // Whatever revision the migrations installed; a later dictionary update moves it.
+  const installed = (await db.prepare(`
+    SELECT source_revision AS currentRevision FROM dictionary_language_pairs
+    WHERE source_language = 'uk' AND target_language = 'pl'
+  `).first()).currentRevision;
   try {
     const response = await checkUpdate(await adminContext(db, {
       path: "/api/admin/dictionary/check-update",
@@ -217,7 +224,7 @@ test("the refresh action versions the Polish source by its extract's Last-Modifi
     }));
     assert.equal(response.status, 200);
     const result = await response.json();
-    assert.equal(result.currentRevision, "2026-09-20");
+    assert.equal(result.currentRevision, installed);
     assert.equal(result.availableRevision, "2099-10-04");
     assert.equal(result.updateAvailable, true);
   } finally {
