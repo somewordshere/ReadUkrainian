@@ -41,5 +41,10 @@ export function bumpRelease({ version, changelogLine, manifest }) {
   }
   write("public/js/app/version.js", bumped);
 
+  const readme = read("README.md");
+  const bumpedReadme = readme.replace(`Version ${previous} ·`, `Version ${version} ·`);
+  if (bumpedReadme === readme) throw new Error("README.md did not contain the current version");
+  write("README.md", bumpedReadme);
+
   write(`data/releases/${version}.json`, `${JSON.stringify({ ...manifest, version }, null, 2)}\n`);
 }

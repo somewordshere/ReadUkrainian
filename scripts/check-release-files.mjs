@@ -8,4 +8,5 @@ const pkg = JSON.parse(readFileSync(new URL("../package.json",import.meta.url),"
 const lock = JSON.parse(readFileSync(new URL("../package-lock.json",import.meta.url),"utf8"));
 assert.equal(pkg.version,`${manifest.version}.0`); assert.equal(lock.version,pkg.version); assert.equal(lock.packages[""].version,pkg.version);
 assert.ok(readFileSync(new URL("../public/js/app/version.js",import.meta.url),"utf8").includes(`const SITE_VERSION = "${manifest.version}"`));
+assert.ok(readFileSync(new URL("../README.md",import.meta.url),"utf8").includes(`Version ${manifest.version} ·`),"README.md version is out of date");
 console.log("Release versions and immutable migration checksums match.");
