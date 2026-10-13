@@ -1,0 +1,9 @@
+# Copy to .dev.vars (gitignored; read by `wrangler dev` and the scripts/speech build).
+# Production values are Worker secrets: `npx wrangler secret put NAME`.
+
+# Signs admin session cookies and keys the per-client speech quota hash.
+SESSION_SECRET=replace-with-a-long-random-string
+
+# Google Cloud API key restricted to the Cloud Text-to-Speech API. The Google
+# project must have billing enabled, or every request fails with BILLING_DISABLED.
+GOOGLE_TTS_API_KEY=

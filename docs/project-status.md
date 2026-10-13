@@ -1,5 +1,43 @@
 # Read Ukrainian — project status
 
+## 1.10 — prepared, not yet published (2026-10-13)
+
+Version **1.10** restores pronunciation and changes nothing else: no story, question,
+dictionary entry or migration. After billing was enabled on the Google Cloud project, the
+audio was generated on 2026-10-07 with `npm run speech:build`:
+`public/speech/uk-UA-Chirp3-HD-Achernar/` holds **4,165 MP3s** (24.2 MB) and a
+`manifest.json`. Checked on 2026-10-13: every one of the **4,159 words in the text of the
+127 published stories** has a file; the other 6 files belong to words that occur only in
+the hidden B1 placeholders. Words that occur only in a story title (64) are not part of
+the static set.
+
+Still to do for this release: confirm that the production Worker secret
+`GOOGLE_TTS_API_KEY` belongs to the billing-enabled project (it is still needed for any
+word outside the static set), run **Release production** on `main`, then check on the
+live site that a tapped word plays and that `/api/speech` answers with
+`x-speech-source: static`. Until that run, production is still 1.09 without audio.
+
+The 1.09 checkpoint below describes the state before the audio was generated.
+
+## 1.09 — checkpoint (2026-10-07)
+
+Public version **1.09** (see [change.log](change.log)). Content is unchanged since 0.85:
+**127 stories (24 A1 + 103 A2), 635 questions**; B1 remains hidden placeholders.
+`npm test` on 2026-10-07: 270 tests, 269 passed, 0 failed, 1 skipped (the opt-in live
+audio-provider test). The sections below are historical checkpoints from 0.83–0.85;
+their coverage and test counts are not current.
+
+**Pronunciation is blocked.** Google answers every Text-to-Speech request with
+`403 BILLING_DISABLED`: the Cloud project behind `GOOGLE_TTS_API_KEY` has no billing
+account. `/api/speech` therefore returns 502 for any word without a pre-generated MP3,
+and `public/speech/` currently contains no audio for the default voice
+(`uk-UA-Chirp3-HD-Achernar`). Fix: enable billing on the project (Chirp 3 HD stays within
+the free allowance), confirm the production Worker secret, then run
+`npm run speech:build` and release. See [scripts/speech/README.md](../scripts/speech/README.md).
+
+Next steps, in order: restore pronunciation; saved-vocabulary list; page metadata,
+sitemap and privacy-friendly analytics; A1 topics 20–40 with teacher review; B1.
+
 ## 0.85 — published and verified (2026-09-16)
 
 A1 stories 20–24 are revised to **90, 105, 100, 90 and 90 words** using the
