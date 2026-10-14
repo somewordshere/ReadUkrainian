@@ -1,23 +1,49 @@
 # Read Ukrainian — project status
 
-## 1.10 — prepared, not yet published (2026-10-13)
+## 1.11 — static audio in the site voice, hidden B1 kept hidden (2026-10-14)
 
-Version **1.10** restores pronunciation and changes nothing else: no story, question,
-dictionary entry or migration. After billing was enabled on the Google Cloud project, the
-audio was generated on 2026-10-07 with `npm run speech:build`:
-`public/speech/uk-UA-Chirp3-HD-Achernar/` holds **4,165 MP3s** (24.2 MB) and a
-`manifest.json`. Checked on 2026-10-13: every one of the **4,159 words in the text of the
-127 published stories** has a file; the other 6 files belong to words that occur only in
-the hidden B1 placeholders. Words that occur only in a story title (64) are not part of
-the static set.
+**What 1.10 got wrong.** 1.10 (published 2026-10-13) shipped 4,165 MP3s for
+`uk-UA-Chirp3-HD-Achernar`, the code default, but the site voice chosen in the admin is
+`uk-UA-Chirp3-HD-Sadachbia`, and Achernar is not on the learner shortlist (Sadachbia,
+Algenib, Callirrhoe, Kore). No static file was ever served: every word was synthesized
+live by Google. Pronunciation worked, which also showed that the production
+`GOOGLE_TTS_API_KEY` belongs to a billing-enabled project.
 
-Still to do for this release: confirm that the production Worker secret
-`GOOGLE_TTS_API_KEY` belongs to the billing-enabled project (it is still needed for any
-word outside the static set), run **Release production** on `main`, then check on the
-live site that a tapped word plays and that `/api/speech` answers with
-`x-speech-source: static`. Until that run, production is still 1.09 without audio.
+**1.11 changes:**
+- The static set is rebuilt for **Sadachbia** in `public/speech/uk-UA-Chirp3-HD-Sadachbia/`,
+  and the unused Achernar set is removed. It covers the 4,159 words in the text of the 127
+  published stories. Words that occur only in a title, and learners who pick another
+  shortlist voice, are still served live by Google.
+- **Hidden B1 stays hidden.** The B1 level is inactive, but `/api/content` used to list its
+  16 rows: 15 placeholders and a test story (id 265, «67»). A story is now public only
+  while it is enabled *and* its level is open (`isPubliclyVisible` in
+  `functions/_shared/texts.js`), for the library, the reader, pronunciation and word
+  reports. The audio generator skips inactive levels too.
+- **Pronunciation is checked daily.** `scripts/check-live-speech.mjs` runs in the release
+  and the daily **Verify production** runs. It fails unless a story word plays from the
+  static files of the site voice, so a voice mismatch like 1.10's, a disabled feature or
+  a provider outage reaches GitHub's failure email within a day. Against the live 1.10
+  site it fails as intended.
 
-The 1.09 checkpoint below describes the state before the audio was generated.
+- **Readers can reach us, and search engines can find the site.** A new About and privacy
+  page (`public/about.html`, linked under every learner page) holds a feedback form.
+  Messages, with an email only if the reader leaves one, are stored by migration
+  `0040_feedback.sql` and listed in the admin's Feedback card. `public/sitemap.xml` lists
+  the 127 stories at the addresses Cloudflare serves them at (`/story?level=…&order=…`,
+  `/about`) and is checked against the seed by `tests/sitemap.test.mjs`; rebuild it with
+  `node scripts/build-sitemap.mjs` after a batch. The pages carry descriptions, share
+  tags and canonical links.
+- **Analytics is prepared, not on.** The CSP allows the Cloudflare Web Analytics beacon;
+  the owner still has to switch Web Analytics on in the Cloudflare dashboard. The About
+  page already says visits are counted that way.
+- **Licence:** `LICENSE` states «all rights reserved», with the dictionary data
+  (Wiktionary CC BY-SA, Linguisto CC BY) and the Literata font (SIL OFL) under their own
+  licences.
+
+Test story 265 («67», «67 31 dsad») is still enabled in the database. From 1.11 on it is
+hidden with the rest of B1, but it would appear the day B1 opens: delete it in the admin.
+
+The 1.09 checkpoint below describes the state before any audio was generated.
 
 ## 1.09 — checkpoint (2026-10-07)
 

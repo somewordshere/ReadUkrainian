@@ -154,6 +154,22 @@
           </div>
         </section>
 
+        <section class="admin-dictionary-settings" id="feedbackSection" aria-labelledby="feedbackSectionTitle" aria-busy="false" hidden>
+          <div class="admin-dictionary-settings-copy">
+            <p class="admin-kicker">Readers</p>
+            <h2 id="feedbackSectionTitle">Feedback</h2>
+            <p>Messages from the form on the About page. An email is there only if the reader left one for a reply. “Mark done” keeps the message; “Delete” removes it and its email for good.</p>
+          </div>
+          <div class="admin-dictionary-review">
+            <div class="admin-dictionary-review-heading">
+              <h3>Open messages</h3>
+              <button class="admin-text-action" id="refreshFeedbackButton" type="button">Refresh</button>
+            </div>
+            <p class="admin-status" id="feedbackStatus" aria-live="polite"></p>
+            <div class="admin-dictionary-suggestions" id="feedbackList"></div>
+          </div>
+        </section>
+
         <div class="admin-workspace">
           <div class="admin-sidebar-column">
             <button class="admin-add-story-button" id="addStoryButton" type="button">+ Add story</button>

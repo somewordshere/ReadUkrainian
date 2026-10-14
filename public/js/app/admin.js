@@ -28,6 +28,10 @@ const dictionarySuggestionsList = byId("dictionarySuggestionsList");
 const dictionaryReportsSection = byId("dictionaryReportsSection");
 const dictionaryReportsList = byId("dictionaryReportsList");
 const refreshDictionaryReportsButton = byId("refreshDictionaryReportsButton");
+const feedbackSection = byId("feedbackSection");
+const feedbackList = byId("feedbackList");
+const feedbackStatus = byId("feedbackStatus");
+const refreshFeedbackButton = byId("refreshFeedbackButton");
 const addStoryButton = byId("addStoryButton");
 const textsList = byId("textsList");
 const textCount = byId("textCount");
@@ -716,6 +720,82 @@ async function resolveDictionaryReport(reportId, status) {
   }
 }
 
+function renderFeedback(messages) {
+  feedbackList.replaceChildren();
+  if (!messages.length) {
+    const empty = document.createElement("p");
+    empty.className = "admin-empty-state";
+    empty.textContent = "No open messages from readers.";
+    feedbackList.appendChild(empty);
+    return;
+  }
+
+  messages.forEach((item) => {
+    const row = document.createElement("div");
+    row.className = "admin-dictionary-suggestion-row";
+    const copy = document.createElement("p");
+    const text = document.createElement("span");
+    text.className = "admin-feedback-message";
+    text.textContent = item.message;
+    const details = [`Sent ${formatDate(item.createdAt)}`];
+    if (item.storyTitle) details.push(`from «${item.storyTitle}»`);
+    else if (item.page) details.push(`from ${item.page}`);
+    copy.append(text, document.createElement("br"), details.join(" · "));
+    if (item.email) {
+      const mail = document.createElement("a");
+      mail.href = `mailto:${item.email}`;
+      mail.textContent = item.email;
+      copy.append(" · Reply to ", mail);
+    }
+
+    const actions = document.createElement("div");
+    actions.className = "admin-dictionary-review-actions";
+    const done = document.createElement("button");
+    done.type = "button";
+    done.className = "admin-primary-button";
+    done.textContent = "Mark done";
+    done.addEventListener("click", () => void resolveFeedback(item.feedbackId, "done"));
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "admin-secondary-button";
+    remove.textContent = "Delete";
+    remove.addEventListener("click", () => {
+      if (window.confirm("Delete this message and its email address for good?")) void resolveFeedback(item.feedbackId, "delete");
+    });
+    actions.append(done, remove);
+    row.append(copy, actions);
+    feedbackList.appendChild(row);
+  });
+}
+
+async function loadFeedback() {
+  feedbackSection.hidden = !hasPermission("settings");
+  if (!hasPermission("settings")) return;
+  feedbackList.textContent = "Loading messages…";
+  try {
+    const payload = await api("./api/admin/feedback", { method: "GET" });
+    renderFeedback(Array.isArray(payload.messages) ? payload.messages : []);
+  } catch (error) {
+    feedbackList.textContent = `Could not load messages: ${error.message}`;
+  }
+}
+
+async function resolveFeedback(feedbackId, action) {
+  feedbackSection.setAttribute("aria-busy", "true");
+  try {
+    await api(`./api/admin/feedback/${feedbackId}/resolve`, {
+      method: "POST",
+      body: JSON.stringify({ action }),
+    });
+    setStatus(feedbackStatus, action === "done" ? "Message marked done." : "Message deleted.");
+    await loadFeedback();
+  } catch (error) {
+    setStatus(feedbackStatus, `Could not update the message: ${error.message}`, true);
+  } finally {
+    feedbackSection.setAttribute("aria-busy", "false");
+  }
+}
+
 async function reviewDictionarySuggestion(suggestionId, decision) {
   dictionarySettingsSection.setAttribute("aria-busy", "true");
   try {
@@ -1365,7 +1445,7 @@ async function enterAdminPanel(user) {
   dictionaryCoveragePanel.hidden = !hasPermission("dictionary_suggest");
 
   try {
-    await Promise.all([loadSummaries(), loadDictionaryStatus()]);
+    await Promise.all([loadSummaries(), loadDictionaryStatus(), loadFeedback()]);
     const requestedId = Number(new URL(window.location.href).searchParams.get("story"));
     const initialId = summaries.some((story) => story.storyId === requestedId)
       ? requestedId
@@ -1461,6 +1541,7 @@ speechPreviewText.addEventListener("keydown", (event) => {
 
 refreshDictionarySuggestionsButton.addEventListener("click", () => void loadDictionarySuggestions());
 refreshDictionaryReportsButton.addEventListener("click", () => void loadDictionaryReports());
+refreshFeedbackButton.addEventListener("click", () => void loadFeedback());
 checkDictionaryCoverageButton.addEventListener("click", () => void checkDictionaryCoverage());
 suggestDictionaryWordButton.addEventListener("click", () => openDictionarySuggestion());
 // Most words are their own lemma, so the lemma follows the word until edited apart.

@@ -228,7 +228,9 @@ async function loadProductionStories(apiBase, concurrency) {
     throw new Error("Published content index has no levels array.");
   }
 
+  // A hidden level's stories are not read by learners, so they get no audio.
   const summaries = indexPayload.levels
+    .filter((level) => level?.active !== false)
     .flatMap((level) => (Array.isArray(level?.texts) ? level.texts : []))
     .filter((story) => story?.active !== false)
     .map((story) => ({ storyId: Number(story?.storyId) }))

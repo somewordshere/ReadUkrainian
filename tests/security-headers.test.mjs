@@ -38,6 +38,14 @@ test("every inline script in the public pages is allowed by its CSP hash", () =>
   for (const hash of found) assert.ok(CONTENT_SECURITY_POLICY.includes(`'${hash}'`));
 });
 
+test("the CSP allows exactly the Cloudflare Web Analytics beacon and keeps connections same-origin", () => {
+  const directive = (name) => CONTENT_SECURITY_POLICY.split("; ").find((part) => part.startsWith(`${name} `));
+  assert.ok(directive("script-src").split(" ").includes("https://static.cloudflareinsights.com/beacon.min.js"));
+  assert.ok(!directive("script-src").includes("*"), "no wildcard script source");
+  // Automatic setup reports to the site's own /cdn-cgi/rum.
+  assert.equal(directive("connect-src"), "connect-src 'self'");
+});
+
 test("the public pages use no inline handlers or style attributes the CSP would block", () => {
   for (const page of HTML_PAGES) {
     const html = readFileSync(new URL(page, PUBLIC_DIRECTORY), "utf8");

@@ -613,6 +613,12 @@ test("requires same-origin JSON and a valid active story", async () => {
   assert.equal((await onRequestPost(disabledStory.context)).status, 404);
   assert.equal(disabledStory.assetCalls.length, 0);
 
+  const hiddenLevelStory = createContext({
+    row: storyRow({ level: "B1" }),
+  });
+  assert.equal((await onRequestPost(hiddenLevelStory.context)).status, 404);
+  assert.equal(hiddenLevelStory.assetCalls.length, 0);
+
   const badStoryId = createContext({
     payload: { storyId: 0, text: "добрий" },
   });
