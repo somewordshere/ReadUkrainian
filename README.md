@@ -2,7 +2,7 @@
 
 [Read Ukrainian](https://readukrainianapp.com) is a reading-practice website for learners who want to build confidence with Ukrainian through short stories, pronunciation support, and comprehension quizzes.
 
-Live at [readukrainianapp.com](https://readukrainianapp.com) · Version 1.13 · [Change log](docs/change.log) · [Project status](docs/project-status.md)
+Live at [readukrainianapp.com](https://readukrainianapp.com) · Version 1.14 · [Change log](docs/change.log) · [Project status](docs/project-status.md)
 
 ## 📚 What readers can do
 
