@@ -12,6 +12,7 @@ function createDb() {
     { id: 1, level: "A1", display_order: 1, question_index: 1, title: "Мій день", show_word_count: 1, is_enabled: 1 },
     { id: 2, level: "A1", display_order: 2, question_index: 2, title: "Моя сім'я", show_word_count: 0, is_enabled: 1 },
     { id: 3, level: "A2", display_order: 1, question_index: 3, title: "Борщ", show_word_count: 1, is_enabled: 1 },
+    { id: 4, level: "B1", display_order: 1, question_index: 4, title: "Текст 1", show_word_count: 1, is_enabled: 1 },
   ];
 
   return {
@@ -60,4 +61,14 @@ test("the library listing returns grouped levels with display metadata", async (
 
   // No body text reaches the client through this route.
   assert.ok(!JSON.stringify(body).includes("paragraphs"));
+});
+
+test("a hidden level keeps its entry but lists none of its stories", async () => {
+  const response = await onRequestGet({ env: { DB: createDb() } });
+  const body = await response.json();
+
+  const b1 = body.levels.find((level) => level.id === "B1");
+  assert.equal(b1.active, false);
+  assert.deepEqual(b1.texts, []);
+  assert.ok(!JSON.stringify(body).includes("Текст 1"));
 });

@@ -114,3 +114,4 @@ This file is tracked in GitHub and linked from the site version footer.
 1.08 - The A2 level is now always open in the library, instead of starting collapsed.
 1.09 - Updated the Polish dictionary to the 2026-09-25 Wiktionary source.
 1.10 - Word pronunciation works again: every word in the stories now has its own recorded audio, so tapping «Прослухати» plays at once.
+1.11 - Pronunciation now plays recorded audio in the site's own voice, so tapping «Прослухати» starts at once. A new page, «Про сайт і відгук», explains privacy and lets you send us feedback.

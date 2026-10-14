@@ -32,7 +32,7 @@ import {
   speechBudgetPeriod,
   speechBudgetRetryAfter,
 } from "../_shared/speech-budget.js";
-import { getStoryById } from "../_shared/texts.js";
+import { getStoryById, isPubliclyVisible } from "../_shared/texts.js";
 import { canonicalizeUkrainianWord, extractUkrainianWords } from "../_shared/ukrainian-word.js";
 
 const MAX_REQUEST_BYTES = 8 * 1024;
@@ -340,7 +340,7 @@ export async function onRequestPost(context) {
   }
   const story = storyResult.value;
 
-  if (!story?.active) {
+  if (!isPubliclyVisible(story)) {
     return noStoreError(404, "Published story not found.");
   }
   if (!storyContainsWord(story, canonicalWord)) {

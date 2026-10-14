@@ -10,10 +10,11 @@ function createDb({
   voicesThrow = false,
   languages = ["de", "en"],
   languagesThrow = false,
+  level = "A1",
 } = {}) {
   const storyRow = {
     id: 42,
-    level: "A1",
+    level,
     display_order: 1,
     question_index: 1,
     title: "Вітання",
@@ -77,6 +78,12 @@ test("story content exposes the enabled speech setting", async () => {
   const payload = await response.json();
   assert.equal(payload.story.storyId, 42);
   assert.equal(payload.story.speechEnabled, true);
+});
+
+test("a story in a hidden level is not found", async () => {
+  const response = await fetchStory(createDb({ level: "B1" }));
+
+  assert.equal(response.status, 404);
 });
 
 test("story content keeps reading available and defaults speech to disabled", async () => {

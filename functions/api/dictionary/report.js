@@ -10,7 +10,7 @@ import {
   readLimitedJson,
   requireSameOrigin,
 } from "../../_shared/http.js";
-import { getStoryById } from "../../_shared/texts.js";
+import { getStoryById, isPubliclyVisible } from "../../_shared/texts.js";
 import { canonicalizeUkrainianWord, extractUkrainianWords } from "../../_shared/ukrainian-word.js";
 
 const MAX_REQUEST_BYTES = 1024;
@@ -93,7 +93,7 @@ export async function onRequestPost(context) {
       getStoryById(env.DB, storyId),
       findOpenReport(env.DB, word, targetLanguage),
     ]);
-    if (!story?.active || !extractUkrainianWords((story.paragraphs || []).join(" ")).includes(word)) {
+    if (!isPubliclyVisible(story) || !extractUkrainianWords((story.paragraphs || []).join(" ")).includes(word)) {
       return noStoreError(404, "The word was not found in the published story.");
     }
 

@@ -1,0 +1,18 @@
+Copyright (c) 2026 Read Ukrainian (https://github.com/somewordshere). All rights reserved.
+
+The source code, stories, questions, pronunciation recordings and other content in
+this repository are published so that they can be viewed. They may not be copied,
+modified, republished or distributed, in whole or in part, without written
+permission from the copyright holder.
+
+The following parts are not covered by the paragraph above and keep their own
+licences:
+
+- Dictionary data from Wiktionary, as distributed by Kaikki.org (the dictionary
+  migrations in migrations/ and the dictionary files in data/): the Wiktionary
+  contributors, Creative Commons Attribution-ShareAlike (CC BY-SA).
+- Ukrainian–German translations from the Linguisto dictionary (release 2018-04-12)
+  in the reviewed German supplement and in data/optional-seeds/: Creative Commons
+  Attribution (CC BY).
+- The Literata typeface in public/fonts/: SIL Open Font License, see
+  public/fonts/literata/OFL.txt.

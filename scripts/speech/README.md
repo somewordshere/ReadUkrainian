@@ -36,11 +36,20 @@ plays; only words added after the last generation fail.
    ```
 
 3. Generate and publish into `public/speech/<voice-id>/`, passing the site voice
-   chosen in the admin (the default is `uk-UA-Chirp3-HD-Achernar`):
+   chosen in the admin. **Read the live site voice first; do not assume the code
+   default** (`uk-UA-Chirp3-HD-Achernar`). Version 1.10 shipped a full set for the
+   default while the site voice was Sadachbia, so no file was ever served. The
+   `speechVoiceId` field of `/api/content/story?id=<any story>` names the live voice:
 
    ```powershell
-   npm run speech:build -- --voice-id uk-UA-Chirp3-HD-Achernar
+   npm run speech:build -- --voice-id uk-UA-Chirp3-HD-Sadachbia
    ```
+
+   Only the site voice gets static files. Learners who pick another voice from the
+   admin's shortlist are served live by Google. After changing the site voice in the
+   admin, rebuild for the new voice and release; until then the daily
+   **Verify production** run fails (`scripts/check-live-speech.mjs`) because the
+   audio comes from Google instead of the static files.
 
    The full run (about 4,200 words, 28,000 characters) takes about 20 minutes and
    fits in Google's free monthly allowance. It is resumable: finished words stay in

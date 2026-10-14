@@ -61,6 +61,7 @@ try {
   for (const args of [
     ["scripts/check-live-content.mjs", "--origin", origin, "--deep", "--expect-version", release.version, "--attempts", "4"],
     ["scripts/check-live-dictionary.mjs", "--origin", origin],
+    ["scripts/check-live-speech.mjs", "--origin", origin],
   ]) {
     const result = spawnSync(process.execPath, args, { cwd: root, env, stdio: "inherit", timeout: 300000, windowsHide: true });
     if (result.status !== 0) throw new Error(`${args[0]} failed.`);

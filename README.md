@@ -2,7 +2,7 @@
 
 [Read Ukrainian](https://readukrainianapp.com) is a reading-practice website for learners who want to build confidence with Ukrainian through short stories, pronunciation support, and comprehension quizzes.
 
-Live at [readukrainianapp.com](https://readukrainianapp.com) · Version 1.10 · [Change log](docs/change.log) · [Project status](docs/project-status.md)
+Live at [readukrainianapp.com](https://readukrainianapp.com) · Version 1.11 · [Change log](docs/change.log) · [Project status](docs/project-status.md)
 
 ## 📚 What readers can do
 
@@ -30,6 +30,10 @@ The library holds **127 stories**: 24 at A1 and 103 at A2. B1 is planned and sta
 - Quiz results, finished stories and bookmarks are saved in the browser, so no account is needed
 
 Keyboard-friendly controls, visible focus states, accessible quiz choices and reduced-motion support are built in throughout. If the content service is temporarily unavailable, a bundled copy of the stories keeps reading working.
+
+### Get in touch
+
+- An *About and privacy* page (linked under every page) explains what stays in the browser and what is sent where, and holds a feedback form; messages, with an email address only if the reader leaves one, appear in the admin's Feedback card.
 
 ## ✍️ Content management
 
@@ -72,3 +76,7 @@ npm run dictionary:build:linguisto -- --source PATH_TO_XDXF --revision 2018-04-1
 
 See [the raw dictionary rebuild workflow](docs/dictionary-rebuild.md) for supported
 sources, reproducibility checks, and the reviewed German subset in release 0.84.
+
+## ©️ Licence
+
+All rights reserved: the code and content are published to be read, not reused. Dictionary data (Wiktionary via Kaikki.org, CC BY-SA; Linguisto, CC BY) and the Literata typeface (SIL OFL) keep their own licences. See [LICENSE](LICENSE).

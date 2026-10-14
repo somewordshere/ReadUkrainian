@@ -744,6 +744,12 @@ async function initStory() {
     applySavedProgress(questions);
     renderBookmarkState();
     document.title = `Історії українською - ${storyLevelId} - ${story.title}`;
+    // One address per story for search engines, the same form the sitemap lists
+    // (Cloudflare serves /story.html at /story).
+    const canonical = document.createElement("link");
+    canonical.rel = "canonical";
+    canonical.href = `https://readukrainianapp.com/story?level=${encodeURIComponent(storyLevelId)}&order=${encodeURIComponent(story.sortOrder || legacyOrder)}`;
+    document.head.appendChild(canonical);
   } catch (error) {
     renderStoryError();
     document.title = "Історії українською - Помилка завантаження";
