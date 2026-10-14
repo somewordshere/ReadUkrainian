@@ -106,7 +106,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git switch -c "$branch"
-          git add migrations data/releases docs/change.log package.json package-lock.json public/js/app/version.js
+          # Every file scripts/lib/bump-release.mjs writes; check:release fails on a stale README version.
+          git add migrations data/releases docs/change.log package.json package-lock.json public/js/app/version.js README.md
           git commit -m "$title" -m "$(cat "$RUNNER_TEMP/summary.md")"
           # Preparing the same source again replaces the earlier branch: it was built
           # on an older main, so its version and migration numbers may be taken since.
