@@ -46,6 +46,10 @@ environment, and the environment's deployment branch policy permits only `main`.
    uses `data/releases/0.83.json`; later releases must update the release helpers,
    manifest selection and expected version in the workflow together. Do not update
    checksums for already-applied SQL to conceal an edit.
+   **D1 refuses an SQL expression deeper than 100**, while the in-memory SQLite the tests use allows 1,000. A content
+   migration's drift guard therefore checks each story in its own statement (see `0041_a1_ladder_corrections.sql`);
+   one `CASE` over many stories failed release 1.12's first run. Before releasing a new migration, apply it to a local
+   D1: `npx wrangler d1 migrations apply DB --local --persist-to .wrangler/state-fresh`.
 5. Run `npm run check`, review the diff, and merge the checked commits to `main`.
    Run **Release production** on `main` to publish the selected commit.
 

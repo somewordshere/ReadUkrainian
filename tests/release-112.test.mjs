@@ -57,6 +57,27 @@ test('0041 changes only the paragraphs of the 14 stories and preserves IDs, quiz
  }finally{sqlite.close();}
 });
 
+// D1 refuses an expression deeper than 100 ("Expression tree is too large"), but node:sqlite allows 1,000, so the
+// tests above cannot see it. Release run 38621627066 failed on a guard that joined 98 conditions with AND. Count the
+// conditions joined at the top level of each guard (outside parentheses and string literals); a left-deep AND chain
+// of N conditions is about N deep.
+test('every guard in 0041 stays well inside the expression depth D1 accepts',()=>{
+ const topLevelAnds=(statement)=>{
+  let depth=0,inString=false,count=0;
+  for(let i=0;i<statement.length;i+=1){
+   const c=statement[i];
+   if(c==="'"){inString=!inString;continue;}
+   if(inString)continue;
+   if(c==='(')depth+=1;else if(c===')')depth-=1;
+   else if(depth===0&&statement.startsWith(' AND ',i))count+=1;
+  }
+  return count;
+ };
+ const guards=sql(release.contentMigration).split('\n').filter(line=>line.startsWith('INSERT INTO _a1_112_guard'));
+ assert.equal(guards.length,release.stories.length,'one guard per story');
+ for(const guard of guards)assert.ok(topLevelAnds(guard)<50,`a guard joins ${topLevelAnds(guard)} conditions`);
+});
+
 test('0041 stops on editorial drift, and the release resumes cleanly after it ran',()=>{
  validateMigrationFiles(release,new URL('../migrations/',import.meta.url),{allowLater:true});
  const base=loadReleaseManifest('1.11').migrations.map(m=>m.name);
