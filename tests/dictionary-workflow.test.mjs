@@ -156,7 +156,8 @@ test("the Polish Wiktionary seed reaches its entries through the English word fo
 
   // Polish Wiktionary has no Ukrainian inflections, so every inflected form here
   // is reached through the English dictionary's forms. A floor, like German's.
-  assert.ok(coverage.coveredUniqueWords >= 3308, `covered ${coverage.coveredUniqueWords}`);
+  // 3,308 until release 1.12, whose A1 corrections dropped one covered word from the stories.
+  assert.ok(coverage.coveredUniqueWords >= 3307, `covered ${coverage.coveredUniqueWords}`);
   assert.ok(coverage.coveragePercent >= 79.5);
   assert.ok(coverage.missing.length > 0);
 
