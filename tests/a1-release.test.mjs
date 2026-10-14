@@ -12,6 +12,11 @@ const seed = json("../data/content-seed.json");
 const questions = json("../data/questions-seed.json");
 const historical = json("./fixtures/content-082.json");
 const selected = [5, 8, 9, 15, 16, 17, 18, 19];
+// Release 1.12 corrected these A1 stories (paragraphs only); data/releases/1.12.json holds each text before and after.
+const release112 = json("../data/releases/1.12.json");
+const correctedIn112 = release112.stories.map((s) => s.order);
+// The text a story had before 1.12: what 0024 wrote, for the stories 1.12 later corrected.
+const before112 = (order) => release112.stories.find((s) => s.order === order)?.before.paragraphs;
 const key = (s) => `${s.level}#${s.sortOrder}`;
 const words = (text) => text.split(/\s+/u).filter((word) => /[\p{L}\p{N}]/u.test(word));
 
@@ -55,9 +60,16 @@ test("new A1 stories meet their public mechanical acceptance criteria", () => {
   }
 });
 
-test("only the eight approved A1 stories differ from the previous content", () => {
+test("only approved A1 stories differ from the previous content", () => {
   for (const story of historical) {
     if (story.level === "A1" && selected.includes(story.sortOrder)) continue;
+    if (story.level === "A1" && correctedIn112.includes(story.sortOrder)) {
+      // Approved in 1.12: only the paragraphs changed, exactly as the release manifest says.
+      const current = seed.find((s) => key(s) === key(story));
+      assert.deepEqual({ ...current, paragraphs: story.paragraphs }, story, key(story));
+      assert.deepEqual(current.paragraphs, release112.stories.find((s) => s.order === story.sortOrder).after.paragraphs, key(story));
+      continue;
+    }
     assert.deepEqual(seed.find((s) => key(s) === key(story)), story, key(story));
   }
   for (const order of [5,8,9]) {
@@ -86,8 +98,8 @@ test("the targeted migration preserves identities, drafts, revisions, disabled f
     for (const q of unrelatedQuestions) assert.deepEqual(sqlite.prepare("SELECT * FROM questions WHERE id=?").get(q.id), q);
     for (const order of selected) {
       const row = sqlite.prepare("SELECT * FROM texts WHERE level='A1' AND display_order=?").get(order);
-      const expected = seed.find((s) => s.level === "A1" && s.sortOrder === order);
-      assert.deepEqual(JSON.parse(row.paragraphs_json), expected.paragraphs);
+      const expected = before112(order) ?? seed.find((s) => s.level === "A1" && s.sortOrder === order).paragraphs;
+      assert.deepEqual(JSON.parse(row.paragraphs_json), expected);
       const stored = sqlite.prepare("SELECT prompt, correct_answer, wrong_answers_json FROM questions WHERE story_id=? ORDER BY display_order").all(row.id);
       assert.deepEqual(stored.map((q) => ({prompt:q.prompt,correct:q.correct_answer,wrong:JSON.parse(q.wrong_answers_json)})), questions.filter((q) => q.level === "A1" && q.storyOrder === order).map(({prompt,correct,wrong}) => ({prompt,correct,wrong})));
     }
