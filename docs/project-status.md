@@ -1,6 +1,19 @@
 # Read Ukrainian — project status
 
-## 1.11 — static audio in the site voice, hidden B1 kept hidden (2026-10-14)
+## 1.12 — 14 A1 stories corrected (2026-10-14)
+
+Content release. The owner-reviewed corrections of 14 published A1 stories (1–4, 7, 9, 10, 12–14,
+18, 20, 22, 23) are applied by `0041_a1_ladder_corrections.sql`: paragraphs only, after a guard
+that stops if any affected story or question differs from the 1.11 baseline. They were made against
+the level ladder (prompts are private): long sentences split, speech marked, one comparative and one
+past form outside A1 replaced. Titles, quizzes, IDs, drafts and history are unchanged, and the
+corrections use no word form the collection did not already have, so the dictionary and the static
+audio need no change (`tests/release-112.test.mjs`).
+
+Still not done: no native speaker has read the corrections; a review pack for one is prepared.
+Five A1 stories (5, 6, 9, 11, 12) still break a ladder rule by the owner's choice.
+
+## 1.11 — static audio in the site voice, hidden B1 kept hidden (published 2026-10-14)
 
 **What 1.10 got wrong.** 1.10 (published 2026-10-13) shipped 4,165 MP3s for
 `uk-UA-Chirp3-HD-Achernar`, the code default, but the site voice chosen in the admin is

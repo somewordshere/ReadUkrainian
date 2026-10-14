@@ -17,7 +17,8 @@ test('revised A1 stories fill their original bands, retain topic structure and r
  for(const s of seed.filter(s=>s.level==='A1'&&s.sortOrder<20))for(const w of new Set(extractUkrainianWords(s.paragraphs.join(' '))))known.set(w,(known.get(w)||0)+1);
  const targets=[[20,80,2],[21,95,3],[22,90,3],[23,80,2],[24,80,2]];
  for(const [order,min,n] of targets){
-  const s=seed.find(s=>s.level==='A1'&&s.sortOrder===order),body=s.paragraphs.join(' ');
+  // The text 0.85 shipped; 1.12 later corrected 20, 22 and 23 (see release-112.test.mjs).
+  const item0=release.stories.find(s=>s.order===order),s={paragraphs:item0.after.paragraphs},body=s.paragraphs.join(' ');
   const ps=s.paragraphs.map(p=>p.split(/(?<=[.!?…])\s+/)),lengths=ps.flat().map(count);
   assert.equal(count(body),min+10,`A1 ${order}: requested fuller passage`);
   assert.equal(ps.length,n);assert.ok(ps.every(p=>p.length<=6));
