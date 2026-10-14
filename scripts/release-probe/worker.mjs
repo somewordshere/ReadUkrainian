@@ -4,7 +4,8 @@ export const productionOrigin = "https://readukrainianapp.com";
 export function productionRequest(request) {
   const url = new URL(request.url);
   const read = request.method === "GET" && ["/api/content", "/api/content/story", "/js/app/version.js"].includes(url.pathname);
-  const lookup = request.method === "POST" && url.pathname === "/api/dictionary/lookup";
+  // The two public POSTs a learner makes: a word lookup and its pronunciation.
+  const lookup = request.method === "POST" && ["/api/dictionary/lookup", "/api/speech"].includes(url.pathname);
   if (!read && !lookup) return null;
   return new Request(`${productionOrigin}${url.pathname}${url.search}`, {
     method: request.method,

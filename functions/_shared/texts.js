@@ -55,6 +55,13 @@ function draftPayload(row) {
   return draft && typeof draft === "object" ? draft : null;
 }
 
+// Learners see a story only while it is enabled and its level is open. B1 is
+// hidden in levels.js until it has real content, so its placeholder rows must not
+// reach the library, the reader, pronunciation or word reports.
+export function isPubliclyVisible(story) {
+  return Boolean(story?.active) && LEVELS_BY_ID[story.level]?.active === true;
+}
+
 export function derivePublicationStatus({ active, hasDraft }) {
   if (active && hasDraft) return "published_with_draft";
   if (active) return "published";
@@ -541,8 +548,9 @@ export function validateTextPayload(payload, { allowLevel = false } = {}) {
 export function groupStories(stories) {
   return LEVELS.map((level) => ({
     ...level,
+    // A hidden level keeps its entry, but lists none of its stories.
     texts: stories
-      .filter((story) => story.level === level.id)
+      .filter((story) => story.level === level.id && isPubliclyVisible(story))
       .map((story) => ({
         storyId: story.storyId,
         sortOrder: story.sortOrder,

@@ -1,7 +1,7 @@
 import { listTranslationLanguages } from "../../_shared/dictionary.js";
 import { NO_STORE, PUBLISHED_CONTENT_CACHE, error, json } from "../../_shared/http.js";
 import { getLearnerSpeechOptions } from "../../_shared/speech-settings.js";
-import { getStoryById, getStoryByLevelAndOrder } from "../../_shared/texts.js";
+import { getStoryById, getStoryByLevelAndOrder, isPubliclyVisible } from "../../_shared/texts.js";
 
 export async function onRequestGet(context) {
   const url = new URL(context.request.url);
@@ -33,7 +33,7 @@ export async function onRequestGet(context) {
     ? await getStoryById(context.env.DB, storyId, { includeQuestions: true })
     : await getStoryByLevelAndOrder(context.env.DB, level, legacyOrder, { includeQuestions: true });
 
-  if (!story || !story.active) {
+  if (!isPubliclyVisible(story)) {
     return error(404, "Story not found.", { headers: { "cache-control": NO_STORE } });
   }
 
