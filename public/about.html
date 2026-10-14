@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Про сайт і приватність · Історії українською</title>
+    <meta name="description" content="About Read Ukrainian: what the site stores, how pronunciation and translations work, and a form to send feedback." />
+    <link rel="canonical" href="https://readukrainianapp.com/about" />
+    <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+    <link rel="icon" href="./icons/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="stylesheet" href="./css/styles.css" />
+    <link rel="stylesheet" href="./css/theme.css" />
+    <link rel="stylesheet" href="./css/public.css" />
+  </head>
+  <body class="public-page about-page">
+    <a class="skip-link" href="#aboutTitle">Перейти до тексту</a>
+    <div class="page-shell">
+      <a class="back-link" href="./index.html">← До бібліотеки</a>
+
+      <main class="about-layout">
+        <article class="about-card" aria-labelledby="aboutTitle">
+          <h1 id="aboutTitle">Про сайт і приватність</h1>
+          <p>
+            «Історії українською» — короткі тексти для тих, хто вивчає українську мову, рівні A1 і A2, з питаннями до
+            кожного тексту, перекладом слів і вимовою.
+          </p>
+
+          <h2>Що зберігається у вашому браузері</h2>
+          <p>
+            Ваш прогрес, закладки й налаштування (наголоси, мова перекладу, голос) зберігаються лише у вашому браузері.
+            Ми не створюємо облікових записів і не надсилаємо ці дані на сервер.
+          </p>
+
+          <h2>Вимова</h2>
+          <p>
+            Більшість слів звучить із записаних файлів. Для решти сайт надсилає саме слово до Google Cloud Text-to-Speech.
+            Щоб поділити денний ліміт вимови чесно, сайт зберігає на один день захищений ключем відбиток (хеш) вашої
+            мережевої адреси, з якого саму адресу відновити неможливо, і видаляє його наступного дня.
+          </p>
+
+          <h2>Переклад слів</h2>
+          <p>
+            Переклади взято з Вікісловника (Wiktionary) через Kaikki.org, за ліцензією CC BY-SA. Коли ви повідомляєте
+            про неправильний переклад, ми зберігаємо слово, мову, текст і те, що показав словник, без жодних даних про вас.
+          </p>
+
+          <h2>Хостинг і статистика</h2>
+          <p>
+            Сайт працює на Cloudflare. Cloudflare обробляє дані з'єднання, щоб доставити сторінки й захистити сайт від
+            ботів, і може ставити технічний файл cookie безпеки. Відвідування ми рахуємо через Cloudflare Web Analytics, який,
+            за словами Cloudflare, не збирає персональних даних. Реклами немає, і ми нічого не продаємо.
+          </p>
+
+          <h2>Права</h2>
+          <p>
+            © Read Ukrainian. Тексти, питання й аудіо захищені авторським правом; усі права застережено. Словникові дані
+            належать авторам Вікісловника й доступні за ліцензією CC BY-SA.
+          </p>
+
+          <section class="about-english" lang="en" aria-labelledby="aboutEnglishTitle">
+            <h2 id="aboutEnglishTitle">In English</h2>
+            <p>
+              Read Ukrainian offers short graded stories (A1 and A2) for learners of Ukrainian, with questions, word
+              translations and pronunciation.
+            </p>
+            <ul>
+              <li><strong>Your browser:</strong> progress, bookmarks and settings stay in your browser. There are no accounts, and none of this is sent to the server.</li>
+              <li><strong>Pronunciation:</strong> most words play from recorded files. For the rest, the site sends only the word to Google Cloud Text-to-Speech. To share the daily pronunciation budget fairly, it keeps a keyed hash of your network address for one day; the address cannot be recovered from it, and it is deleted the next day.</li>
+              <li><strong>Translations:</strong> from Wiktionary via Kaikki.org, under CC BY-SA. A report of a wrong translation stores the word, language, story and what the dictionary showed, nothing about you.</li>
+              <li><strong>Hosting and statistics:</strong> the site runs on Cloudflare, which processes connection data to deliver pages and block bots and may set a technical security cookie. Visits are counted with Cloudflare Web Analytics, which according to Cloudflare collects no personal data. There are no ads and nothing is sold.</li>
+              <li><strong>Feedback:</strong> the form below stores your message, the page you came from and, only if you give it, your email address, so that we can reply. Only the site administrator reads it. Ask in a message and we delete yours.</li>
+              <li><strong>Rights:</strong> © Read Ukrainian. Stories, questions and audio are protected by copyright, all rights reserved. Dictionary data belongs to the Wiktionary authors and is available under CC BY-SA.</li>
+            </ul>
+          </section>
+        </article>
+
+        <section class="about-card feedback-card" aria-labelledby="feedbackTitle">
+          <h2 id="feedbackTitle">Відгук · Feedback</h2>
+          <p>
+            Помітили помилку в тексті, перекладі чи вимові, або маєте ідею? Напишіть нам.
+            <span lang="en">Found a mistake or have an idea? Write to us, in any language.</span>
+          </p>
+          <form class="feedback-form" id="feedbackForm" novalidate>
+            <label class="feedback-field">
+              <span>Повідомлення · Message</span>
+              <textarea id="feedbackMessage" name="message" rows="6" maxlength="2000" required></textarea>
+            </label>
+            <label class="feedback-field">
+              <span>Email (необов'язково · optional, only if you want a reply)</span>
+              <input id="feedbackEmail" name="email" type="email" maxlength="254" autocomplete="email" />
+            </label>
+            <button class="feedback-submit" id="feedbackSubmit" type="submit">Надіслати · Send</button>
+            <p class="feedback-status" id="feedbackStatus" role="status" aria-live="polite"></p>
+          </form>
+        </section>
+      </main>
+    </div>
+
+    <script type="module" src="./js/app/about.js"></script>
+    <script src="./js/app/version.js"></script>
+  </body>
+</html>

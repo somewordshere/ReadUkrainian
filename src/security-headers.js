@@ -14,11 +14,16 @@ export const INLINE_SCRIPT_HASHES = Object.freeze([
 // into every HTML page, with different contents each time, so no hash can
 // allow it. Cloudflare reads a nonce from this header and puts it on the
 // script it injects, so each page gets a fresh nonce.
+// Cloudflare Web Analytics (automatic setup) injects this one beacon script; it
+// reports to the site's own /cdn-cgi/rum, which connect-src 'self' already allows.
+export const ANALYTICS_SCRIPT = "https://static.cloudflareinsights.com/beacon.min.js";
+
 export function contentSecurityPolicy(nonce = null) {
   const scriptSources = [
     "'self'",
     ...INLINE_SCRIPT_HASHES.map((hash) => `'${hash}'`),
     ...(nonce ? [`'nonce-${nonce}'`] : []),
+    ANALYTICS_SCRIPT,
   ];
 
   return [

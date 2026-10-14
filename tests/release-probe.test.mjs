@@ -13,6 +13,11 @@ test("release preview forwards only public reads to the fixed production origin"
   const upstream = productionRequest(new Request("https://test.invalid/api/dictionary/lookup", { method: "POST", body: JSON.stringify({text:"мама",targetLanguage:"en"}) }));
   assert.equal(upstream.headers.get("origin"), "https://readukrainianapp.com");
   assert.deepEqual(await upstream.json(), {text:"мама",targetLanguage:"en"});
+  const speech = productionRequest(new Request("https://test.invalid/api/speech", { method: "POST", headers: { cookie: "private" }, body: JSON.stringify({storyId:1,text:"мама"}) }));
+  assert.equal(speech.url, "https://readukrainianapp.com/api/speech");
+  assert.equal(speech.headers.get("origin"), "https://readukrainianapp.com");
+  assert.equal(speech.headers.get("cookie"), null);
+  assert.deepEqual(await speech.json(), {storyId:1,text:"мама"});
 });
 
 test("release preview cannot relay editorial mutations or arbitrary paths", () => {
@@ -20,4 +25,6 @@ test("release preview cannot relay editorial mutations or arbitrary paths", () =
     assert.equal(productionRequest(new Request(`https://test.invalid${path}`, { method: "POST", body: "{}" })), null);
   }
   assert.equal(productionRequest(new Request("https://test.invalid/api/content", {method:"DELETE"})), null);
+  assert.equal(productionRequest(new Request("https://test.invalid/api/speech")), null);
+  assert.equal(productionRequest(new Request("https://test.invalid/api/admin/settings/speech", { method: "POST", body: "{}" })), null);
 });

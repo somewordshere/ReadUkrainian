@@ -309,6 +309,30 @@
 .public-page .completion-title { font-size: 1.125rem; }
 .public-page .site-version { margin-top: 32px; font-size: 0.75rem; }
 .public-page .site-version-link { display: inline-flex; align-items: center; min-height: 44px; }
+.public-page .site-version-separator { margin: 0 8px; color: var(--faint); }
+
+/* About and privacy page, with the feedback form. */
+.public-page .about-layout { display: grid; gap: 20px; max-width: 760px; margin-top: 8px; }
+.public-page .about-card { padding: 32px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
+.public-page .about-card h1 { margin-bottom: 16px; }
+.public-page .about-card h2 { margin: 24px 0 8px; font-size: 1.125rem; line-height: 1.4; }
+.public-page .feedback-card h2 { margin-top: 0; }
+.public-page .about-card :is(p, li) { color: var(--ink); font-size: 1rem; line-height: 1.6; }
+.public-page .about-card ul { display: grid; gap: 8px; margin: 0; padding-left: 20px; }
+.public-page .about-english { margin-top: 28px; border-top: 1px solid var(--line); }
+.public-page .feedback-form { display: grid; gap: 14px; margin-top: 16px; }
+.public-page .feedback-field { display: grid; gap: 6px; color: var(--muted); font-size: 0.875rem; font-weight: 500; }
+.public-page .feedback-field :is(textarea, input) { width: 100%; min-height: 42px; padding: 10px 14px; border: 1px solid transparent; border-radius: 10px; background: var(--surface-muted); color: var(--ink); font: inherit; font-size: 1rem; font-weight: 400; }
+.public-page .feedback-field textarea { min-height: 140px; resize: vertical; }
+.public-page .feedback-field :is(textarea, input):focus { border-color: var(--control-line); background: var(--paper); }
+.public-page .feedback-submit { justify-self: start; min-height: 44px; padding: 0 20px; border: 0; border-radius: 10px; background: var(--accent); color: var(--paper); font: inherit; font-size: 0.9375rem; font-weight: 600; cursor: pointer; }
+.public-page .feedback-submit:hover { background: var(--accent-strong); }
+.public-page .feedback-submit:disabled { opacity: 0.6; cursor: progress; }
+.public-page .feedback-status { min-height: 1.5em; margin: 0; color: var(--success); font-size: 0.9375rem; }
+.public-page .feedback-status.is-error { color: var(--danger); }
+@media (max-width: 640px) {
+  .public-page .about-card { padding: 20px; }
+}
 
 @media (max-width: 900px) {
   .public-page .page-shell { width: calc(100% - 40px); padding-top: 32px; }

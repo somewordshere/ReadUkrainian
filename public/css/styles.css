@@ -1555,6 +1555,14 @@ h1 {
   color: var(--ink);
 }
 
+/* A reader's message keeps its own line breaks. */
+.admin-feedback-message {
+  color: var(--ink);
+  font-size: 0.9rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 .admin-dictionary-review-actions,
 .admin-dictionary-missing-actions {
   display: flex;

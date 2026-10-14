@@ -3,6 +3,11 @@ import { onRequestGet as getStory } from "../functions/api/content/story.js";
 import { onRequestPost as lookupDictionary } from "../functions/api/dictionary/lookup.js";
 import { onRequestPost as reportDictionaryEntry } from "../functions/api/dictionary/report.js";
 import { onRequestPost as createSpeech } from "../functions/api/speech.js";
+import { onRequestPost as sendFeedback } from "../functions/api/feedback.js";
+import {
+  onRequestGet as listFeedback,
+  onResolvePost as resolveFeedback,
+} from "../functions/api/admin/feedback.js";
 import { onRequestPost as checkDictionaryUpdate } from "../functions/api/admin/dictionary/check-update.js";
 import { onRequestPost as checkDictionaryCoverage } from "../functions/api/admin/dictionary/coverage.js";
 import { onRequestGet as getDictionaryStatus } from "../functions/api/admin/dictionary/status.js";
@@ -53,6 +58,8 @@ const EXACT_API_ROUTES = new Map([
   ["/api/dictionary/lookup", { POST: lookupDictionary }],
   ["/api/dictionary/report", { POST: reportDictionaryEntry }],
   ["/api/speech", { POST: createSpeech }],
+  ["/api/feedback", { POST: sendFeedback }],
+  ["/api/admin/feedback", { GET: listFeedback }],
   ["/api/admin/login", { POST: login }],
   ["/api/admin/logout", { POST: logout }],
   ["/api/admin/session", { GET: session }],
@@ -71,6 +78,11 @@ const EXACT_API_ROUTES = new Map([
 ]);
 
 const PARAMETERIZED_API_ROUTES = [
+  {
+    pattern: /^\/api\/admin\/feedback\/(\d+)\/resolve$/,
+    handlers: { POST: resolveFeedback },
+    getParams: (match) => ({ id: match[1] }),
+  },
   {
     pattern: /^\/api\/admin\/dictionary\/reports\/(\d+)\/resolve$/,
     handlers: { POST: resolveDictionaryReport },
