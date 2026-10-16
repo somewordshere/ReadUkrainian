@@ -7,6 +7,7 @@ import {
   getStoryTopic,
   storyMatchesFilters,
 } from "./library-utils.mjs";
+import { browserSavedWords } from "./saved-words.mjs";
 
 // progress.js is a classic script loaded before this module; its functions are
 // globals. Naming them here makes the dependency visible in one place.
@@ -368,5 +369,12 @@ storySearch.addEventListener("input", () => {
   }, 120);
 });
 
+// The link to «Мої слова» shows how many words are saved.
+function renderMyWordsLink() {
+  const count = browserSavedWords().count();
+  document.getElementById("myWordsLink").textContent = count ? `Мої слова · ${count}` : "Мої слова";
+}
+
 populateTopicFilter();
+renderMyWordsLink();
 initLevels();

@@ -5,6 +5,7 @@ import {
   initSelectionSpeech,
   normalizeSpeechText,
 } from "../public/js/app/selection-speech.js";
+import { createSavedWords } from "../public/js/app/saved-words.mjs";
 
 class FakeElement extends EventTarget {
   constructor() {
@@ -117,6 +118,8 @@ function createHarness({
   visualViewport = null,
   createAudioThrows = false,
   popoverWidth = 150,
+  savedWords = null,
+  onSavedWordsChange = undefined,
 } = {}) {
   const previousWindow = globalThis.window;
   const previousDocument = globalThis.document;
@@ -235,6 +238,8 @@ function createHarness({
       revokeObjectURL(url) {
         revokedUrls.push(url);
       },
+      savedWords,
+      onSavedWordsChange,
     }
   );
 
@@ -987,6 +992,79 @@ test("a learner can report a wrong translation, sending only the word, language 
     await flushAsyncWork();
     assert.match(allText(harness.translationResult), /Дякуємо! Ми перевіримо цей переклад/);
     assert.match(harness.status.textContent, /Дякуємо/);
+  } finally {
+    harness.restore();
+  }
+});
+
+test("a looked-up word can be saved with its translation and story, and unsaved again", async () => {
+  const storage = new Map();
+  const savedWords = createSavedWords({
+    getItem: (key) => (storage.has(key) ? storage.get(key) : null),
+    setItem: (key, value) => storage.set(key, String(value)),
+  });
+  let changes = 0;
+  const harness = createHarness({
+    selectionText: "книгу",
+    savedWords,
+    onSavedWordsChange: () => {
+      changes += 1;
+    },
+    fetchImpl: async () => Response.json({
+      query: { text: "книгу", sourceLanguage: "uk", targetLanguage: "en" },
+      entries: [{
+        lemma: "книга",
+        normalizedLemma: "книга",
+        partOfSpeech: "noun",
+        forms: [],
+        translations: [{ text: "volume" }, { text: "book", preferred: true }],
+      }],
+      attribution: null,
+    }),
+  });
+  try {
+    harness.controller.setContext({ storyId: 42, level: "A1", order: 3, title: "Мій день" });
+    harness.controller.setEnabled(true);
+    harness.documentTarget.dispatchEvent(new Event("selectionchange"));
+    harness.translateButton.dispatchEvent(new Event("click"));
+    await flushAsyncWork();
+
+    const save = findByClass(harness.translationResult, "selection-save-button");
+    assert.ok(save, "the save button is shown under the translation");
+    assert.equal(save.getAttribute("aria-pressed"), "false");
+    assert.match(save.textContent, /Зберегти слово/);
+
+    save.dispatchEvent(new Event("click"));
+    const [entry] = savedWords.list();
+    assert.equal(entry.word, "книгу");
+    assert.equal(entry.lemma, "книга");
+    assert.equal(entry.partOfSpeech, "іменник", "kept as the label the popup shows");
+    assert.deepEqual(entry.translations, ["book", "volume"], "the translation for this story comes first");
+    assert.deepEqual([entry.storyId, entry.level, entry.order, entry.storyTitle], [42, "A1", 3, "Мій день"]);
+    assert.equal(save.getAttribute("aria-pressed"), "true");
+    assert.match(harness.status.textContent, /збережено/);
+    assert.equal(changes, 1, "the reader is told so it can underline the word");
+
+    save.dispatchEvent(new Event("click"));
+    assert.equal(savedWords.count(), 0);
+    assert.equal(save.getAttribute("aria-pressed"), "false");
+    assert.equal(changes, 2);
+  } finally {
+    harness.restore();
+  }
+});
+
+test("no save button without browser storage", async () => {
+  const harness = createHarness({
+    selectionText: "мама",
+    savedWords: createSavedWords(null),
+    fetchImpl: async () => Response.json({ query: { text: "мама", targetLanguage: "en" }, entries: [], attribution: null }),
+  });
+  try {
+    showSelection(harness);
+    harness.translateButton.dispatchEvent(new Event("click"));
+    await flushAsyncWork();
+    assert.equal(findByClass(harness.translationResult, "selection-save-button"), null);
   } finally {
     harness.restore();
   }
