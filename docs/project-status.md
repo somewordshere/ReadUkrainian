@@ -1,5 +1,22 @@
 # Read Ukrainian — project status
 
+## 1.15 — saved words, beta badge (2026-10-16)
+
+Code-only release; no migration, content or dictionary change.
+- **Saved words.** The word popup has a «☆ Зберегти слово» toggle under the translation. A saved
+  word keeps its form, lemma, part of speech, up to three translations (this story's first), the
+  sentence it was tapped in and the story it came from. The list lives in `localStorage`
+  (`readukrainian.saved-words`, `public/js/app/saved-words.mjs`), one entry per word form, capped at
+  500. Nothing is sent to the server. Saved words get a dotted underline in every story.
+- **«Мої слова»** (`public/words.html`, `noindex`, not in the sitemap) lists them newest first, with
+  the sentence highlighted, a link back to the story, pronunciation through `/api/speech`, remove
+  with undo, and a JSON file to export and import, so the list can move to another browser. It is
+  linked from the library (with the count) and from the reader.
+- **Beta badge** in the top-left corner of every learner page.
+- Tests: `tests/saved-words.test.mjs`, plus popup tests in `tests/selection-speech.test.mjs`.
+
+Next on this line: flashcards or spaced review on top of the saved list.
+
 ## 1.12 — 14 A1 stories corrected (2026-10-14)
 
 Content release. The owner-reviewed corrections of 14 published A1 stories (1–4, 7, 9, 10, 12–14,
