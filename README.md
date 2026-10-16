@@ -2,7 +2,7 @@
 
 [Read Ukrainian](https://readukrainianapp.com) is a reading-practice website for learners who want to build confidence with Ukrainian through short stories, pronunciation support, and comprehension quizzes.
 
-Live at [readukrainianapp.com](https://readukrainianapp.com) · Version 1.14 · [Change log](docs/change.log) · [Project status](docs/project-status.md)
+Live at [readukrainianapp.com](https://readukrainianapp.com) · Version 1.15 · [Change log](docs/change.log) · [Project status](docs/project-status.md)
 
 ## 📚 What readers can do
 
@@ -21,13 +21,14 @@ The library holds **127 stories**: 24 at A1 and 103 at A2. B1 is planned and sta
 - Tap or select a word to see its English, German or Polish translation and its Ukrainian grammar
 - Hear the word with **Прослухати**, in the site's voice or another voice from the editors' shortlist, with a clear note that the voice is AI-generated
 - Report a wrong translation straight from the word, for the editors to review
+- Save a word from its popup: *Мої слова* lists saved words with their translation, the sentence they came from and a link back to the story, plays them, and moves the list to another browser as a file; saved words are lightly underlined in the stories
 - A tip for first-time readers that points at a word they can tap
 
 ### Check understanding
 
 - Five multiple-choice questions per story, with immediate feedback and answer order shuffled fairly
 - Review mistakes, restart the quiz, or continue to the next story
-- Quiz results, finished stories and bookmarks are saved in the browser, so no account is needed
+- Quiz results, finished stories, bookmarks and saved words are kept in the browser, so no account is needed
 
 Keyboard-friendly controls, visible focus states, accessible quiz choices and reduced-motion support are built in throughout. If the content service is temporarily unavailable, a bundled copy of the stories keeps reading working.
 
