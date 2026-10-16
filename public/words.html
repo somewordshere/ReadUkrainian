@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Мої слова · Історії українською</title>
+    <meta name="description" content="The Ukrainian words you saved while reading, with their translations and the sentences you found them in. Stored only in your browser." />
+    <meta name="robots" content="noindex" />
+    <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+    <link rel="icon" href="./icons/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="stylesheet" href="./css/styles.css" />
+    <link rel="stylesheet" href="./css/theme.css" />
+    <link rel="stylesheet" href="./css/public.css" />
+    <link rel="modulepreload" href="./js/app/saved-words.mjs" />
+    <link rel="modulepreload" href="./js/app/story-words.mjs" />
+  </head>
+  <body class="public-page words-page">
+    <a class="skip-link" href="#wordsTitle">Перейти до слів</a>
+    <div class="page-shell">
+      <p class="site-beta" title="Сайт ще в розробці: тексти, переклади й вимову ми ще перевіряємо.">Beta</p>
+      <a class="back-link" href="./index.html">← До бібліотеки</a>
+
+      <main class="words-layout">
+        <header class="words-header">
+          <h1 id="wordsTitle" tabindex="-1">Мої слова</h1>
+          <p class="words-intro">
+            Слова, які ви зберегли в текстах, з перекладом і реченням, де ви їх зустріли. Вони зберігаються лише в
+            цьому браузері; щоб перенести їх на інший пристрій, збережіть файл і відкрийте його там.
+          </p>
+          <p class="words-count" id="wordsCount"></p>
+          <div class="words-tools">
+            <button class="words-tool-button" id="wordsExport" type="button">Зберегти файл</button>
+            <label class="words-tool-button words-import">
+              <span>Відкрити файл</span>
+              <input class="visually-hidden" id="wordsImport" type="file" accept="application/json,.json" />
+            </label>
+          </div>
+          <p class="words-status" id="wordsStatus" role="status" aria-live="polite"></p>
+        </header>
+
+        <section class="words-empty" id="wordsEmpty" hidden>
+          <p>
+            Тут ще немає слів. Торкніться слова в тексті й натисніть <strong>«☆ Зберегти слово»</strong> під перекладом.
+          </p>
+          <a class="continue-link" href="./index.html">Відкрити бібліотеку</a>
+        </section>
+
+        <ul class="words-list" id="wordsList" aria-labelledby="wordsTitle"></ul>
+
+        <noscript>
+          <p class="library-state">Щоб побачити збережені слова, потрібно увімкнути JavaScript.</p>
+        </noscript>
+      </main>
+    </div>
+
+    <script type="module" src="./js/app/words.js"></script>
+    <script src="./js/app/version.js"></script>
+  </body>
+</html>

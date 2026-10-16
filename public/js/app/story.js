@@ -1,8 +1,9 @@
 import { fetchContentIndex, fetchStory } from "./content-api.js";
 import { loadLegacyQuestions } from "./legacy-content.js";
 import { findNextIncompleteStory, getStoryHref } from "./library-utils.mjs";
+import { SAVED_WORDS_STORAGE_KEY, browserSavedWords } from "./saved-words.mjs";
 import { initSelectionSpeech } from "./selection-speech.js";
-import { applyStress, tokenizeParagraph } from "./story-words.mjs";
+import { applyStress, stressKey, tokenizeParagraph } from "./story-words.mjs";
 import { initVoicePicker } from "./voice-picker.js";
 import { initWordTip } from "./word-tip.mjs";
 
@@ -44,6 +45,20 @@ const translationLanguageButtons = document.querySelectorAll("#translationLangua
 const stressToggle = document.getElementById("stressToggle");
 const TRANSLATION_LANGUAGE_STORAGE_KEY = "readukrainian.translation-language";
 const TRANSLATION_LANGUAGES = ["en", "de", "pl"];
+const savedWords = browserSavedWords();
+
+// Words the reader saved get a light underline, so they stand out on a re-read.
+function markSavedWords() {
+  const keys = savedWords.keys();
+  storyText.querySelectorAll(".story-word").forEach((word) => {
+    word.classList.toggle("is-saved", keys.has(stressKey(word.dataset.word)));
+  });
+}
+
+window.addEventListener("storage", (event) => {
+  if (!event.key || event.key === SAVED_WORDS_STORAGE_KEY) markSavedWords();
+});
+
 const selectionSpeech = initSelectionSpeech({
   root: storyText,
   hint: document.getElementById("storySpeechHint"),
@@ -56,7 +71,7 @@ const selectionSpeech = initSelectionSpeech({
   translationResult: document.getElementById("selectionTranslationResult"),
   unavailable: document.getElementById("selectionSpeechUnavailable"),
   status: document.getElementById("selectionSpeechStatus"),
-});
+}, { savedWords, onSavedWordsChange: markSavedWords });
 
 const wordTip = initWordTip({
   container: storyContent,
@@ -719,6 +734,7 @@ async function initStory() {
       storyText.appendChild(createParagraph(paragraph));
     });
     void renderStressMarks();
+    markSavedWords();
 
     if (story.showWordCount) {
       const wordCount = (story.paragraphs || [])
@@ -731,7 +747,12 @@ async function initStory() {
     }
 
     offerTranslationLanguages(story.translationLanguages);
-    selectionSpeech.setContext({ storyId: story.storyId });
+    selectionSpeech.setContext({
+      storyId: story.storyId,
+      level: storyLevelId,
+      order: story.sortOrder || legacyOrder,
+      title: story.title,
+    });
     selectionSpeech.setEnabled(true);
     selectionSpeech.setSpeechEnabled(story.speechEnabled === true);
     setupVoicePicker(story);

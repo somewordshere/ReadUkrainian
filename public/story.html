@@ -35,6 +35,7 @@
     <link rel="modulepreload" href="./js/app/content-api.js" />
     <link rel="modulepreload" href="./js/app/legacy-content.js" />
     <link rel="modulepreload" href="./js/app/library-utils.mjs" />
+    <link rel="modulepreload" href="./js/app/saved-words.mjs" />
     <link rel="modulepreload" href="./js/app/selection-speech.js" />
     <link rel="modulepreload" href="./js/app/story-words.mjs" />
     <link rel="modulepreload" href="./js/app/voice-picker.js" />
@@ -43,8 +44,12 @@
   <body class="public-page reader-page">
     <a class="skip-link" href="#storyTitle">Перейти до тексту</a>
     <div class="page-shell">
+      <p class="site-beta" title="Сайт ще в розробці: тексти, переклади й вимову ми ще перевіряємо.">Beta</p>
       <main class="story-layout">
-        <a class="back-link" href="./index.html">← До бібліотеки</a>
+        <nav class="page-links" aria-label="Сторінки сайту">
+          <a class="back-link" href="./index.html">← До бібліотеки</a>
+          <a class="my-words-link" href="./words.html">Мої слова</a>
+        </nav>
 
         <section class="story-card">
           <div class="story-heading">

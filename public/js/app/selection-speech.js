@@ -1,3 +1,4 @@
+import { savedWordFromLookup, sentenceAround } from "./saved-words.mjs";
 import { stripStressMarks } from "./story-words.mjs";
 
 const COPY = {
@@ -30,6 +31,13 @@ const COPY = {
   reportThanks: "Дякуємо! Ми перевіримо цей переклад.",
   reportLimited: "Забагато повідомлень. Спробуйте пізніше.",
   reportFailed: "Не вдалося надіслати. Натисніть, щоб спробувати ще раз.",
+  saveWord: "Зберегти слово",
+  wordSaved: "Збережено",
+  savedAnnounce: "Слово збережено в «Мої слова».",
+  removedAnnounce: "Слово прибрано з «Моїх слів».",
+  savedListFull: "У «Моїх словах» уже 500 слів. Приберіть кілька, щоб зберегти нове.",
+  saveFailed: "Не вдалося зберегти: браузер не дозволяє зберігати дані.",
+  myWords: "Мої слова",
 };
 
 const TARGET_LANGUAGES = new Set(["en", "de", "pl"]);
@@ -193,9 +201,14 @@ export function initSelectionSpeech(
     typeof fetchImpl === "function" && typeof AbortControllerImpl === "function"
   );
 
+  const savedWords = dependencies.savedWords?.available ? dependencies.savedWords : null;
+  const onSavedWordsChange = dependencies.onSavedWordsChange || (() => {});
+
   let enabled = false;
   let speechEnabled = true;
   let storyId = null;
+  // Where a saved word links back to.
+  let storyContext = { level: "", order: null, title: "" };
   // Empty means the site voice; the server ignores a voice that is no longer offered.
   let voiceId = "";
   let selectedText = "";
@@ -405,6 +418,79 @@ export function initSelectionSpeech(
     translationResult.appendChild(container);
   }
 
+  // The sentence the selected word stands in, for the example on «Мої слова».
+  function selectedSentence() {
+    try {
+      const range = selectedRange;
+      const start = range?.startContainer;
+      const element = start?.nodeType === 1 ? start : start?.parentElement;
+      const paragraph = element?.closest?.("p");
+      if (!paragraph || !root.contains(paragraph)) return "";
+      const before = document.createRange();
+      before.setStart(paragraph, 0);
+      before.setEnd(range.startContainer, range.startOffset);
+      return sentenceAround(stripStressMarks(paragraph.textContent), stripStressMarks(before.toString()).length);
+    } catch {
+      return "";
+    }
+  }
+
+  // Saves the looked-up word, with its translation and sentence, in this
+  // browser; pressing it again takes the word off the list.
+  function appendSaveControl(payload) {
+    if (!savedWords || !storyId) return;
+
+    const word = selectedText || payload?.query?.text;
+    const lookup = savedWordFromLookup(word, payload);
+    const entry = {
+      ...lookup,
+      // Kept as the label the popup shows, so «Мої слова» needs no table of its own.
+      partOfSpeech: PART_OF_SPEECH_LABELS[lookup.partOfSpeech] || lookup.partOfSpeech,
+      sentence: selectedSentence(),
+      storyId,
+      level: storyContext.level,
+      order: storyContext.order,
+      storyTitle: storyContext.title,
+    };
+    const container = document.createElement("p");
+    container.className = "selection-save";
+    const saveButton = document.createElement("button");
+    saveButton.type = "button";
+    saveButton.className = "selection-save-button";
+    const link = document.createElement("a");
+    link.className = "selection-save-link";
+    link.href = "./words.html";
+    link.textContent = COPY.myWords;
+
+    function render() {
+      const saved = savedWords.has(word);
+      saveButton.setAttribute("aria-pressed", String(saved));
+      saveButton.textContent = saved ? `★ ${COPY.wordSaved}` : `☆ ${COPY.saveWord}`;
+    }
+
+    saveButton.addEventListener("click", () => {
+      let message;
+      if (savedWords.has(word)) {
+        message = savedWords.remove(word) ? COPY.removedAnnounce : COPY.saveFailed;
+      } else {
+        const result = savedWords.save(entry);
+        message = result === "saved" ? COPY.savedAnnounce : result === "full" ? COPY.savedListFull : COPY.saveFailed;
+      }
+      render();
+      setStatus(message);
+      if (message === COPY.savedListFull || message === COPY.saveFailed) {
+        visibleError = message;
+        updatePopoverContent();
+        positionPopover();
+      }
+      onSavedWordsChange();
+    });
+
+    render();
+    container.append(saveButton, link);
+    translationResult.appendChild(container);
+  }
+
   function renderTranslation(payload) {
     translationResult.replaceChildren();
     translationResult.hidden = false;
@@ -421,6 +507,7 @@ export function initSelectionSpeech(
       empty.className = "selection-translation-empty";
       empty.textContent = COPY.translationMissing;
       translationResult.appendChild(empty);
+      appendSaveControl(payload);
       appendAttributions(payload);
       appendReportControl();
       return false;
@@ -468,6 +555,7 @@ export function initSelectionSpeech(
     });
 
     translationResult.appendChild(entriesElement);
+    appendSaveControl(payload);
     appendAttributions(payload);
     appendReportControl();
     return true;
@@ -1046,6 +1134,12 @@ export function initSelectionSpeech(
         stopPlayback();
       }
       storyId = validStoryId;
+      const order = Number(context.order);
+      storyContext = {
+        level: typeof context.level === "string" ? context.level : "",
+        order: Number.isSafeInteger(order) && order > 0 ? order : null,
+        title: typeof context.title === "string" ? context.title : "",
+      };
     },
     setEnabled(nextEnabled) {
       enabled = Boolean(nextEnabled);
